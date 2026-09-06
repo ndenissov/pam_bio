@@ -52,4 +52,6 @@
     <string name="import_gallery">Выбрать из галереи</string>
     <string name="import_file">Импортировать из файла</string>
     <string name="invalid_file_format">Неверный формат ключа</string>
+    <string name="import_clipboard">Вставить из буфера</string>
+    <string name="invalid_clipboard">Буфер обмена пуст или не содержит ключа</string>
 </resources>

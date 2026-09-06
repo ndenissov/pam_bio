@@ -144,6 +144,9 @@
               };
             };
 
+            # Open firewall port for daemon
+            networking.firewall.allowedTCPPorts = [ 42715 ];
+
             # PAM integration
             security.pam.services = lib.mkMerge [
               (lib.mkIf cfg.enableSudoAuth {

@@ -85,13 +85,30 @@ func (d *Daemon) handlePAMAuth(conn net.Conn, req *protocol.UnixRequest) {
 // Pairing
 // ──────────────────────────────────────────────
 
+func getLocalIPs() []string {
+	var ips []string
+	addrs, err := net.InterfaceAddrs()
+	if err == nil {
+		for _, addr := range addrs {
+			if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+				if ipnet.IP.To4() != nil {
+					ips = append(ips, ipnet.IP.String())
+				}
+			}
+		}
+	}
+	return ips
+}
+
 func (d *Daemon) handleStartPairing(conn net.Conn) {
 	log.Println("Pairing mode activated by CLI")
 
-	// Build QR payload: {service_name, pc_pub_key}
-	payload := map[string]string{
+	// Build QR payload: {service_name, pc_pub_key, ips, port}
+	payload := map[string]interface{}{
 		"service_name": d.cfg.ServiceName,
 		"pc_pub_key":   d.cfg.PublicKey,
+		"ips":          getLocalIPs(),
+		"port":         d.tcpPort,
 	}
 	payloadJSON, _ := json.Marshal(payload)
 	qrData := base64.StdEncoding.EncodeToString(payloadJSON)

@@ -70,7 +70,9 @@ data class AuthResponseMessage(
 @Serializable
 data class QrPairingPayload(
     @SerialName("service_name") val serviceName: String,
-    @SerialName("pc_pub_key") val pcPubKey: String
+    @SerialName("pc_pub_key") val pcPubKey: String,
+    val ips: List<String>? = null,
+    val port: Int? = null
 )
 
 // ── Helper to peek at type ────────────────────────────────

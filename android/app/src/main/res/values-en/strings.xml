@@ -52,4 +52,6 @@
     <string name="import_gallery">Choose from gallery</string>
     <string name="import_file">Import from file</string>
     <string name="invalid_file_format">Invalid key format</string>
+    <string name="import_clipboard">Paste from clipboard</string>
+    <string name="invalid_clipboard">Clipboard is empty or invalid</string>
 </resources>

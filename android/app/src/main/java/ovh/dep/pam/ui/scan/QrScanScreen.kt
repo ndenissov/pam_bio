@@ -12,11 +12,14 @@ import androidx.camera.view.PreviewView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.PickVisualMediaRequest
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.QrCodeScanner
@@ -75,6 +78,30 @@ fun QrScanScreen(
     val keyManager = remember { KeyManager(context) }
     val deviceRepo = remember { PairedDeviceRepository(context) }
     val nsdManager = remember { NsdDiscoveryManager(context) }
+
+    val readClipboard = {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val text = clipboard.primaryClip?.getItemAt(0)?.text?.toString()?.trim() ?: ""
+        if (text.isNotEmpty()) {
+            handleQrCode(text, json) { payload ->
+                if (scannedPayload == null) {
+                    scannedPayload = payload
+                    isProcessing = true
+                    statusText = context.getString(R.string.qr_found, payload.serviceName)
+                    scope.launch {
+                        doPairing(payload, keyManager, deviceRepo, nsdManager, context, { statusText = it }, { pairedServiceName = it; showRevokeDialog = true }, { isProcessing = false; scannedPayload = null; statusText = it })
+                    }
+                }
+            }
+            if (scannedPayload == null && !isProcessing) {
+                statusText = context.getString(R.string.invalid_clipboard)
+            }
+        } else {
+            statusText = context.getString(R.string.invalid_clipboard)
+        }
+    }
+
+
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -309,6 +336,11 @@ fun QrScanScreen(
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.import_file))
                     }
+                    FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = readClipboard) {
+                        Icon(Icons.Filled.ContentPaste, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.import_clipboard))
+                    }
                 }
             }
 
@@ -377,38 +409,55 @@ private suspend fun doPairing(
             keyManager.generateKeyPair()
         }
 
-        // Discover the service via mDNS
-        onStatus(context.getString(R.string.searching_network, payload.serviceName))
-        nsdManager.startDiscovery()
+        var tcpClient: TcpClient? = null
 
-        // Wait for the service to appear (up to 30 seconds)
-        var resolved: ovh.dep.pam.network.ResolvedService? = null
-        val startTime = System.currentTimeMillis()
-        while (System.currentTimeMillis() - startTime < 30_000) {
-            resolved = nsdManager.services.value[payload.serviceName]
-            if (resolved != null) break
-            kotlinx.coroutines.delay(500)
+        // 1. Fast path: try IPs from payload
+        if (payload.ips != null && payload.port != null) {
+            for (ip in payload.ips) {
+                onStatus(context.getString(R.string.connecting_to, ip, payload.port.toString()))
+                val client = TcpClient(keyManager)
+                if (client.connect(ip, payload.port)) {
+                    tcpClient = client
+                    break
+                }
+            }
         }
 
-        if (resolved == null) {
-            onError(context.getString(R.string.not_found_network, payload.serviceName))
-            return
-        }
+        // 2. Fallback path: Discover the service via mDNS
+        if (tcpClient == null) {
+            onStatus(context.getString(R.string.searching_network, payload.serviceName))
+            nsdManager.startDiscovery()
 
-        onStatus(context.getString(R.string.connecting_to, resolved.host, resolved.port.toString()))
+            // Wait for the service to appear (up to 30 seconds)
+            var resolved: ovh.dep.pam.network.ResolvedService? = null
+            val startTime = System.currentTimeMillis()
+            while (System.currentTimeMillis() - startTime < 30_000) {
+                resolved = nsdManager.services.value[payload.serviceName]
+                if (resolved != null) break
+                kotlinx.coroutines.delay(500)
+            }
 
-        // TCP connect + handshake
-        val tcpClient = TcpClient(keyManager)
-        if (!tcpClient.connect(resolved.host, resolved.port)) {
-            onError(context.getString(R.string.failed_connect))
-            return
+            if (resolved == null) {
+                onError(context.getString(R.string.not_found_network, payload.serviceName))
+                return
+            }
+
+            onStatus(context.getString(R.string.connecting_to, resolved.host, resolved.port.toString()))
+
+            // TCP connect + handshake
+            val client = TcpClient(keyManager)
+            if (!client.connect(resolved.host, resolved.port)) {
+                onError(context.getString(R.string.failed_connect))
+                return
+            }
+            tcpClient = client
         }
 
         onStatus(context.getString(R.string.pairing))
 
         // Send pair request
         val deviceName = android.os.Build.MODEL
-        val success = tcpClient.sendPairRequest(payload.pcPubKey, deviceName)
+        val success = tcpClient!!.sendPairRequest(payload.pcPubKey, deviceName)
         tcpClient.disconnect()
 
         if (success) {

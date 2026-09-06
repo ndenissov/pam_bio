@@ -69,7 +69,7 @@ Usage:
 
 Commands:
   serve            Start the daemon (TCP + Unix socket + mDNS)
-  pair [--out F]   Initiate device pairing (displays QR code or saves to file)
+  pair [--out F] [--raw] Initiate device pairing
   unpair <name>    Remove a paired device by name
   status           Show daemon and device status
   help             Show this help message
@@ -102,6 +102,7 @@ func cmdServe(configDir string) {
 func cmdPair(args []string) {
 	pairCmd := flag.NewFlagSet("pair", flag.ExitOnError)
 	outFile := pairCmd.String("out", "", "Output raw pairing key to file instead of displaying QR code")
+	rawOut := pairCmd.Bool("raw", false, "Print raw base64 pairing key to stdout")
 	pairCmd.Parse(args)
 
 	conn, err := connectDaemon()
@@ -132,6 +133,8 @@ func cmdPair(args []string) {
 			log.Fatalf("Failed to write to file: %v", err)
 		}
 		fmt.Printf("✓ Pairing key successfully saved to %s\n", *outFile)
+	} else if *rawOut {
+		fmt.Println(resp.QRData)
 	} else {
 		fmt.Println()
 		fmt.Println("╔══════════════════════════════════════════════╗")
