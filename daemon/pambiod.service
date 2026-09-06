@@ -1,0 +1,20 @@
+[Unit]
+Description=PamBio Daemon — biometric authentication via Android
+After=network.target avahi-daemon.service
+Wants=avahi-daemon.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/pambiod serve
+Restart=on-failure
+RestartSec=5
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/etc/pambio /var/run
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
