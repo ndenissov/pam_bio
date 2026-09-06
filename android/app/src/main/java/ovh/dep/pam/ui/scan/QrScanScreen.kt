@@ -57,7 +57,7 @@ fun QrScanScreen(
     val scope = rememberCoroutineScope()
     val json = remember { Json { ignoreUnknownKeys = true } }
 
-    var statusText by remember { mutableStateOf("Наведите камеру на QR-код") }
+    var statusText by remember { mutableStateOf(context.getString(R.string.point_camera)) }
     var isProcessing by remember { mutableStateOf(false) }
     var scannedPayload by remember { mutableStateOf<QrPairingPayload?>(null) }
     var showRevokeDialog by remember { mutableStateOf(false) }
@@ -75,7 +75,7 @@ fun QrScanScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Сканировать QR") },
+                title = { Text(stringResource(R.string.scan_qr_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад")
@@ -125,7 +125,7 @@ fun QrScanScreen(
                                                     if (scannedPayload == null) {
                                                         scannedPayload = payload
                                                         isProcessing = true
-                                                        statusText = "QR найден: ${payload.serviceName}"
+                                                        statusText = context.getString(R.string.qr_found, payload.serviceName)
 
                                                         // Start pairing flow
                                                         scope.launch {
@@ -264,12 +264,12 @@ private suspend fun doPairing(
     try {
         // Ensure we have a keypair
         if (!keyManager.hasKeyPair) {
-            onStatus("Генерация ключей…")
+            onStatus(context.getString(R.string.generating_keys))
             keyManager.generateKeyPair()
         }
 
         // Discover the service via mDNS
-        onStatus("Поиск ${payload.serviceName} в сети…")
+        onStatus(context.getString(R.string.searching_network, payload.serviceName))
         nsdManager.startDiscovery()
 
         // Wait for the service to appear (up to 30 seconds)
@@ -282,20 +282,20 @@ private suspend fun doPairing(
         }
 
         if (resolved == null) {
-            onError("Не удалось найти ${payload.serviceName} в сети")
+            onError(context.getString(R.string.not_found_network, payload.serviceName))
             return
         }
 
-        onStatus("Подключение к ${resolved.host}:${resolved.port}…")
+        onStatus(context.getString(R.string.connecting_to, resolved.host, resolved.port.toString()))
 
         // TCP connect + handshake
         val tcpClient = TcpClient(keyManager)
         if (!tcpClient.connect(resolved.host, resolved.port)) {
-            onError("Не удалось подключиться")
+            onError(context.getString(R.string.failed_connect))
             return
         }
 
-        onStatus("Сопряжение…")
+        onStatus(context.getString(R.string.pairing))
 
         // Send pair request
         val deviceName = android.os.Build.MODEL
@@ -313,10 +313,10 @@ private suspend fun doPairing(
             )
             onComplete(payload.serviceName)
         } else {
-            onError("Сопряжение отклонено ПК")
+            onError(context.getString(R.string.pairing_rejected))
         }
     } catch (e: Exception) {
         Log.e("QrScan", "Pairing failed", e)
-        onError("Ошибка: ${e.message}")
+        onError(context.getString(R.string.error_prefix, e.message ?: "Unknown"))
     }
 }

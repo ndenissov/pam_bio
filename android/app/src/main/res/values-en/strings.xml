@@ -27,4 +27,23 @@
     <string name="revoke_now">Revoke Now</string>
     <string name="later">Later</string>
     <string name="revoke_kill_msg">Permissions will be revoked when the app is next closed</string>
+    <string name="sudo_request">Sudo Request</string>
+    <string name="screen_unlock">Screen Unlock</string>
+    <string name="auth_default">Authentication</string>
+    <string name="auth_default_param">Authentication (%1$s)</string>
+    <string name="user_label">User: %1$s</string>
+    <string name="service_label">Service: %1$s</string>
+    <string name="auth_approve">Approve with Biometrics</string>
+    <string name="auth_deny">Deny</string>
+    <string name="scan_qr_title">Scan QR</string>
+    <string name="point_camera">Point camera at QR code</string>
+    <string name="qr_found">QR found: %1$s</string>
+    <string name="generating_keys">Generating keys…</string>
+    <string name="searching_network">Searching for %1$s on network…</string>
+    <string name="connecting_to">Connecting to %1$s:%2$s…</string>
+    <string name="pairing">Pairing…</string>
+    <string name="not_found_network">Could not find %1$s on network</string>
+    <string name="failed_connect">Failed to connect</string>
+    <string name="pairing_rejected">Pairing rejected by PC</string>
+    <string name="error_prefix">Error: %1$s</string>
 </resources>

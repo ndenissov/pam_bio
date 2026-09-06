@@ -3,8 +3,10 @@ package ovh.dep.pam.ui
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.fragment.app.FragmentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
+import androidx.compose.ui.res.stringResource
+import ovh.dep.pam.R
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.background
@@ -32,7 +34,7 @@ import ovh.dep.pam.ui.theme.LinuxBiopamTheme
  * Displays a BiometricPrompt and sends the result back via the service's TCP
  * connection.
  */
-class BiometricAuthActivity : FragmentActivity() {
+class BiometricAuthActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "BiometricAuth"
@@ -79,7 +81,7 @@ class BiometricAuthActivity : FragmentActivity() {
             .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
 
         if (canAuth != BiometricManager.BIOMETRIC_SUCCESS) {
-            Toast.makeText(this, "Биометрия недоступна", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.biometric_unavailable), Toast.LENGTH_SHORT).show()
             sendResponse(approved = false)
             return
         }
@@ -87,9 +89,9 @@ class BiometricAuthActivity : FragmentActivity() {
         val executor = ContextCompat.getMainExecutor(this)
 
         val title = when (serviceName) {
-            "sudo" -> "Запрос sudo"
-            "sddm", "login" -> "Разблокировка экрана"
-            else -> "Аутентификация ($serviceName)"
+            "sudo" -> getString(R.string.sudo_request)
+            "sddm", "login" -> getString(R.string.screen_unlock)
+            else -> getString(R.string.auth_default_param, serviceName)
         }
 
         val prompt = BiometricPrompt(this, executor,
@@ -116,8 +118,8 @@ class BiometricAuthActivity : FragmentActivity() {
 
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle(title)
-            .setSubtitle("Пользователь: $user")
-            .setNegativeButtonText("Отклонить")
+            .setSubtitle(getString(R.string.user_label, user))
+            .setNegativeButtonText(getString(R.string.auth_deny))
             .build()
 
         prompt.authenticate(promptInfo)
@@ -185,9 +187,9 @@ private fun AuthScreen(
 
                 Text(
                     text = when (service) {
-                        "sudo" -> "Запрос sudo"
-                        "sddm", "login" -> "Разблокировка экрана"
-                        else -> "Аутентификация"
+                        "sudo" -> stringResource(R.string.sudo_request)
+                        "sddm", "login" -> stringResource(R.string.screen_unlock)
+                        else -> stringResource(R.string.auth_default)
                     },
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
@@ -195,7 +197,7 @@ private fun AuthScreen(
                 )
 
                 Text(
-                    text = "Пользователь: $user\nСервис: $service",
+                    text = "${stringResource(R.string.user_label, user)}\n${stringResource(R.string.service_label, service)}",
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -210,7 +212,7 @@ private fun AuthScreen(
                 ) {
                     Icon(Icons.Filled.Fingerprint, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text("Подтвердить биометрией", fontSize = 16.sp)
+                    Text(stringResource(R.string.auth_approve), fontSize = 16.sp)
                 }
 
                 OutlinedButton(
@@ -220,7 +222,7 @@ private fun AuthScreen(
                 ) {
                     Icon(Icons.Filled.Close, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text("Отклонить", fontSize = 16.sp)
+                    Text(stringResource(R.string.auth_deny), fontSize = 16.sp)
                 }
             }
         }

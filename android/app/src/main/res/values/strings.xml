@@ -27,4 +27,23 @@
     <string name="revoke_now">Отозвать сейчас</string>
     <string name="later">Позже</string>
     <string name="revoke_kill_msg">Права будут отозваны при следующем закрытии приложения</string>
+    <string name="sudo_request">Запрос sudo</string>
+    <string name="screen_unlock">Разблокировка экрана</string>
+    <string name="auth_default">Аутентификация</string>
+    <string name="auth_default_param">Аутентификация (%1$s)</string>
+    <string name="user_label">Пользователь: %1$s</string>
+    <string name="service_label">Сервис: %1$s</string>
+    <string name="auth_approve">Подтвердить биометрией</string>
+    <string name="auth_deny">Отклонить</string>
+    <string name="scan_qr_title">Сканировать QR</string>
+    <string name="point_camera">Наведите камеру на QR-код</string>
+    <string name="qr_found">QR найден: %1$s</string>
+    <string name="generating_keys">Генерация ключей…</string>
+    <string name="searching_network">Поиск %1$s в сети…</string>
+    <string name="connecting_to">Подключение к %1$s:%2$s…</string>
+    <string name="pairing">Сопряжение…</string>
+    <string name="not_found_network">Не удалось найти %1$s в сети</string>
+    <string name="failed_connect">Не удалось подключиться</string>
+    <string name="pairing_rejected">Сопряжение отклонено ПК</string>
+    <string name="error_prefix">Ошибка: %1$s</string>
 </resources>

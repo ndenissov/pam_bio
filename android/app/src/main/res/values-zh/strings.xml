@@ -27,4 +27,23 @@
     <string name="revoke_now">立即撤销</string>
     <string name="later">稍后</string>
     <string name="revoke_kill_msg">权限将在应用下次关闭时撤销</string>
+    <string name="sudo_request">Sudo 请求</string>
+    <string name="screen_unlock">解锁屏幕</string>
+    <string name="auth_default">身份验证</string>
+    <string name="auth_default_param">身份验证 (%1$s)</string>
+    <string name="user_label">用户: %1$s</string>
+    <string name="service_label">服务: %1$s</string>
+    <string name="auth_approve">使用生物识别批准</string>
+    <string name="auth_deny">拒绝</string>
+    <string name="scan_qr_title">扫描 QR 码</string>
+    <string name="point_camera">将相机对准 QR 码</string>
+    <string name="qr_found">已找到 QR: %1$s</string>
+    <string name="generating_keys">正在生成密钥…</string>
+    <string name="searching_network">正在网络中搜索 %1$s…</string>
+    <string name="connecting_to">正在连接至 %1$s:%2$s…</string>
+    <string name="pairing">配对中…</string>
+    <string name="not_found_network">在网络中找不到 %1$s</string>
+    <string name="failed_connect">连接失败</string>
+    <string name="pairing_rejected">配对被电脑拒绝</string>
+    <string name="error_prefix">错误: %1$s</string>
 </resources>
