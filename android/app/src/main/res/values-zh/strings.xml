@@ -46,4 +46,10 @@
     <string name="failed_connect">连接失败</string>
     <string name="pairing_rejected">配对被电脑拒绝</string>
     <string name="error_prefix">错误: %1$s</string>
+    <string name="permissions_denied">部分权限被拒绝: %1$s</string>
+    <string name="camera_access_denied">无法访问相机</string>
+    <string name="grant_permission">授予权限</string>
+    <string name="import_gallery">从相册选择</string>
+    <string name="import_file">从文件导入</string>
+    <string name="invalid_file_format">无效的密钥格式</string>
 </resources>

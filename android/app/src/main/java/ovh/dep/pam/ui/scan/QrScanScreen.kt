@@ -9,11 +9,16 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -63,9 +68,80 @@ fun QrScanScreen(
     var showRevokeDialog by remember { mutableStateOf(false) }
     var pairedServiceName by remember { mutableStateOf("") }
 
+    var hasCameraPermission by remember { 
+        mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED)
+    }
+
     val keyManager = remember { KeyManager(context) }
     val deviceRepo = remember { PairedDeviceRepository(context) }
     val nsdManager = remember { NsdDiscoveryManager(context) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasCameraPermission = isGranted
+    }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            try {
+                val image = InputImage.fromFilePath(context, uri)
+                val scanner = BarcodeScanning.getClient()
+                scanner.process(image)
+                    .addOnSuccessListener { barcodes ->
+                        var found = false
+                        for (barcode in barcodes) {
+                            if (barcode.valueType == Barcode.TYPE_TEXT) {
+                                val raw = barcode.rawValue ?: continue
+                                handleQrCode(raw, json) { payload ->
+                                    found = true
+                                    if (scannedPayload == null) {
+                                        scannedPayload = payload
+                                        isProcessing = true
+                                        statusText = context.getString(R.string.qr_found, payload.serviceName)
+                                        scope.launch {
+                                            doPairing(payload, keyManager, deviceRepo, nsdManager, context, { statusText = it }, { pairedServiceName = it; showRevokeDialog = true }, { isProcessing = false; scannedPayload = null; statusText = it })
+                                        }
+                                    }
+                                }
+                                if (found) break
+                            }
+                        }
+                        if (!found && !isProcessing) statusText = context.getString(R.string.invalid_file_format)
+                    }
+                    .addOnFailureListener { e ->
+                        statusText = context.getString(R.string.error_prefix, e.message ?: "Unknown")
+                    }
+            } catch (e: Exception) {
+                statusText = context.getString(R.string.error_prefix, e.message ?: "Unknown")
+            }
+        }
+    }
+
+    val fileLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            try {
+                val text = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }?.trim() ?: ""
+                handleQrCode(text, json) { payload ->
+                    if (scannedPayload == null) {
+                        scannedPayload = payload
+                        isProcessing = true
+                        statusText = context.getString(R.string.qr_found, payload.serviceName)
+                        scope.launch {
+                            doPairing(payload, keyManager, deviceRepo, nsdManager, context, { statusText = it }, { pairedServiceName = it; showRevokeDialog = true }, { isProcessing = false; scannedPayload = null; statusText = it })
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                statusText = context.getString(R.string.invalid_file_format)
+            }
+        }
+    }
+
 
     // Stop NSD on leave
     DisposableEffect(Unit) {
@@ -89,8 +165,9 @@ fun QrScanScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Camera preview
-            AndroidView(
+            if (hasCameraPermission) {
+                // Camera preview
+                AndroidView(
                 factory = { ctx ->
                     val previewView = PreviewView(ctx)
                     val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
@@ -171,6 +248,21 @@ fun QrScanScreen(
                 },
                 modifier = Modifier.fillMaxSize()
             )
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Filled.QrCodeScanner, null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(16.dp))
+                    Text(stringResource(R.string.camera_access_denied), style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.height(16.dp))
+                    Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) {
+                        Text(stringResource(R.string.grant_permission))
+                    }
+                }
+            }
 
             // Status overlay
             Column(
@@ -201,6 +293,22 @@ fun QrScanScreen(
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center
                 )
+                Spacer(Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    FilledTonalButton(onClick = { galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
+                        Icon(Icons.Filled.Image, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.import_gallery))
+                    }
+                    FilledTonalButton(onClick = { fileLauncher.launch("*/*") }) {
+                        Icon(Icons.Filled.InsertDriveFile, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.import_file))
+                    }
+                }
             }
 
             if (showRevokeDialog) {

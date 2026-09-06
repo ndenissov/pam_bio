@@ -46,4 +46,10 @@
     <string name="failed_connect">Failed to connect</string>
     <string name="pairing_rejected">Pairing rejected by PC</string>
     <string name="error_prefix">Error: %1$s</string>
+    <string name="permissions_denied">Some permissions denied: %1$s</string>
+    <string name="camera_access_denied">No camera access</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="import_gallery">Choose from gallery</string>
+    <string name="import_file">Import from file</string>
+    <string name="invalid_file_format">Invalid key format</string>
 </resources>

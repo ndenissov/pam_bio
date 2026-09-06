@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     ) { results ->
         val denied = results.filterValues { !it }.keys
         if (denied.isNotEmpty()) {
-            Toast.makeText(this, "Некоторые разрешения отклонены: $denied", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.permissions_denied, denied), Toast.LENGTH_LONG).show()
         }
     }
 

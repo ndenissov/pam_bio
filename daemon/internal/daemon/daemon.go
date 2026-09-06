@@ -97,7 +97,7 @@ func New(configDir string) (*Daemon, error) {
 		hostname, _ := os.Hostname()
 		cfg = &config.ServerConfig{
 			Hostname:    hostname,
-			ServiceName: "pambio_" + hostname,
+			ServiceName: hostname,
 			PrivateKey:  crypto.EncodePrivateKey(priv),
 			PublicKey:   crypto.EncodePublicKey(pub),
 		}

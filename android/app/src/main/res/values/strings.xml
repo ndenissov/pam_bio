@@ -46,4 +46,10 @@
     <string name="failed_connect">Не удалось подключиться</string>
     <string name="pairing_rejected">Сопряжение отклонено ПК</string>
     <string name="error_prefix">Ошибка: %1$s</string>
+    <string name="permissions_denied">Некоторые разрешения отклонены: %1$s</string>
+    <string name="camera_access_denied">Нет доступа к камере</string>
+    <string name="grant_permission">Предоставить доступ</string>
+    <string name="import_gallery">Выбрать из галереи</string>
+    <string name="import_file">Импортировать из файла</string>
+    <string name="invalid_file_format">Неверный формат ключа</string>
 </resources>

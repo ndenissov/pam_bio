@@ -12,6 +12,7 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -42,7 +43,7 @@ func main() {
 	case "serve":
 		cmdServe(configDir)
 	case "pair":
-		cmdPair()
+		cmdPair(os.Args[2:])
 	case "unpair":
 		if len(os.Args) < 3 {
 			fmt.Fprintln(os.Stderr, "Usage: pambiod unpair <device_name>")
@@ -68,7 +69,7 @@ Usage:
 
 Commands:
   serve            Start the daemon (TCP + Unix socket + mDNS)
-  pair             Initiate device pairing (displays QR code)
+  pair [--out F]   Initiate device pairing (displays QR code or saves to file)
   unpair <name>    Remove a paired device by name
   status           Show daemon and device status
   help             Show this help message
@@ -98,7 +99,11 @@ func cmdServe(configDir string) {
 // pair
 // ──────────────────────────────────────────────
 
-func cmdPair() {
+func cmdPair(args []string) {
+	pairCmd := flag.NewFlagSet("pair", flag.ExitOnError)
+	outFile := pairCmd.String("out", "", "Output raw pairing key to file instead of displaying QR code")
+	pairCmd.Parse(args)
+
 	conn, err := connectDaemon()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error: cannot connect to daemon. Is 'pambiod serve' running?")
@@ -122,21 +127,27 @@ func cmdPair() {
 		os.Exit(1)
 	}
 
-	// Display QR code
-	fmt.Println()
-	fmt.Println("╔══════════════════════════════════════════════╗")
-	fmt.Println("║  Scan this QR code with the PamBio Android  ║")
-	fmt.Println("║  app to pair your device.                    ║")
-	fmt.Println("╚══════════════════════════════════════════════╝")
-	fmt.Println()
+	if *outFile != "" {
+		if err := os.WriteFile(*outFile, []byte(resp.QRData), 0600); err != nil {
+			log.Fatalf("Failed to write to file: %v", err)
+		}
+		fmt.Printf("✓ Pairing key successfully saved to %s\n", *outFile)
+	} else {
+		fmt.Println()
+		fmt.Println("╔══════════════════════════════════════════════╗")
+		fmt.Println("║  Scan this QR code with the PamBio Android  ║")
+		fmt.Println("║  app to pair your device.                    ║")
+		fmt.Println("╚══════════════════════════════════════════════╝")
+		fmt.Println()
 
-	qrterminal.GenerateWithConfig(resp.QRData, qrterminal.Config{
-		Level:     qrterminal.M,
-		Writer:    os.Stdout,
-		BlackChar: qrterminal.BLACK,
-		WhiteChar: qrterminal.WHITE,
-		QuietZone: 2,
-	})
+		qrterminal.GenerateWithConfig(resp.QRData, qrterminal.Config{
+			Level:     qrterminal.M,
+			Writer:    os.Stdout,
+			BlackChar: qrterminal.BLACK,
+			WhiteChar: qrterminal.WHITE,
+			QuietZone: 2,
+		})
+	}
 
 	// Show human-readable payload
 	decoded, _ := base64.StdEncoding.DecodeString(resp.QRData)
