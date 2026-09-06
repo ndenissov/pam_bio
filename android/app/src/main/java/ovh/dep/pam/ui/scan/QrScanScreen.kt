@@ -294,16 +294,17 @@ fun QrScanScreen(
                     textAlign = TextAlign.Center
                 )
                 Spacer(Modifier.height(16.dp))
-                Row(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    FilledTonalButton(onClick = { galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
+                    FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = { galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
                         Icon(Icons.Filled.Image, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.import_gallery))
                     }
-                    FilledTonalButton(onClick = { fileLauncher.launch("*/*") }) {
+                    FilledTonalButton(modifier = Modifier.fillMaxWidth(), onClick = { fileLauncher.launch("*/*") }) {
                         Icon(Icons.Filled.InsertDriveFile, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.import_file))

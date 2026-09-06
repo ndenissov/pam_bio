@@ -11,6 +11,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -98,6 +99,7 @@ func New(configDir string) (*Daemon, error) {
 		cfg = &config.ServerConfig{
 			Hostname:    hostname,
 			ServiceName: hostname,
+			Port:        42715,
 			PrivateKey:  crypto.EncodePrivateKey(priv),
 			PublicKey:   crypto.EncodePublicKey(pub),
 		}
@@ -106,6 +108,9 @@ func New(configDir string) (*Daemon, error) {
 		}
 		log.Printf("Generated new identity for %s", hostname)
 	}
+
+	// For backwards compatibility, strip 'pambio_' prefix from existing configs
+	cfg.ServiceName = strings.TrimPrefix(cfg.ServiceName, "pambio_")
 
 	privKey, err := crypto.DecodePrivateKey(cfg.PrivateKey)
 	if err != nil {
@@ -139,8 +144,9 @@ func New(configDir string) (*Daemon, error) {
 // Start binds listeners, registers the mDNS service, and begins accepting
 // connections. Returns once listeners are up.
 func (d *Daemon) Start() error {
-	// TCP: bind to any free port
-	tcpLn, err := net.Listen("tcp", "0.0.0.0:0")
+	// TCP: bind to configured port on all interfaces
+	addr := fmt.Sprintf(":%d", d.cfg.Port)
+	tcpLn, err := net.Listen("tcp", addr)
 	if err != nil {
 		return fmt.Errorf("tcp listen: %w", err)
 	}

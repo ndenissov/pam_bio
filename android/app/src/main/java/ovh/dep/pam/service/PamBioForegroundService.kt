@@ -130,6 +130,10 @@ class PamBioForegroundService : Service() {
         if (!client.sendIdentify()) {
             Log.e(TAG, "Identify rejected by $host:$port")
             client.disconnect()
+            val deviceRepo = ovh.dep.pam.data.PairedDeviceRepository(this)
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                deviceRepo.removeDevice(serviceName)
+            }
             return
         }
 
