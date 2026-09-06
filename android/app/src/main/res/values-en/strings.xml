@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PamBio</string>
+    <string name="app_name">PAM Bio</string>
     <string name="add_pc">Add PC</string>
     <string name="scan">Scan</string>
     <string name="paired_devices">Paired Devices</string>
@@ -22,4 +22,9 @@
     <string name="auth_request_title">PamBio: Authentication Request</string>
     <string name="auth_request_text">%1$s from %2$s</string>
     <string name="biometric_unavailable">Biometrics unavailable</string>
+    <string name="revoke_camera_title">Camera Permission</string>
+    <string name="revoke_camera_text">PC added successfully! If you don\'t plan to add more PCs soon, you can revoke camera permissions for peace of mind.</string>
+    <string name="revoke_now">Revoke Now</string>
+    <string name="later">Later</string>
+    <string name="revoke_kill_msg">Permissions will be revoked when the app is next closed</string>
 </resources>

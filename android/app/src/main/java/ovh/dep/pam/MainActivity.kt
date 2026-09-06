@@ -17,11 +17,12 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.appcompat.app.AppCompatActivity
 import ovh.dep.pam.ui.home.HomeScreen
 import ovh.dep.pam.ui.scan.QrScanScreen
 import ovh.dep.pam.ui.theme.LinuxBiopamTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()

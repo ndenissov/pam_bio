@@ -58,6 +58,9 @@ dependencies {
     // Navigation
     implementation(libs.androidx.navigation.compose)
 
+    // AppCompat (for AppLocales)
+    implementation("androidx.appcompat:appcompat:1.6.1")
+
     // Biometric
     implementation(libs.androidx.biometric)
 

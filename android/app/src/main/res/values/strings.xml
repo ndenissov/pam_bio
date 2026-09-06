@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PamBio</string>
+    <string name="app_name">PAM Bio</string>
     <string name="add_pc">Добавить ПК</string>
     <string name="scan">Сканировать</string>
     <string name="paired_devices">Спаренные устройства</string>
@@ -22,4 +22,9 @@
     <string name="auth_request_title">PamBio: Запрос аутентификации</string>
     <string name="auth_request_text">%1$s от %2$s</string>
     <string name="biometric_unavailable">Биометрия недоступна</string>
+    <string name="revoke_camera_title">Права на камеру</string>
+    <string name="revoke_camera_text">ПК успешно добавлен! Если вы не планируете подключать другие ПК в ближайшее время, для внутреннего спокойствия вы можете отобрать у приложения права на камеру.</string>
+    <string name="revoke_now">Отозвать сейчас</string>
+    <string name="later">Позже</string>
+    <string name="revoke_kill_msg">Права будут отозваны при следующем закрытии приложения</string>
 </resources>

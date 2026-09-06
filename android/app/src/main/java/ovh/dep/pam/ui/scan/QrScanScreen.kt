@@ -25,7 +25,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import ovh.dep.pam.R
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
@@ -58,6 +60,8 @@ fun QrScanScreen(
     var statusText by remember { mutableStateOf("Наведите камеру на QR-код") }
     var isProcessing by remember { mutableStateOf(false) }
     var scannedPayload by remember { mutableStateOf<QrPairingPayload?>(null) }
+    var showRevokeDialog by remember { mutableStateOf(false) }
+    var pairedServiceName by remember { mutableStateOf("") }
 
     val keyManager = remember { KeyManager(context) }
     val deviceRepo = remember { PairedDeviceRepository(context) }
@@ -129,7 +133,10 @@ fun QrScanScreen(
                                                                 payload, keyManager, deviceRepo,
                                                                 nsdManager, context,
                                                                 onStatus = { statusText = it },
-                                                                onComplete = onPairingComplete,
+                                                                onComplete = { 
+                                                                    pairedServiceName = it
+                                                                    showRevokeDialog = true
+                                                                },
                                                                 onError = {
                                                                     isProcessing = false
                                                                     scannedPayload = null
@@ -193,6 +200,34 @@ fun QrScanScreen(
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center
+                )
+            }
+
+            if (showRevokeDialog) {
+                AlertDialog(
+                    onDismissRequest = { },
+                    title = { Text(stringResource(R.string.revoke_camera_title)) },
+                    text = { Text(stringResource(R.string.revoke_camera_text)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            if (android.os.Build.VERSION.SDK_INT >= 33) {
+                                context.revokeSelfPermissionOnKill(Manifest.permission.CAMERA)
+                                Toast.makeText(context, context.getString(R.string.revoke_kill_msg), Toast.LENGTH_LONG).show()
+                            } else {
+                                val intent = android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                intent.data = android.net.Uri.parse("package:${context.packageName}")
+                                context.startActivity(intent)
+                            }
+                            showRevokeDialog = false
+                            onPairingComplete(pairedServiceName)
+                        }) { Text(stringResource(R.string.revoke_now)) }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            showRevokeDialog = false
+                            onPairingComplete(pairedServiceName)
+                        }) { Text(stringResource(R.string.later)) }
+                    }
                 )
             }
         }

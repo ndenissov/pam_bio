@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PamBio</string>
+    <string name="app_name">PAM Bio</string>
     <string name="add_pc">添加电脑</string>
     <string name="scan">扫描</string>
     <string name="paired_devices">已配对设备</string>
@@ -22,4 +22,9 @@
     <string name="auth_request_title">PamBio: 验证请求</string>
     <string name="auth_request_text">%1$s 来自 %2$s</string>
     <string name="biometric_unavailable">生物识别不可用</string>
+    <string name="revoke_camera_title">相机权限</string>
+    <string name="revoke_camera_text">电脑添加成功！如果您近期不打算添加其他电脑，可以撤销相机权限以求安心。</string>
+    <string name="revoke_now">立即撤销</string>
+    <string name="later">稍后</string>
+    <string name="revoke_kill_msg">权限将在应用下次关闭时撤销</string>
 </resources>
