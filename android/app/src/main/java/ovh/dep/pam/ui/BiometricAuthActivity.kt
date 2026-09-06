@@ -3,7 +3,7 @@ package ovh.dep.pam.ui
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -32,7 +32,7 @@ import ovh.dep.pam.ui.theme.LinuxBiopamTheme
  * Displays a BiometricPrompt and sends the result back via the service's TCP
  * connection.
  */
-class BiometricAuthActivity : ComponentActivity() {
+class BiometricAuthActivity : FragmentActivity() {
 
     companion object {
         private const val TAG = "BiometricAuth"
