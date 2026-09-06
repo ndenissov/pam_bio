@@ -20,7 +20,10 @@ import java.net.Socket
  */
 class TcpClient(
     private val keyManager: KeyManager,
-    private val json: Json = Json { ignoreUnknownKeys = true }
+    private val json: Json = Json { 
+        ignoreUnknownKeys = true
+        encodeDefaults = true 
+    }
 ) {
     companion object {
         private const val TAG = "TcpClient"
