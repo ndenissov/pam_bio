@@ -50,6 +50,6 @@
     <string name="camera_access_denied">No camera access</string>
     <string name="grant_permission">Grant permission</string>
     <string name="import_gallery">Choose from gallery</string>
-    <string name="import_file">Import from file</string>
+    <string name="paste_clipboard">Paste from clipboard</string>
     <string name="invalid_file_format">Invalid key format</string>
 </resources>

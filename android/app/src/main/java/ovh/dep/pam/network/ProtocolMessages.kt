@@ -65,6 +65,17 @@ data class AuthResponseMessage(
     val signature: String = ""
 )
 
+@Serializable
+data class PingMessage(
+    val type: String
+)
+
+@Serializable
+data class PongMessage(
+    val type: String = "pong",
+    val status: String
+)
+
 // ── QR pairing payload ────────────────────────────────────
 
 @Serializable

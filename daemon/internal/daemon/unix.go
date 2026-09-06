@@ -32,6 +32,9 @@ func (d *Daemon) acceptUnix() {
 func (d *Daemon) handleUnixConnection(conn net.Conn) {
 	defer conn.Close()
 
+	// Trigger a status check to all connected devices on any IPC interaction
+	go d.TriggerPing()
+
 	data, err := protocol.ReadMessage(conn)
 	if err != nil {
 		log.Printf("unix read: %v", err)

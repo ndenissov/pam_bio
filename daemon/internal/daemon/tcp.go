@@ -253,6 +253,14 @@ func (d *Daemon) listenForAuthResponses(phone *PhoneConnection) {
 				continue
 			}
 			d.handleAuthResponse(phone, &resp)
+		} else if msgType == protocol.TypePong {
+			var resp protocol.PongMessage
+			if err := json.Unmarshal(data, &resp); err == nil && resp.Status == "unpaired" {
+				log.Printf("Device %s reported it is no longer paired. Removing.", phone.deviceName)
+				d.devices.RemoveDevice(phone.deviceName)
+				phone.conn.Close()
+				return
+			}
 		} else {
 			log.Printf("unexpected message type %q from %s", msgType, phone.deviceName)
 		}

@@ -123,9 +123,11 @@ func (s *PairedDevicesStore) AddDevice(name, pubKey string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	for _, d := range s.Devices {
+	for i, d := range s.Devices {
 		if d.PublicKey == pubKey {
-			return fmt.Errorf("device with this key is already paired")
+			s.Devices[i].PairedAt = time.Now().Unix()
+			s.Devices[i].DeviceName = name
+			return s.save()
 		}
 	}
 	s.Devices = append(s.Devices, PairedDevice{

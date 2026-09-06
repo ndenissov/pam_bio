@@ -17,6 +17,7 @@ import (
 
 	"pambio/internal/config"
 	"pambio/internal/crypto"
+	"pambio/internal/protocol"
 )
 
 const (
@@ -187,6 +188,20 @@ func (d *Daemon) Wait() {
 	}
 
 	d.Stop()
+}
+
+// TriggerPing sends a ping message to all connected phones to verify pairing status.
+func (d *Daemon) TriggerPing() {
+	d.phonesMu.RLock()
+	defer d.phonesMu.RUnlock()
+
+	for _, phone := range d.phones {
+		go func(p *PhoneConnection) {
+			p.mu.Lock()
+			defer p.mu.Unlock()
+			d.writeEncrypted(p.conn, p.sessionKey, protocol.PingMessage{Type: protocol.TypePing})
+		}(phone)
+	}
 }
 
 // Stop gracefully shuts down all listeners and connections.

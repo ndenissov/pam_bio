@@ -50,6 +50,6 @@
     <string name="camera_access_denied">Нет доступа к камере</string>
     <string name="grant_permission">Предоставить доступ</string>
     <string name="import_gallery">Выбрать из галереи</string>
-    <string name="import_file">Импортировать из файла</string>
+    <string name="paste_clipboard">Вставить из буфера обмена</string>
     <string name="invalid_file_format">Неверный формат ключа</string>
 </resources>

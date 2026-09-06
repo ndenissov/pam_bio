@@ -130,7 +130,14 @@ class PamBioForegroundService : Service() {
         if (!client.sendIdentify()) {
             Log.e(TAG, "Identify rejected by $host:$port")
             client.disconnect()
+            val repo = PairedDeviceRepository(this@PamBioForegroundService)
+            repo.removeDevice(serviceName)
             return
+        }
+
+        client.isStillPaired = {
+            val repo = PairedDeviceRepository(this@PamBioForegroundService)
+            repo.getAll().any { it.serviceName == serviceName }
         }
 
         tcpClient = client

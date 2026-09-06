@@ -139,6 +139,8 @@ func cmdPair(args []string) {
 		fmt.Println("║  app to pair your device.                    ║")
 		fmt.Println("╚══════════════════════════════════════════════╝")
 		fmt.Println()
+		fmt.Println(resp.QRData)
+		fmt.Println()
 
 		qrterminal.GenerateWithConfig(resp.QRData, qrterminal.Config{
 			Level:     qrterminal.M,

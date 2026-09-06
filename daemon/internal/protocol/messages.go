@@ -29,6 +29,8 @@ const (
 	TypePairResponse = "pair_response"
 	TypeAuthRequest  = "auth_request"
 	TypeAuthResponse = "auth_response"
+	TypePing         = "ping"
+	TypePong         = "pong"
 )
 
 // Status constants for auth responses.
@@ -103,6 +105,17 @@ type AuthResponseMessage struct {
 	Status    string `json:"status"` // "approved" or "denied"
 	Nonce     string `json:"nonce"`
 	Signature string `json:"signature"` // Ed25519 sign(nonce)
+}
+
+// PingMessage is sent by PC to verify connection status.
+type PingMessage struct {
+	Type string `json:"type"`
+}
+
+// PongMessage is sent by Phone in response to PingMessage.
+type PongMessage struct {
+	Type   string `json:"type"`
+	Status string `json:"status"` // "ok" or "unpaired"
 }
 
 // ──────────────────────────────────────────────

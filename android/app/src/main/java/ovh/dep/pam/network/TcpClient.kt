@@ -40,6 +40,9 @@ class TcpClient(
 
     /** Callback for incoming auth requests. */
     var onAuthRequest: ((AuthRequestMessage) -> Unit)? = null
+    
+    /** Callback to check if device is still paired. */
+    var isStillPaired: (suspend () -> Boolean)? = null
 
     // ── Connection ─────────────────────────────────────────
 
@@ -178,6 +181,12 @@ class TcpClient(
                         val authReq = json.decodeFromString<AuthRequestMessage>(msgJson)
                         Log.i(TAG, "Auth request: user=${authReq.user} service=${authReq.service}")
                         onAuthRequest?.invoke(authReq)
+                    }
+                    "ping" -> {
+                        val paired = isStillPaired?.invoke() ?: true
+                        val status = if (paired) "ok" else "unpaired"
+                        val pong = PongMessage(status = status)
+                        writeEncrypted(json.encodeToString(pong))
                     }
                     else -> Log.w(TAG, "Unknown message type: ${base.type}")
                 }

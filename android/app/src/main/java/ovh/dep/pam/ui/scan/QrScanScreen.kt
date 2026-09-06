@@ -17,13 +17,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
@@ -120,27 +121,7 @@ fun QrScanScreen(
         }
     }
 
-    val fileLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri ->
-        if (uri != null) {
-            try {
-                val text = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }?.trim() ?: ""
-                handleQrCode(text, json) { payload ->
-                    if (scannedPayload == null) {
-                        scannedPayload = payload
-                        isProcessing = true
-                        statusText = context.getString(R.string.qr_found, payload.serviceName)
-                        scope.launch {
-                            doPairing(payload, keyManager, deviceRepo, nsdManager, context, { statusText = it }, { pairedServiceName = it; showRevokeDialog = true }, { isProcessing = false; scannedPayload = null; statusText = it })
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                statusText = context.getString(R.string.invalid_file_format)
-            }
-        }
-    }
+    val clipboardManager = LocalClipboardManager.current
 
 
     // Stop NSD on leave
@@ -294,19 +275,42 @@ fun QrScanScreen(
                     textAlign = TextAlign.Center
                 )
                 Spacer(Modifier.height(16.dp))
-                Row(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    FilledTonalButton(onClick = { galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
+                    FilledTonalButton(
+                        modifier = Modifier.fillMaxWidth(0.8f),
+                        onClick = { galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+                    ) {
                         Icon(Icons.Filled.Image, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.import_gallery))
                     }
-                    FilledTonalButton(onClick = { fileLauncher.launch("*/*") }) {
-                        Icon(Icons.Filled.InsertDriveFile, contentDescription = null)
+                    FilledTonalButton(
+                        modifier = Modifier.fillMaxWidth(0.8f),
+                        onClick = { 
+                            val text = clipboardManager.getText()?.text ?: ""
+                            if (text.isNotBlank()) {
+                                handleQrCode(text, json) { payload ->
+                                    if (scannedPayload == null) {
+                                        scannedPayload = payload
+                                        isProcessing = true
+                                        statusText = context.getString(R.string.qr_found, payload.serviceName)
+                                        scope.launch {
+                                            doPairing(payload, keyManager, deviceRepo, nsdManager, context, { statusText = it }, { pairedServiceName = it; showRevokeDialog = true }, { isProcessing = false; scannedPayload = null; statusText = it })
+                                        }
+                                    }
+                                }
+                            } else {
+                                statusText = context.getString(R.string.invalid_file_format)
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Filled.ContentPaste, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.import_file))
+                        Text(stringResource(R.string.paste_clipboard))
                     }
                 }
             }
