@@ -101,7 +101,11 @@ class BiometricAuthActivity : FragmentActivity() {
 
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     Log.w(TAG, "Biometric error $errorCode: $errString")
-                    sendResponse(approved = false)
+                    // Do not close the activity on CANCELED (5) or USER_CANCELED (10).
+                    // This happens automatically on the lock screen.
+                    if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
+                        sendResponse(approved = false)
+                    }
                 }
 
                 override fun onAuthenticationFailed() {

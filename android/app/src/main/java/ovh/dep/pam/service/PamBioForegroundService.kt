@@ -130,6 +130,7 @@ class PamBioForegroundService : Service() {
         }
 
         tcpClient = client
+        BiometricAuthActivity.activeTcpClient = client
         updateNotification("Подключено к $host")
         Log.i(TAG, "Connected and identified to $host:$port")
 
@@ -138,6 +139,9 @@ class PamBioForegroundService : Service() {
 
         // Disconnected
         tcpClient = null
+        if (BiometricAuthActivity.activeTcpClient == client) {
+            BiometricAuthActivity.activeTcpClient = null
+        }
         updateNotification("Отключено, ожидание…")
         Log.i(TAG, "Disconnected from $host:$port")
     }
