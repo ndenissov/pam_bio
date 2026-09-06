@@ -32,7 +32,6 @@ const (
 type ServerConfig struct {
 	Hostname    string `json:"hostname"`
 	ServiceName string `json:"service_name"` // mDNS instance name
-	Port        int    `json:"port"`         // Fixed TCP port for the daemon
 	PrivateKey  string `json:"private_key"`  // base64 Ed25519 seed (32 bytes)
 	PublicKey   string `json:"public_key"`   // base64 Ed25519 public key
 }
@@ -46,9 +45,6 @@ func LoadServerConfig(configDir string) (*ServerConfig, error) {
 	var cfg ServerConfig
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("parse %s: %w", configFile, err)
-	}
-	if cfg.Port == 0 {
-		cfg.Port = 42715 // Default port if missing from older configs
 	}
 	return &cfg, nil
 }
@@ -121,15 +117,16 @@ func (s *PairedDevicesStore) save() error {
 	return os.WriteFile(s.path, data, 0600)
 }
 
-// AddDevice registers a new paired device. Returns an error if the public key
-// is already registered.
+// AddDevice registers a new paired device or updates an existing one.
 func (s *PairedDevicesStore) AddDevice(name, pubKey string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	for _, d := range s.Devices {
+	for i, d := range s.Devices {
 		if d.PublicKey == pubKey {
-			return fmt.Errorf("device with this key is already paired")
+			s.Devices[i].DeviceName = name
+			s.Devices[i].PairedAt = time.Now().Unix()
+			return s.save()
 		}
 	}
 	s.Devices = append(s.Devices, PairedDevice{

@@ -99,7 +99,6 @@ func New(configDir string) (*Daemon, error) {
 		cfg = &config.ServerConfig{
 			Hostname:    hostname,
 			ServiceName: hostname,
-			Port:        42715,
 			PrivateKey:  crypto.EncodePrivateKey(priv),
 			PublicKey:   crypto.EncodePublicKey(pub),
 		}
@@ -144,9 +143,8 @@ func New(configDir string) (*Daemon, error) {
 // Start binds listeners, registers the mDNS service, and begins accepting
 // connections. Returns once listeners are up.
 func (d *Daemon) Start() error {
-	// TCP: bind to configured port on all interfaces
-	addr := fmt.Sprintf(":%d", d.cfg.Port)
-	tcpLn, err := net.Listen("tcp", addr)
+	// TCP: bind to any free port (IPv4)
+	tcpLn, err := net.Listen("tcp", "0.0.0.0:0")
 	if err != nil {
 		return fmt.Errorf("tcp listen: %w", err)
 	}

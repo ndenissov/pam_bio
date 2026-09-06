@@ -409,55 +409,38 @@ private suspend fun doPairing(
             keyManager.generateKeyPair()
         }
 
-        var tcpClient: TcpClient? = null
+        // Discover the service via mDNS
+        onStatus(context.getString(R.string.searching_network, payload.serviceName))
+        nsdManager.startDiscovery()
 
-        // 1. Fast path: try IPs from payload
-        if (payload.ips != null && payload.port != null) {
-            for (ip in payload.ips) {
-                onStatus(context.getString(R.string.connecting_to, ip, payload.port.toString()))
-                val client = TcpClient(keyManager)
-                if (client.connect(ip, payload.port)) {
-                    tcpClient = client
-                    break
-                }
-            }
+        // Wait for the service to appear (up to 30 seconds)
+        var resolved: ovh.dep.pam.network.ResolvedService? = null
+        val startTime = System.currentTimeMillis()
+        while (System.currentTimeMillis() - startTime < 30_000) {
+            resolved = nsdManager.services.value[payload.serviceName]
+            if (resolved != null) break
+            kotlinx.coroutines.delay(500)
         }
 
-        // 2. Fallback path: Discover the service via mDNS
-        if (tcpClient == null) {
-            onStatus(context.getString(R.string.searching_network, payload.serviceName))
-            nsdManager.startDiscovery()
+        if (resolved == null) {
+            onError(context.getString(R.string.not_found_network, payload.serviceName))
+            return
+        }
 
-            // Wait for the service to appear (up to 30 seconds)
-            var resolved: ovh.dep.pam.network.ResolvedService? = null
-            val startTime = System.currentTimeMillis()
-            while (System.currentTimeMillis() - startTime < 30_000) {
-                resolved = nsdManager.services.value[payload.serviceName]
-                if (resolved != null) break
-                kotlinx.coroutines.delay(500)
-            }
+        onStatus(context.getString(R.string.connecting_to, resolved.host, resolved.port.toString()))
 
-            if (resolved == null) {
-                onError(context.getString(R.string.not_found_network, payload.serviceName))
-                return
-            }
-
-            onStatus(context.getString(R.string.connecting_to, resolved.host, resolved.port.toString()))
-
-            // TCP connect + handshake
-            val client = TcpClient(keyManager)
-            if (!client.connect(resolved.host, resolved.port)) {
-                onError(context.getString(R.string.failed_connect))
-                return
-            }
-            tcpClient = client
+        // TCP connect + handshake
+        val tcpClient = TcpClient(keyManager)
+        if (!tcpClient.connect(resolved.host, resolved.port)) {
+            onError(context.getString(R.string.failed_connect))
+            return
         }
 
         onStatus(context.getString(R.string.pairing))
 
         // Send pair request
         val deviceName = android.os.Build.MODEL
-        val success = tcpClient!!.sendPairRequest(payload.pcPubKey, deviceName)
+        val success = tcpClient.sendPairRequest(payload.pcPubKey, deviceName)
         tcpClient.disconnect()
 
         if (success) {

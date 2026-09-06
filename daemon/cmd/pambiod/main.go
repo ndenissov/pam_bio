@@ -21,7 +21,8 @@ import (
 	"pambio/internal/daemon"
 	"pambio/internal/protocol"
 
-	qrterminal "github.com/mdp/qrterminal/v3"
+	"github.com/mdp/qrterminal/v3"
+	"github.com/skip2/go-qrcode"
 )
 
 const defaultConfigDir = "/etc/pambio"
@@ -69,7 +70,7 @@ Usage:
 
 Commands:
   serve            Start the daemon (TCP + Unix socket + mDNS)
-  pair [--out F] [--raw] Initiate device pairing
+  pair [--out F] [--qr-out F] [--raw] Initiate device pairing
   unpair <name>    Remove a paired device by name
   status           Show daemon and device status
   help             Show this help message
@@ -102,6 +103,7 @@ func cmdServe(configDir string) {
 func cmdPair(args []string) {
 	pairCmd := flag.NewFlagSet("pair", flag.ExitOnError)
 	outFile := pairCmd.String("out", "", "Output raw pairing key to file instead of displaying QR code")
+	qrOutFile := pairCmd.String("qr-out", "", "Output QR code as a PNG file")
 	rawOut := pairCmd.Bool("raw", false, "Print raw base64 pairing key to stdout")
 	pairCmd.Parse(args)
 
@@ -133,19 +135,25 @@ func cmdPair(args []string) {
 			log.Fatalf("Failed to write to file: %v", err)
 		}
 		fmt.Printf("✓ Pairing key successfully saved to %s\n", *outFile)
+	} else if *qrOutFile != "" {
+		if err := qrcode.WriteFile(resp.QRData, qrcode.Medium, 256, *qrOutFile); err != nil {
+			log.Fatalf("Failed to write QR code: %v", err)
+		}
+		fmt.Printf("✓ QR code image saved to %s\n", *qrOutFile)
 	} else if *rawOut {
 		fmt.Println(resp.QRData)
+		os.Stdout.Close() // Close stdout so piped commands like wl-copy receive EOF
 	} else {
-		fmt.Println()
-		fmt.Println("╔══════════════════════════════════════════════╗")
-		fmt.Println("║  Scan this QR code with the PamBio Android  ║")
-		fmt.Println("║  app to pair your device.                    ║")
-		fmt.Println("╚══════════════════════════════════════════════╝")
-		fmt.Println()
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(os.Stderr, "╔══════════════════════════════════════════════╗")
+		fmt.Fprintln(os.Stderr, "║  Scan this QR code with the PamBio Android  ║")
+		fmt.Fprintln(os.Stderr, "║  app to pair your device.                    ║")
+		fmt.Fprintln(os.Stderr, "╚══════════════════════════════════════════════╝")
+		fmt.Fprintln(os.Stderr)
 
 		qrterminal.GenerateWithConfig(resp.QRData, qrterminal.Config{
 			Level:     qrterminal.M,
-			Writer:    os.Stdout,
+			Writer:    os.Stderr,
 			BlackChar: qrterminal.BLACK,
 			WhiteChar: qrterminal.WHITE,
 			QuietZone: 2,
@@ -154,21 +162,21 @@ func cmdPair(args []string) {
 
 	// Show human-readable payload
 	decoded, _ := base64.StdEncoding.DecodeString(resp.QRData)
-	var payload map[string]string
+	var payload map[string]interface{}
 	json.Unmarshal(decoded, &payload)
-	fmt.Printf("\nService name: %s\n", payload["service_name"])
-	fmt.Println("Waiting for device to connect…")
+	fmt.Fprintf(os.Stderr, "\nService name: %s\n", payload["service_name"])
+	fmt.Fprintln(os.Stderr, "Waiting for device to connect…")
 
 	// Second response: pairing result
 	var result protocol.UnixResponse
 	if err := protocol.ReadJSON(conn, &result); err != nil {
-		log.Fatalf("read result: %v", err)
+		log.Fatalf("read: %v", err)
 	}
 
 	if result.Status == "paired" {
-		fmt.Printf("\n✓ Successfully paired with: %s\n", result.DeviceName)
+		fmt.Fprintf(os.Stderr, "✓ Successfully paired with %s\n", result.DeviceName)
 	} else {
-		fmt.Fprintf(os.Stderr, "\n✗ Pairing failed: %s\n", result.Reason)
+		fmt.Fprintf(os.Stderr, "✗ Pairing failed: %s\n", result.Reason)
 		os.Exit(1)
 	}
 }
