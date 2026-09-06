@@ -159,6 +159,11 @@
                   control = "sufficient";
                   modulePath = "${pambioPkgs.pam_bio}/lib/security/pam_bio.so";
                 };
+                kde.rules.auth.pambio = {
+                  order = 100;
+                  control = "sufficient";
+                  modulePath = "${pambioPkgs.pam_bio}/lib/security/pam_bio.so";
+                };
               })
             ];
           };
