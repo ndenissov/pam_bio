@@ -33,6 +33,8 @@ class PamBioForegroundService : Service() {
         private const val NOTIFICATION_ID = 1
         const val ACTION_START = "ovh.dep.pam.START_SERVICE"
         const val ACTION_STOP = "ovh.dep.pam.STOP_SERVICE"
+
+        val isRunning = kotlinx.coroutines.flow.MutableStateFlow(false)
     }
 
     private lateinit var nsdManager: NsdDiscoveryManager
@@ -66,7 +68,8 @@ class PamBioForegroundService : Service() {
             }
         }
 
-        startForeground(NOTIFICATION_ID, buildNotification("Ожидание подключения…"))
+        isRunning.value = true
+        startForeground(NOTIFICATION_ID, buildNotification(getString(R.string.waiting_connection)))
         nsdManager.startDiscovery()
 
         // Register for network changes
@@ -80,6 +83,7 @@ class PamBioForegroundService : Service() {
     }
 
     override fun onDestroy() {
+        isRunning.value = false
         connectionJob?.cancel()
         scope.cancel()
         nsdManager.stopDiscovery()
@@ -108,12 +112,12 @@ class PamBioForegroundService : Service() {
                 if (tcpClient?.isConnected == true) continue
 
                 Log.i(TAG, "Found paired service: ${device.serviceName} → ${resolved.host}:${resolved.port}")
-                connectToService(resolved.host, resolved.port)
+                connectToService(resolved.host, resolved.port, device.serviceName)
             }
         }
     }
 
-    private suspend fun connectToService(host: String, port: Int) {
+    private suspend fun connectToService(host: String, port: Int, serviceName: String) {
         val client = TcpClient(keyManager)
         client.onAuthRequest = { authReq -> handleAuthRequest(authReq) }
 
@@ -131,7 +135,7 @@ class PamBioForegroundService : Service() {
 
         tcpClient = client
         BiometricAuthActivity.activeTcpClient = client
-        updateNotification("Подключено к $host")
+        updateNotification(getString(R.string.connected_to, serviceName))
         Log.i(TAG, "Connected and identified to $host:$port")
 
         // Listen for auth requests (blocks until disconnected)
@@ -142,7 +146,7 @@ class PamBioForegroundService : Service() {
         if (BiometricAuthActivity.activeTcpClient == client) {
             BiometricAuthActivity.activeTcpClient = null
         }
-        updateNotification("Отключено, ожидание…")
+        updateNotification(getString(R.string.disconnected))
         Log.i(TAG, "Disconnected from $host:$port")
     }
 
@@ -167,8 +171,8 @@ class PamBioForegroundService : Service() {
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("PamBio: Запрос аутентификации")
-            .setContentText("${authReq.service} от ${authReq.user}")
+            .setContentTitle(getString(R.string.auth_request_title))
+            .setContentText(getString(R.string.auth_request_text, authReq.service, authReq.user))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setFullScreenIntent(pendingIntent, true)
@@ -205,11 +209,11 @@ class PamBioForegroundService : Service() {
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("PamBio")
+            .setContentTitle(getString(R.string.app_name))
             .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)
-            .addAction(0, "Остановить", stopPending)
+            .addAction(0, getString(R.string.stop), stopPending)
             .build()
     }
 

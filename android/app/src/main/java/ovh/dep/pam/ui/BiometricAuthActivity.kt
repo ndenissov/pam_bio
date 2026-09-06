@@ -133,6 +133,9 @@ class BiometricAuthActivity : FragmentActivity() {
                     Log.e(TAG, "Failed to send response", e)
                 }
                 withContext(Dispatchers.Main) {
+                    // Clear the notification from PamBioForegroundService
+                    val nm = getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                    nm.cancel(2)
                     finish()
                 }
             }

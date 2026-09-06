@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">PamBio</string>
+    <string name="add_pc">Add PC</string>
+    <string name="scan">Scan</string>
+    <string name="paired_devices">Paired Devices</string>
+    <string name="service_active">Service Active</string>
+    <string name="service_stopped">Service Stopped</string>
+    <string name="waiting_auth">Waiting for authentication requests</string>
+    <string name="click_to_start">Tap to start</string>
+    <string name="key_format">Key: %1$s…</string>
+    <string name="delete_device_title">Delete device?</string>
+    <string name="delete_device_text">%1$s will be deleted. You will need to pair again to reconnect.</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_paired_devices">No paired devices</string>
+    <string name="no_paired_devices_desc">Run \'pambiod pair\' on PC\nand tap "Add PC"</string>
+    <string name="with_love">With love from Nikita Denissov</string>
+    <string name="waiting_connection">Waiting for connection…</string>
+    <string name="connected_to">Connected to %1$s</string>
+    <string name="disconnected">Disconnected, waiting…</string>
+    <string name="stop">Stop</string>
+    <string name="auth_request_title">PamBio: Authentication Request</string>
+    <string name="auth_request_text">%1$s from %2$s</string>
+    <string name="biometric_unavailable">Biometrics unavailable</string>
+</resources>

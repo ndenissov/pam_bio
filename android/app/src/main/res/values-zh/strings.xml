@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">PamBio</string>
+    <string name="add_pc">添加电脑</string>
+    <string name="scan">扫描</string>
+    <string name="paired_devices">已配对设备</string>
+    <string name="service_active">服务已运行</string>
+    <string name="service_stopped">服务已停止</string>
+    <string name="waiting_auth">等待验证请求</string>
+    <string name="click_to_start">点击启动</string>
+    <string name="key_format">密钥: %1$s…</string>
+    <string name="delete_device_title">删除设备？</string>
+    <string name="delete_device_text">%1$s 将被删除。重新连接需要再次配对。</string>
+    <string name="delete">删除</string>
+    <string name="cancel">取消</string>
+    <string name="no_paired_devices">无已配对设备</string>
+    <string name="no_paired_devices_desc">在电脑上运行 \'pambiod pair\'\n然后点击“添加电脑”</string>
+    <string name="with_love">来自 Nikita Denissov 的爱</string>
+    <string name="waiting_connection">等待连接…</string>
+    <string name="connected_to">已连接至 %1$s</string>
+    <string name="disconnected">已断开连接，等待中…</string>
+    <string name="stop">停止</string>
+    <string name="auth_request_title">PamBio: 验证请求</string>
+    <string name="auth_request_text">%1$s 来自 %2$s</string>
+    <string name="biometric_unavailable">生物识别不可用</string>
+</resources>

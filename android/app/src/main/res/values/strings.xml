@@ -1,3 +1,25 @@
 <resources>
-    <string name="app_name">Linux bio-pam</string>
+    <string name="app_name">PamBio</string>
+    <string name="add_pc">Добавить ПК</string>
+    <string name="scan">Сканировать</string>
+    <string name="paired_devices">Спаренные устройства</string>
+    <string name="service_active">Сервис активен</string>
+    <string name="service_stopped">Сервис остановлен</string>
+    <string name="waiting_auth">Ожидание запросов аутентификации</string>
+    <string name="click_to_start">Нажмите для запуска</string>
+    <string name="key_format">Ключ: %1$s…</string>
+    <string name="delete_device_title">Удалить устройство?</string>
+    <string name="delete_device_text">%1$s будет удалено. Для повторного подключения потребуется новое сопряжение.</string>
+    <string name="delete">Удалить</string>
+    <string name="cancel">Отмена</string>
+    <string name="no_paired_devices">Нет спаренных устройств</string>
+    <string name="no_paired_devices_desc">Запустите \'pambiod pair\' на ПК\nи нажмите «Добавить ПК»</string>
+    <string name="with_love">С любовью от Nikita Denissov</string>
+    <string name="waiting_connection">Ожидание подключения…</string>
+    <string name="connected_to">Подключено к %1$s</string>
+    <string name="disconnected">Отключено, ожидание…</string>
+    <string name="stop">Остановить</string>
+    <string name="auth_request_title">PamBio: Запрос аутентификации</string>
+    <string name="auth_request_text">%1$s от %2$s</string>
+    <string name="biometric_unavailable">Биометрия недоступна</string>
 </resources>

@@ -21,6 +21,10 @@ import kotlinx.coroutines.launch
 import ovh.dep.pam.data.PairedDevice
 import ovh.dep.pam.data.PairedDeviceRepository
 import ovh.dep.pam.service.PamBioForegroundService
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import androidx.compose.ui.res.stringResource
+import ovh.dep.pam.R
 
 /**
  * Home screen — list of paired PCs, service toggle, and "add device" FAB.
@@ -34,23 +38,57 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val deviceRepo = remember { PairedDeviceRepository(context) }
     val devices by deviceRepo.devicesFlow.collectAsState(initial = emptyList())
-    var serviceRunning by remember { mutableStateOf(false) }
+    val serviceRunning by PamBioForegroundService.isRunning.collectAsState()
+    var showLangMenu by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("PamBio") },
+                title = { Text(stringResource(R.string.app_name)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                ),
+                actions = {
+                    Box {
+                        IconButton(onClick = { showLangMenu = true }) {
+                            Icon(Icons.Filled.Language, contentDescription = "Language")
+                        }
+                        DropdownMenu(
+                            expanded = showLangMenu,
+                            onDismissRequest = { showLangMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("EN") },
+                                onClick = {
+                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
+                                    showLangMenu = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("RU") },
+                                onClick = {
+                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ru"))
+                                    showLangMenu = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("ZH") },
+                                onClick = {
+                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("zh"))
+                                    showLangMenu = false
+                                }
+                            )
+                        }
+                    }
+                }
             )
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onNavigateToScan,
-                icon = { Icon(Icons.Filled.QrCodeScanner, "Сканировать") },
-                text = { Text("Добавить ПК") },
+                icon = { Icon(Icons.Filled.QrCodeScanner, stringResource(R.string.scan)) },
+                text = { Text(stringResource(R.string.add_pc)) },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
@@ -69,7 +107,6 @@ fun HomeScreen(
                 ServiceToggleCard(
                     isRunning = serviceRunning,
                     onToggle = { enabled ->
-                        serviceRunning = enabled
                         toggleService(context, enabled)
                     }
                 )
@@ -79,7 +116,7 @@ fun HomeScreen(
             if (devices.isNotEmpty()) {
                 item {
                     Text(
-                        text = "Спаренные устройства",
+                        text = stringResource(R.string.paired_devices),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(top = 8.dp)
@@ -102,6 +139,18 @@ fun HomeScreen(
                 item {
                     EmptyState()
                 }
+            }
+
+            // Author signature
+            item {
+                Spacer(Modifier.height(32.dp))
+                Text(
+                    text = stringResource(R.string.with_love),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
@@ -137,15 +186,15 @@ private fun ServiceToggleCard(isRunning: Boolean, onToggle: (Boolean) -> Unit) {
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (isRunning) "Сервис активен" else "Сервис остановлен",
+                    text = if (isRunning) stringResource(R.string.service_active) else stringResource(R.string.service_stopped),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = if (isRunning)
-                        "Ожидание запросов аутентификации"
+                        stringResource(R.string.waiting_auth)
                     else
-                        "Нажмите для запуска",
+                        stringResource(R.string.click_to_start),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -186,13 +235,13 @@ private fun DeviceCard(device: PairedDevice, onRemove: () -> Unit) {
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = "Ключ: ${device.pcPubKey.take(16)}…",
+                    text = stringResource(R.string.key_format, device.pcPubKey.take(16)),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             IconButton(onClick = { showDialog = true }) {
-                Icon(Icons.Filled.Delete, "Удалить", tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Filled.Delete, stringResource(R.string.delete), tint = MaterialTheme.colorScheme.error)
             }
         }
     }
@@ -200,16 +249,16 @@ private fun DeviceCard(device: PairedDevice, onRemove: () -> Unit) {
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Удалить устройство?") },
-            text = { Text("${device.serviceName} будет удалено. Для повторного подключения потребуется новое сопряжение.") },
+            title = { Text(stringResource(R.string.delete_device_title)) },
+            text = { Text(stringResource(R.string.delete_device_text, device.serviceName)) },
             confirmButton = {
                 TextButton(onClick = {
                     onRemove()
                     showDialog = false
-                }) { Text("Удалить", color = MaterialTheme.colorScheme.error) }
+                }) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) { Text("Отмена") }
+                TextButton(onClick = { showDialog = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -231,13 +280,13 @@ private fun EmptyState() {
         )
         Spacer(Modifier.height(16.dp))
         Text(
-            text = "Нет спаренных устройств",
+            text = stringResource(R.string.no_paired_devices),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Запустите 'pambiod pair' на ПК\nи нажмите «Добавить ПК»",
+            text = stringResource(R.string.no_paired_devices_desc),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
