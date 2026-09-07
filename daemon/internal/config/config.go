@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -65,6 +66,12 @@ func LoadServerConfig(configDir string) (*ServerConfig, error) {
 	}
 	if strings.HasPrefix(cfg.ServiceName, "pambio_") {
 		cfg.ServiceName = strings.TrimPrefix(cfg.ServiceName, "pambio_")
+	}
+
+	if envPort := os.Getenv("PAMBIO_PORT"); envPort != "" {
+		if p, err := strconv.Atoi(envPort); err == nil {
+			cfg.Port = p
+		}
 	}
 
 	return &cfg, nil
