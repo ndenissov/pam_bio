@@ -51,10 +51,10 @@ fun HomeScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 actions = {
+                    IconButton(onClick = onNavigateToHistory) {
+                        Icon(Icons.Filled.History, contentDescription = "History")
+                    }
                     Box {
-                        IconButton(onClick = onNavigateToHistory) {
-                            Icon(Icons.Filled.History, contentDescription = "History")
-                        }
                         IconButton(onClick = { showLangMenu = true }) {
                             Icon(Icons.Filled.Language, contentDescription = "Language")
                         }
