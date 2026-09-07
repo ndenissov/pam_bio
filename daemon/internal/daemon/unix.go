@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"net"
+	"fmt"
 
+	"golang.org/x/sys/unix"
 	"pambio/internal/protocol"
 )
 
@@ -27,6 +29,34 @@ func (d *Daemon) acceptUnix() {
 		}
 		go d.handleUnixConnection(conn)
 	}
+}
+
+func getUid(conn net.Conn) (uint32, error) {
+	uc, ok := conn.(*net.UnixConn)
+	if !ok {
+		return 0, fmt.Errorf("not a unix socket")
+	}
+	raw, err := uc.SyscallConn()
+	if err != nil {
+		return 0, err
+	}
+	var uid uint32
+	var credErr error
+	err = raw.Control(func(fd uintptr) {
+		cred, err := unix.GetsockoptUcred(int(fd), unix.SOL_SOCKET, unix.SO_PEERCRED)
+		if err == nil {
+			uid = cred.Uid
+		} else {
+			credErr = err
+		}
+	})
+	if err != nil {
+		return 0, err
+	}
+	if credErr != nil {
+		return 0, credErr
+	}
+	return uid, nil
 }
 
 func (d *Daemon) handleUnixConnection(conn net.Conn) {
@@ -51,8 +81,20 @@ func (d *Daemon) handleUnixConnection(conn net.Conn) {
 	case "auth_request":
 		d.handlePAMAuth(conn, &req)
 	case "start_pairing":
+		uid, err := getUid(conn)
+		if err != nil || uid != 0 {
+			log.Printf("start_pairing denied: require root (uid=0), got uid=%d (err: %v)", uid, err)
+			protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: "root privileges required"})
+			return
+		}
 		d.handleStartPairing(conn)
 	case "unpair":
+		uid, err := getUid(conn)
+		if err != nil || uid != 0 {
+			log.Printf("unpair denied: require root (uid=0), got uid=%d (err: %v)", uid, err)
+			protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: "root privileges required"})
+			return
+		}
 		d.handleUnpair(conn, &req)
 	case "status":
 		d.handleStatus(conn)

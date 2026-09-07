@@ -167,7 +167,7 @@ func (d *Daemon) Start() error {
 		return fmt.Errorf("unix listen: %w", err)
 	}
 	d.unixListener = unixLn
-	if err := os.Chmod(UnixSocketPath, 0600); err != nil {
+	if err := os.Chmod(UnixSocketPath, 0666); err != nil {
 		log.Printf("warning: chmod %s: %v", UnixSocketPath, err)
 	}
 	log.Printf("Unix socket: %s", UnixSocketPath)
