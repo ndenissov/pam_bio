@@ -45,12 +45,7 @@ class PamBioForegroundService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var connectionJob: Job? = null
 
-    private val wifiReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            Log.i(TAG, "Network change detected, restarting discovery")
-            nsdManager.restartDiscovery()
-        }
-    }
+
 
     override fun onCreate() {
         super.onCreate()
@@ -72,9 +67,7 @@ class PamBioForegroundService : Service() {
         startForeground(NOTIFICATION_ID, buildNotification(getString(R.string.waiting_connection)))
         nsdManager.startDiscovery()
 
-        // Register for network changes
-        @Suppress("DEPRECATION")
-        registerReceiver(wifiReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+
 
         // Watch for discovered services and connect
         connectionJob = scope.launch { watchAndConnect() }
@@ -88,7 +81,7 @@ class PamBioForegroundService : Service() {
         scope.cancel()
         nsdManager.stopDiscovery()
         tcpClient?.disconnect()
-        try { unregisterReceiver(wifiReceiver) } catch (_: Exception) {}
+
         super.onDestroy()
     }
 
