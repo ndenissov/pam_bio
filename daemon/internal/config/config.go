@@ -32,6 +32,7 @@ const (
 type ServerConfig struct {
 	Hostname    string `json:"hostname"`
 	ServiceName string `json:"service_name"` // mDNS instance name
+	Port        int    `json:"port"`         // TCP port
 	PrivateKey  string `json:"private_key"`  // base64 Ed25519 seed (32 bytes)
 	PublicKey   string `json:"public_key"`   // base64 Ed25519 public key
 }
@@ -45,6 +46,9 @@ func LoadServerConfig(configDir string) (*ServerConfig, error) {
 	var cfg ServerConfig
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("parse %s: %w", configFile, err)
+	}
+	if cfg.Port == 0 {
+		cfg.Port = 34907
 	}
 	return &cfg, nil
 }

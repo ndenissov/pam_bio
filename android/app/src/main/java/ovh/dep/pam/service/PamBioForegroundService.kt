@@ -96,24 +96,25 @@ class PamBioForegroundService : Service() {
 
     // ── Connection management ──────────────────────────────
 
+    private val connectionJobs = mutableMapOf<String, Job>()
+
     private suspend fun watchAndConnect() {
-        nsdManager.services.collect { services ->
-            if (services.isEmpty()) return@collect
-
-            // Get paired devices
+        while (isRunning.value) {
+            val services = nsdManager.services.value
             val pairedDevices = deviceRepo.getAll()
-            if (pairedDevices.isEmpty()) return@collect
 
-            // Find a matching service
             for (device in pairedDevices) {
                 val resolved = services[device.serviceName] ?: continue
 
-                // Already connected to this service?
-                if (tcpClient?.isConnected == true) continue
+                // Check if there is already an active job for this device
+                if (connectionJobs[device.serviceName]?.isActive == true) continue
 
-                Log.i(TAG, "Found paired service: ${device.serviceName} → ${resolved.host}:${resolved.port}")
-                connectToService(resolved.host, resolved.port, device.serviceName)
+                connectionJobs[device.serviceName] = scope.launch {
+                    Log.i(TAG, "Found paired service: ${device.serviceName} → ${resolved.host}:${resolved.port}")
+                    connectToService(resolved.host, resolved.port, device.serviceName)
+                }
             }
+            delay(3000)
         }
     }
 
@@ -121,40 +122,43 @@ class PamBioForegroundService : Service() {
         val client = TcpClient(keyManager)
         client.onAuthRequest = { authReq -> handleAuthRequest(authReq) }
 
-        if (!client.connect(host, port)) {
-            Log.e(TAG, "Failed to connect to $host:$port")
-            return
-        }
+        try {
+            if (!client.connect(host, port)) {
+                Log.e(TAG, "Failed to connect to $host:$port")
+                return
+            }
 
-        // Identify ourselves
-        if (!client.sendIdentify()) {
-            Log.e(TAG, "Identify rejected by $host:$port")
+            // Identify ourselves
+            if (!client.sendIdentify()) {
+                Log.e(TAG, "Identify rejected by $host:$port")
+                val repo = PairedDeviceRepository(this@PamBioForegroundService)
+                repo.removeDevice(serviceName)
+                return
+            }
+
+            client.isStillPaired = {
+                val repo = PairedDeviceRepository(this@PamBioForegroundService)
+                repo.getAll().any { it.serviceName == serviceName }
+            }
+
+            tcpClient = client
+            BiometricAuthActivity.activeTcpClient = client
+            updateNotification(getString(R.string.connected_to, serviceName))
+            Log.i(TAG, "Connected and identified to $host:$port")
+
+            // Listen for auth requests (blocks until disconnected)
+            client.listenForMessages()
+        } finally {
             client.disconnect()
-            val repo = PairedDeviceRepository(this@PamBioForegroundService)
-            repo.removeDevice(serviceName)
-            return
+            if (tcpClient == client) {
+                tcpClient = null
+            }
+            if (BiometricAuthActivity.activeTcpClient == client) {
+                BiometricAuthActivity.activeTcpClient = null
+            }
+            updateNotification(getString(R.string.disconnected))
+            Log.i(TAG, "Disconnected from $host:$port")
         }
-
-        client.isStillPaired = {
-            val repo = PairedDeviceRepository(this@PamBioForegroundService)
-            repo.getAll().any { it.serviceName == serviceName }
-        }
-
-        tcpClient = client
-        BiometricAuthActivity.activeTcpClient = client
-        updateNotification(getString(R.string.connected_to, serviceName))
-        Log.i(TAG, "Connected and identified to $host:$port")
-
-        // Listen for auth requests (blocks until disconnected)
-        client.listenForMessages()
-
-        // Disconnected
-        tcpClient = null
-        if (BiometricAuthActivity.activeTcpClient == client) {
-            BiometricAuthActivity.activeTcpClient = null
-        }
-        updateNotification(getString(R.string.disconnected))
-        Log.i(TAG, "Disconnected from $host:$port")
     }
 
     // ── Auth request handling ──────────────────────────────
@@ -177,7 +181,7 @@ class PamBioForegroundService : Service() {
         )
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(getString(R.string.auth_request_title))
             .setContentText(getString(R.string.auth_request_text, authReq.service, authReq.user))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -215,7 +219,7 @@ class PamBioForegroundService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_LOW)
