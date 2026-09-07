@@ -5,6 +5,10 @@ VERSION="0.23.0"
 ARCH=$(dpkg --print-architecture)
 BUILD_DIR="packaging"
 
+echo "Creating directories..."
+mkdir -p $BUILD_DIR/pambiod/DEBIAN $BUILD_DIR/pambiod/usr/bin $BUILD_DIR/pambiod/lib/systemd/system
+mkdir -p $BUILD_DIR/pam-bio/DEBIAN $BUILD_DIR/pam-bio/usr/lib/security $BUILD_DIR/pam-bio/usr/share/pam-configs
+
 echo "Building pambiod..."
 cd daemon
 go build -o ../$BUILD_DIR/pambiod/usr/bin/pambiod ./cmd/pambiod

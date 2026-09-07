@@ -35,7 +35,7 @@
             pname = "pambiod";
             version = "0.23.0";
             src = ./daemon;
-            vendorHash = "sha256-KJ6skBrd5vunKYUUsmZi+J/RpVrM5nMRkaYbrUPyLZo=";
+            vendorHash = "sha256-eARV70icujfRhxKmorKg5jz1f81fL9pUk/RPGp1/yeQ=";
             subPackages = [ "cmd/pambiod" ];
             meta = {
               description = "PamBio daemon — biometric auth relay";
