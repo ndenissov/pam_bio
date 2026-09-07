@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -46,6 +47,9 @@ func LoadServerConfig(configDir string) (*ServerConfig, error) {
 	var cfg ServerConfig
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("parse %s: %w", configFile, err)
+	}
+	if strings.HasPrefix(cfg.ServiceName, "pambio_") {
+		cfg.ServiceName = strings.TrimPrefix(cfg.ServiceName, "pambio_")
 	}
 	if cfg.Port == 0 {
 		cfg.Port = 34907

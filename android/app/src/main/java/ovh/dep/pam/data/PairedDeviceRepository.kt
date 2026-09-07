@@ -36,7 +36,8 @@ class PairedDeviceRepository(private val context: Context) {
     val devicesFlow: Flow<List<PairedDevice>> = context.dataStore.data.map { prefs ->
         val raw = prefs[KEY_DEVICES] ?: return@map emptyList()
         try {
-            json.decodeFromString<List<PairedDevice>>(raw)
+            val list = json.decodeFromString<List<PairedDevice>>(raw)
+            list.map { it.copy(serviceName = it.serviceName.removePrefix("pambio_")) }
         } catch (_: Exception) {
             emptyList()
         }
@@ -74,7 +75,8 @@ class PairedDeviceRepository(private val context: Context) {
     private fun getDeviceList(prefs: Preferences): List<PairedDevice> {
         val raw = prefs[KEY_DEVICES] ?: return emptyList()
         return try {
-            json.decodeFromString<List<PairedDevice>>(raw)
+            val list = json.decodeFromString<List<PairedDevice>>(raw)
+            list.map { it.copy(serviceName = it.serviceName.removePrefix("pambio_")) }
         } catch (_: Exception) {
             emptyList()
         }

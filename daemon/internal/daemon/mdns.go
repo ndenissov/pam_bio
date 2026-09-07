@@ -44,7 +44,7 @@ func getValidInterfaces() []net.Interface {
 func (d *Daemon) startMDNS() error {
 	var err error
 	mdnsServer, err = zeroconf.Register(
-		d.cfg.ServiceName, // instance name, e.g. "pambio_mypc"
+		d.cfg.ServiceName, // instance name, e.g. "mypc"
 		"_pambio._tcp",    // service type
 		"local.",          // domain
 		d.tcpPort,         // port

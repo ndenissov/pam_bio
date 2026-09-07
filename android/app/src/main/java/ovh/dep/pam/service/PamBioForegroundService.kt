@@ -67,7 +67,12 @@ class PamBioForegroundService : Service() {
         }
 
         isRunning.value = true
-        val initialText = getString(R.string.waiting_connection)
+        val remaining = connectedDevices.value
+        val initialText = if (remaining.isNotEmpty()) {
+            getString(R.string.connected_to, remaining.first())
+        } else {
+            getString(R.string.waiting_connection)
+        }
         currentNotificationText = initialText
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
