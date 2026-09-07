@@ -1,0 +1,21 @@
+# Build artifacts
+daemon/pambiod
+pam/pam_bio.so
+
+# Go vendor (dependencies fetched by go mod download)
+daemon/vendor/
+
+# Android
+android/.gradle/
+android/.idea/
+android/.kotlin/
+android/build/
+android/app/build/
+android/local.properties
+
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store

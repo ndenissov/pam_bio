@@ -1,0 +1,77 @@
+name: Build and Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y libpam0g-dev build-essential
+
+      - name: Build Debian packages
+        run: ./packaging/build-deb.sh
+        
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-packages
+          path: |
+            pambiod_*.deb
+            pam-bio_*.deb
+
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+          
+      - name: Build APK
+        run: cd android && ./gradlew assembleRelease
+        
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: android/app/build/outputs/apk/release/app-release.apk
+
+  release:
+    needs: [build-deb, build-android]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download DEBs
+        uses: actions/download-artifact@v4
+        with:
+          name: debian-packages
+          
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: app-release
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            *.deb
+            app-release.apk
+          generate_release_notes: true

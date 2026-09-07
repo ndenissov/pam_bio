@@ -1,3 +1,20 @@
+/*
+ * Copyright 2026 Nikita Denissov
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 package ovh.dep.pam
 
 import android.Manifest
@@ -17,6 +34,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
@@ -29,6 +47,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import ovh.dep.pam.data.PairedDeviceRepository
 import ovh.dep.pam.service.PamBioForegroundService
+import ovh.dep.pam.ui.about.AboutScreen
 import ovh.dep.pam.ui.home.HomeScreen
 import ovh.dep.pam.ui.history.HistoryScreen
 import ovh.dep.pam.ui.scan.QrScanScreen
@@ -123,7 +142,8 @@ private fun PamBioNavigation() {
         composable("home") {
             HomeScreen(
                 onNavigateToScan = { navController.navigate("scan") },
-                onNavigateToHistory = { navController.navigate("history") }
+                onNavigateToHistory = { navController.navigate("history") },
+                onNavigateToAbout = { navController.navigate("about") }
             )
         }
         composable("scan") {
@@ -136,6 +156,11 @@ private fun PamBioNavigation() {
         }
         composable("history") {
             HistoryScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("about") {
+            AboutScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
@@ -164,8 +189,8 @@ private fun UnlockScreen(onUnlockSuccess: () -> Unit) {
                     }
                 })
             val promptInfo = BiometricPrompt.PromptInfo.Builder()
-                .setTitle(context.getString(R.string.app_name))
-                .setSubtitle("Unlock to access PamBio")
+                .setTitle(context.getString(R.string.unlock_pambio))
+                .setSubtitle(context.getString(R.string.unlock_subtitle))
                 .setAllowedAuthenticators(authenticators)
                 .build()
             prompt.authenticate(promptInfo)
@@ -181,7 +206,7 @@ private fun UnlockScreen(onUnlockSuccess: () -> Unit) {
             Icon(Icons.Filled.Lock, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.height(24.dp))
             Button(onClick = { showAuth() }) {
-                Text("Unlock PamBio")
+                Text(stringResource(R.string.unlock_pambio))
             }
         }
     }

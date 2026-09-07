@@ -58,4 +58,13 @@
     <string name="method_label">Способ: %1$s</string>
     <string name="status_connected">Подключено</string>
     <string name="status_disconnected">Отключено</string>
+    <string name="unlock_pambio">Разблокировать PamBio</string>
+    <string name="unlock_subtitle">Разблокируйте для доступа к PamBio</string>
+    <string name="channel_service_name">Статус службы</string>
+    <string name="channel_service_desc">Показывает, работает ли фоновая служба</string>
+    <string name="channel_auth_name">Запросы аутентификации</string>
+    <string name="channel_auth_desc">Уведомления о новых запросах аутентификации</string>
+    <string name="github_repo">Репозиторий GitHub</string>
+    <string name="about_title">О приложении</string>
+    <string name="app_version">Версия: %1$s</string>
 </resources>

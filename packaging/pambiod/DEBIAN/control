@@ -1,0 +1,9 @@
+Package: pambiod
+Version: 0.23.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Nikita Denissov <nikita@dep.ovh>
+Description: PamBio daemon — biometric auth relay
+ The daemon component for the PamBio biometric authentication system.
+ Relays PAM authentication requests to paired smartphones via mDNS and TCP.

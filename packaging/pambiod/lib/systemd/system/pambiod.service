@@ -1,0 +1,14 @@
+[Unit]
+Description=PamBio Daemon
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/pambiod serve
+Restart=always
+RestartSec=5
+# Run as root required to create the Unix socket for PAM
+User=root
+Environment=PAMBIO_CONFIG_DIR=/etc/pambio
+
+[Install]
+WantedBy=multi-user.target

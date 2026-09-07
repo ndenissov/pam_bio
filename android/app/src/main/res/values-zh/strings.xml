@@ -52,4 +52,19 @@
     <string name="import_gallery">从相册选择</string>
     <string name="paste_clipboard">从剪贴板粘贴</string>
     <string name="invalid_file_format">无效的密钥格式</string>
+    <string name="history_title">历史记录</string>
+    <string name="history_empty">历史记录为空</string>
+    <string name="status_label">状态: %1$s</string>
+    <string name="method_label">方法: %1$s</string>
+    <string name="status_connected">已连接</string>
+    <string name="status_disconnected">已断开连接</string>
+    <string name="unlock_pambio">解锁 PamBio</string>
+    <string name="unlock_subtitle">解锁以访问 PamBio</string>
+    <string name="channel_service_name">服务状态</string>
+    <string name="channel_service_desc">显示后台服务是否正在运行</string>
+    <string name="channel_auth_name">身份验证请求</string>
+    <string name="channel_auth_desc">新身份验证请求警报</string>
+    <string name="github_repo">GitHub 仓库</string>
+    <string name="about_title">关于</string>
+    <string name="app_version">版本: %1$s</string>
 </resources>

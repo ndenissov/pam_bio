@@ -46,7 +46,26 @@ PamBio comes with a Nix Flake that makes installation on NixOS trivial.
     ```
 3.  Rebuild your system: `sudo nixos-rebuild switch --flake .#your_host`
 
-### 2. Manual Installation (Other Linux Distributions)
+### 2. Debian / Ubuntu (APT)
+
+You can install PamBio via the official APT repository:
+
+1. Add the repository to your sources list:
+   ```bash
+   echo "deb [trusted=yes] https://apt.dep.ovh/ /" | sudo tee /etc/apt/sources.list.d/pambio.list
+   ```
+2. Update and install:
+   ```bash
+   sudo apt update
+   sudo apt install pam-bio
+   ```
+3. Enable and start the daemon:
+   ```bash
+   sudo systemctl enable --now pambiod
+   ```
+   *Note: The `pam-bio` package automatically configures PAM via `pam-auth-update`.*
+
+### 3. Manual Installation (Other Linux Distributions)
 
 #### Prerequisites
 *   Go 1.22+
@@ -59,7 +78,7 @@ PamBio comes with a Nix Flake that makes installation on NixOS trivial.
 cd daemon
 go build -o pambiod ./cmd/pambiod
 sudo cp pambiod /usr/local/bin/
-sudo cp pambiod.service /etc/systemd/system/
+sudo cp packaging/pambiod/lib/systemd/system/pambiod.service /etc/systemd/system/
 sudo systemctl enable --now pambiod
 ```
 

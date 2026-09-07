@@ -52,4 +52,19 @@
     <string name="import_gallery">Choose from gallery</string>
     <string name="paste_clipboard">Paste from clipboard</string>
     <string name="invalid_file_format">Invalid key format</string>
+    <string name="history_title">History</string>
+    <string name="history_empty">History is empty</string>
+    <string name="status_label">Status: %1$s</string>
+    <string name="method_label">Method: %1$s</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="unlock_pambio">Unlock PamBio</string>
+    <string name="unlock_subtitle">Unlock to access PamBio</string>
+    <string name="channel_service_name">Service Status</string>
+    <string name="channel_service_desc">Shows whether the background service is running</string>
+    <string name="channel_auth_name">Authentication Requests</string>
+    <string name="channel_auth_desc">Alerts for new authentication requests</string>
+    <string name="github_repo">GitHub Repo</string>
+    <string name="about_title">About</string>
+    <string name="app_version">Version: %1$s</string>
 </resources>
