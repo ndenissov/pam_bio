@@ -41,6 +41,7 @@ class PamBioForegroundService : Service() {
     private lateinit var keyManager: KeyManager
     private lateinit var deviceRepo: PairedDeviceRepository
     private var tcpClient: TcpClient? = null
+    private var currentNotificationText: String? = null
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var connectionJob: Job? = null
@@ -64,7 +65,21 @@ class PamBioForegroundService : Service() {
         }
 
         isRunning.value = true
-        startForeground(NOTIFICATION_ID, buildNotification(getString(R.string.waiting_connection)))
+        val initialText = getString(R.string.waiting_connection)
+        currentNotificationText = initialText
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    buildNotification(initialText),
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, buildNotification(initialText))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start foreground", e)
+        }
         nsdManager.startDiscovery()
 
 
@@ -120,6 +135,9 @@ class PamBioForegroundService : Service() {
                 client.connect(host, port)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to connect to $host:$port: ${e.message}")
+                // mDNS record is likely stale. Restart discovery to resolve fresh IP/port.
+                nsdManager.restartDiscovery()
+                delay(5000)
                 return
             }
 
@@ -224,6 +242,8 @@ class PamBioForegroundService : Service() {
     }
 
     private fun updateNotification(text: String) {
+        if (currentNotificationText == text) return
+        currentNotificationText = text
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.notify(NOTIFICATION_ID, buildNotification(text))
     }

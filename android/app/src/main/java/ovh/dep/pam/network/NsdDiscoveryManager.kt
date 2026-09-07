@@ -33,12 +33,11 @@ class NsdDiscoveryManager(context: Context) {
     /** Currently discovered services, keyed by service name. */
     val services: StateFlow<Map<String, ResolvedService>> = _services
 
-    private var isDiscovering = false
+    private var currentDiscoveryListener: NsdManager.DiscoveryListener? = null
 
-    private val discoveryListener = object : NsdManager.DiscoveryListener {
+    private fun createDiscoveryListener() = object : NsdManager.DiscoveryListener {
         override fun onDiscoveryStarted(serviceType: String) {
             Log.d(TAG, "Discovery started for $serviceType")
-            isDiscovering = true
         }
 
         override fun onServiceFound(info: NsdServiceInfo) {
@@ -54,12 +53,14 @@ class NsdDiscoveryManager(context: Context) {
 
         override fun onDiscoveryStopped(serviceType: String) {
             Log.d(TAG, "Discovery stopped")
-            isDiscovering = false
         }
 
         override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {
             Log.e(TAG, "Start discovery failed: error $errorCode")
-            isDiscovering = false
+            // If the current listener failed, clear it so we can try again
+            if (currentDiscoveryListener == this) {
+                currentDiscoveryListener = null
+            }
         }
 
         override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {
@@ -86,27 +87,38 @@ class NsdDiscoveryManager(context: Context) {
         }
     }
 
+    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
+
     /** Starts mDNS discovery. Safe to call multiple times. */
     fun startDiscovery() {
-        if (isDiscovering) return
-        try {
-            nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to start discovery", e)
+        mainHandler.post {
+            if (currentDiscoveryListener != null) return@post
+            
+            val listener = createDiscoveryListener()
+            currentDiscoveryListener = listener
+            try {
+                nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, listener)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to start discovery", e)
+                currentDiscoveryListener = null
+            }
         }
     }
 
     /** Stops mDNS discovery. */
     fun stopDiscovery() {
-        if (!isDiscovering) return
-        try {
-            nsdManager.stopServiceDiscovery(discoveryListener)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to stop discovery", e)
+        mainHandler.post {
+            val listener = currentDiscoveryListener ?: return@post
+            currentDiscoveryListener = null
+            try {
+                nsdManager.stopServiceDiscovery(listener)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to stop discovery", e)
+            }
         }
     }
 
-    /** Restarts discovery (e.g. after Wi-Fi change). */
+    /** Restarts discovery (e.g. after Wi-Fi change or stale connection). */
     fun restartDiscovery() {
         stopDiscovery()
         _services.value = emptyMap()
