@@ -3,4 +3,4 @@ Default: yes
 Priority: 256
 Auth-Type: Primary
 Auth:
-	[success=ok default=ignore]	pam_bio.so
+	sufficient	pam_bio.so

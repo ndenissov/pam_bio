@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-VERSION="0.27.0"
+VERSION="0.28.0"
 ARCH=$(dpkg --print-architecture)
 BUILD_DIR="packaging"
 

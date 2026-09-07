@@ -33,7 +33,7 @@
         packages = rec {
           pambiod = pkgs.buildGoModule {
             pname = "pambiod";
-            version = "0.27.0";
+            version = "0.28.0";
             src = ./daemon;
             vendorHash = "sha256-eARV70icujfRhxKmorKg5jz1f81fL9pUk/RPGp1/yeQ=";
             subPackages = [ "cmd/pambiod" ];
@@ -46,7 +46,7 @@
 
           pam_bio = pkgs.stdenv.mkDerivation {
             pname = "pam-bio";
-            version = "0.27.0";
+            version = "0.28.0";
             src = ./pam;
 
             buildInputs = [ pkgs.pam ];
