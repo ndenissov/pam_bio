@@ -29,12 +29,14 @@ class PamBioForegroundService : Service() {
 
     companion object {
         private const val TAG = "PamBioService"
-        private const val CHANNEL_ID = "pambio_foreground"
+        private const val CHANNEL_SERVICE_ID = "pambio_service_status"
+        private const val CHANNEL_AUTH_ID = "pambio_auth_requests"
         private const val NOTIFICATION_ID = 1
         const val ACTION_START = "ovh.dep.pam.START_SERVICE"
         const val ACTION_STOP = "ovh.dep.pam.STOP_SERVICE"
 
         val isRunning = kotlinx.coroutines.flow.MutableStateFlow(false)
+        val connectedDevices = kotlinx.coroutines.flow.MutableStateFlow<Set<String>>(emptySet())
     }
 
     private lateinit var nsdManager: NsdDiscoveryManager
@@ -156,6 +158,7 @@ class PamBioForegroundService : Service() {
 
             tcpClient = client
             BiometricAuthActivity.activeTcpClient = client
+            connectedDevices.value = connectedDevices.value + serviceName
             updateNotification(getString(R.string.connected_to, serviceName))
             Log.i(TAG, "Connected and identified to $host:$port")
 
@@ -169,7 +172,14 @@ class PamBioForegroundService : Service() {
             if (BiometricAuthActivity.activeTcpClient == client) {
                 BiometricAuthActivity.activeTcpClient = null
             }
-            updateNotification(getString(R.string.disconnected))
+            connectedDevices.value = connectedDevices.value - serviceName
+            
+            val remaining = connectedDevices.value
+            if (remaining.isEmpty()) {
+                updateNotification(getString(R.string.disconnected))
+            } else {
+                updateNotification(getString(R.string.connected_to, remaining.first()))
+            }
             Log.i(TAG, "Disconnected from $host:$port")
         }
     }
@@ -194,7 +204,7 @@ class PamBioForegroundService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+        val notification = NotificationCompat.Builder(this, CHANNEL_AUTH_ID)
             .setSmallIcon(R.drawable.ic_stat_name)
             .setContentTitle(getString(R.string.auth_request_title))
             .setContentText(getString(R.string.auth_request_text, authReq.service, authReq.user))
@@ -211,16 +221,29 @@ class PamBioForegroundService : Service() {
     // ── Notification ───────────────────────────────────────
 
     private fun createNotificationChannel() {
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            "PamBio Service",
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        // Low importance channel for service status (no sound/vibration)
+        val serviceChannel = NotificationChannel(
+            CHANNEL_SERVICE_ID,
+            "Service Status",
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = "Shows whether the app is connected to the PC"
+            setShowBadge(false)
+        }
+        nm.createNotificationChannel(serviceChannel)
+
+        // High importance channel for auth requests (sound/vibration)
+        val authChannel = NotificationChannel(
+            CHANNEL_AUTH_ID,
+            "Authentication Requests",
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "PamBio foreground service and auth notifications"
+            description = "Alerts for new authentication requests"
             lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         }
-        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        nm.createNotificationChannel(channel)
+        nm.createNotificationChannel(authChannel)
     }
 
     private fun buildNotification(text: String): Notification {
@@ -232,7 +255,7 @@ class PamBioForegroundService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        return NotificationCompat.Builder(this, CHANNEL_SERVICE_ID)
             .setSmallIcon(R.drawable.ic_stat_name)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(text)

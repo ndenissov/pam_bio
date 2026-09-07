@@ -56,4 +56,6 @@
     <string name="history_empty">История пуста</string>
     <string name="status_label">Статус: %1$s</string>
     <string name="method_label">Способ: %1$s</string>
+    <string name="status_connected">Подключено</string>
+    <string name="status_disconnected">Отключено</string>
 </resources>

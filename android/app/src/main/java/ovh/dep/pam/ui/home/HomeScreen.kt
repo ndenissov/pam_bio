@@ -40,6 +40,7 @@ fun HomeScreen(
     val deviceRepo = remember { PairedDeviceRepository(context) }
     val devices by deviceRepo.devicesFlow.collectAsState(initial = emptyList())
     val serviceRunning by PamBioForegroundService.isRunning.collectAsState()
+    val connectedDevices by PamBioForegroundService.connectedDevices.collectAsState()
     var showLangMenu by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -132,6 +133,7 @@ fun HomeScreen(
             items(devices, key = { it.serviceName }) { device ->
                 DeviceCard(
                     device = device,
+                    isConnected = connectedDevices.contains(device.serviceName),
                     onRemove = {
                         scope.launch { deviceRepo.removeDevice(device.serviceName) }
                     }
@@ -212,7 +214,7 @@ private fun ServiceToggleCard(isRunning: Boolean, onToggle: (Boolean) -> Unit) {
 }
 
 @Composable
-private fun DeviceCard(device: PairedDevice, onRemove: () -> Unit) {
+private fun DeviceCard(device: PairedDevice, isConnected: Boolean, onRemove: () -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
 
     Card(
@@ -239,9 +241,9 @@ private fun DeviceCard(device: PairedDevice, onRemove: () -> Unit) {
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = stringResource(R.string.key_format, device.pcPubKey.take(16)),
+                    text = if (isConnected) stringResource(R.string.status_connected) else stringResource(R.string.status_disconnected),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             IconButton(onClick = { showDialog = true }) {
