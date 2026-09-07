@@ -48,8 +48,9 @@ class TcpClient(
 
     /**
      * Connects to the daemon at [host]:[port] and performs the ECDH handshake.
+     * Throws an exception if connection or handshake fails.
      */
-    suspend fun connect(host: String, port: Int): Boolean = withContext(Dispatchers.IO) {
+    suspend fun connect(host: String, port: Int) = withContext(Dispatchers.IO) {
         try {
             val sock = Socket()
             sock.connect(InetSocketAddress(host, port), CONNECT_TIMEOUT_MS)
@@ -58,11 +59,10 @@ class TcpClient(
             input = DataInputStream(sock.getInputStream())
 
             performHandshake()
-            true
         } catch (e: Exception) {
             Log.e(TAG, "Connect to $host:$port failed", e)
             disconnect()
-            false
+            throw e
         }
     }
 

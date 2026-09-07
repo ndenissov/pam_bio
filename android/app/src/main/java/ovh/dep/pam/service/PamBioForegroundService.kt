@@ -123,8 +123,10 @@ class PamBioForegroundService : Service() {
         client.onAuthRequest = { authReq -> handleAuthRequest(authReq) }
 
         try {
-            if (!client.connect(host, port)) {
-                Log.e(TAG, "Failed to connect to $host:$port")
+            try {
+                client.connect(host, port)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to connect to $host:$port: ${e.message}")
                 return
             }
 

@@ -402,8 +402,10 @@ private suspend fun doPairing(
 
         // TCP connect + handshake
         val tcpClient = TcpClient(keyManager)
-        if (!tcpClient.connect(resolved.host, resolved.port)) {
-            onError(context.getString(R.string.failed_connect))
+        try {
+            tcpClient.connect(resolved.host, resolved.port)
+        } catch (e: Exception) {
+            onError("${context.getString(R.string.failed_connect)} (${resolved.host}:${resolved.port} - ${e.message})")
             return
         }
 
