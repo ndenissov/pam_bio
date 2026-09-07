@@ -54,6 +54,7 @@ class TcpClient(
         try {
             val sock = Socket()
             sock.connect(InetSocketAddress(host, port), CONNECT_TIMEOUT_MS)
+            sock.soTimeout = 40000 // 40 seconds read timeout (daemon pings every 15s)
             socket = sock
             output = DataOutputStream(sock.getOutputStream())
             input = DataInputStream(sock.getInputStream())

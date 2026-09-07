@@ -227,6 +227,32 @@ func (d *Daemon) handleIdentify(conn net.Conn, sessionKey, sessionID, data []byt
 
 // listenForAuthResponses reads messages from the phone until disconnect.
 func (d *Daemon) listenForAuthResponses(phone *PhoneConnection) {
+	done := make(chan struct{})
+	defer close(done)
+
+	// Keep-alive loop: send ping every 15 seconds
+	go func() {
+		ticker := time.NewTicker(15 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ticker.C:
+				phone.mu.Lock()
+				err := d.writeEncrypted(phone.conn, phone.sessionKey, protocol.PingMessage{Type: protocol.TypePing})
+				phone.mu.Unlock()
+				if err != nil {
+					log.Printf("ping to %s failed, dropping connection: %v", phone.deviceName, err)
+					phone.conn.Close()
+					return
+				}
+			case <-done:
+				return
+			case <-d.ctx.Done():
+				return
+			}
+		}
+	}()
+
 	for {
 		select {
 		case <-d.ctx.Done():

@@ -183,7 +183,7 @@ class PamBioForegroundService : Service() {
         )
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stat_name)
             .setContentTitle(getString(R.string.auth_request_title))
             .setContentText(getString(R.string.auth_request_text, authReq.service, authReq.user))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -221,7 +221,7 @@ class PamBioForegroundService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stat_name)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_LOW)
