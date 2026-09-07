@@ -11,7 +11,6 @@ package main
 
 import (
 	"encoding/base64"
-	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -42,7 +41,7 @@ func main() {
 	case "serve":
 		cmdServe(configDir)
 	case "pair":
-		cmdPair(os.Args[2:])
+		cmdPair()
 	case "unpair":
 		if len(os.Args) < 3 {
 			fmt.Fprintln(os.Stderr, "Usage: pambiod unpair <device_name>")
@@ -68,7 +67,7 @@ Usage:
 
 Commands:
   serve            Start the daemon (TCP + Unix socket + mDNS)
-  pair [--out F]   Initiate device pairing (displays QR code or saves to file)
+  pair             Initiate device pairing (displays QR code in terminal)
   unpair <name>    Remove a paired device by name
   status           Show daemon and device status
   help             Show this help message
@@ -98,10 +97,7 @@ func cmdServe(configDir string) {
 // pair
 // ──────────────────────────────────────────────
 
-func cmdPair(args []string) {
-	pairCmd := flag.NewFlagSet("pair", flag.ExitOnError)
-	outFile := pairCmd.String("out", "", "Output raw pairing key to file instead of displaying QR code")
-	pairCmd.Parse(args)
+func cmdPair() {
 
 	conn, err := connectDaemon()
 	if err != nil {
@@ -133,26 +129,19 @@ func cmdPair(args []string) {
 	fmt.Printf("\nService name: %s\n", serviceName)
 	fmt.Println("Waiting for device to connect…")
 
-	if *outFile != "" {
-		if err := os.WriteFile(*outFile, rawPayload, 0600); err != nil {
-			log.Fatalf("Failed to write to file: %v", err)
-		}
-		fmt.Printf("✓ Pairing key successfully saved to %s\n", *outFile)
-	} else {
-		fmt.Println()
-		fmt.Println("╔══════════════════════════════════════════════╗")
-		fmt.Println("║  Scan this QR code with the PamBio Android   ║")
-		fmt.Println("║  app to pair your device.                    ║")
-		fmt.Println("╚══════════════════════════════════════════════╝")
-		fmt.Println()
-		
-		// Print base64 for console copying
-		fmt.Println("Manual copy base64:", resp.QRData)
-		fmt.Println()
+	fmt.Println()
+	fmt.Println("╔══════════════════════════════════════════════╗")
+	fmt.Println("║  Scan this QR code with the PamBio Android   ║")
+	fmt.Println("║  app to pair your device.                    ║")
+	fmt.Println("╚══════════════════════════════════════════════╝")
+	fmt.Println()
+	
+	// Print base64 for console copying
+	fmt.Println("Manual copy base64:", resp.QRData)
+	fmt.Println()
 
-		// Generate compact QR code with raw binary payload
-		qrterminal.GenerateHalfBlock(string(rawPayload), qrterminal.L, os.Stdout)
-	}
+	// Generate compact QR code with raw binary payload
+	qrterminal.GenerateHalfBlock(string(rawPayload), qrterminal.L, os.Stdout)
 
 	// Second response: pairing result
 	var result protocol.UnixResponse
