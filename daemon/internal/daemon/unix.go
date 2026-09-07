@@ -133,13 +133,16 @@ func (d *Daemon) handlePAMAuth(conn net.Conn, req *protocol.UnixRequest) {
 func (d *Daemon) handleStartPairing(conn net.Conn) {
 	log.Println("Pairing mode activated by CLI")
 
-	// Build QR payload: {service_name, pc_pub_key}
-	payload := map[string]string{
-		"service_name": d.cfg.ServiceName,
-		"pc_pub_key":   d.cfg.PublicKey,
-	}
-	payloadJSON, _ := json.Marshal(payload)
-	qrData := base64.StdEncoding.EncodeToString(payloadJSON)
+	// Build QR payload: [1 byte name_len][N bytes service_name][32 bytes pc_pub_key]
+	pubKeyBytes, _ := base64.StdEncoding.DecodeString(d.cfg.PublicKey)
+	serviceNameBytes := []byte(d.cfg.ServiceName)
+	
+	rawPayload := make([]byte, 1+len(serviceNameBytes)+len(pubKeyBytes))
+	rawPayload[0] = byte(len(serviceNameBytes))
+	copy(rawPayload[1:], serviceNameBytes)
+	copy(rawPayload[1+len(serviceNameBytes):], pubKeyBytes)
+	
+	qrData := base64.StdEncoding.EncodeToString(rawPayload)
 
 	// Activate pairing mode (daemon will accept the next pair_request)
 	pairingCh := d.startPairing()

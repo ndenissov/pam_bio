@@ -94,9 +94,9 @@ fun QrScanScreen(
                     .addOnSuccessListener { barcodes ->
                         var found = false
                         for (barcode in barcodes) {
-                            if (barcode.valueType == Barcode.TYPE_TEXT) {
-                                val raw = barcode.rawValue ?: continue
-                                handleQrCode(raw, json) { payload ->
+                            if (barcode.valueType == Barcode.TYPE_TEXT || barcode.valueType == Barcode.TYPE_UNKNOWN) {
+                                val rawBytes = barcode.rawBytes ?: continue
+                                handleQrCodeBytes(rawBytes, json) { payload ->
                                     found = true
                                     if (scannedPayload == null) {
                                         scannedPayload = payload
@@ -177,9 +177,9 @@ fun QrScanScreen(
                                 scanner.process(image)
                                     .addOnSuccessListener { barcodes ->
                                         for (barcode in barcodes) {
-                                            if (barcode.valueType == Barcode.TYPE_TEXT) {
-                                                val raw = barcode.rawValue ?: continue
-                                                handleQrCode(raw, json) { payload ->
+                                            if (barcode.valueType == Barcode.TYPE_TEXT || barcode.valueType == Barcode.TYPE_UNKNOWN) {
+                                                val rawBytes = barcode.rawBytes ?: continue
+                                                handleQrCodeBytes(rawBytes, json) { payload ->
                                                     if (scannedPayload == null) {
                                                         scannedPayload = payload
                                                         isProcessing = true
@@ -293,7 +293,7 @@ fun QrScanScreen(
                         onClick = { 
                             val text = clipboardManager.getText()?.text ?: ""
                             if (text.isNotBlank()) {
-                                handleQrCode(text, json) { payload ->
+                                handleQrCodeText(text, json) { payload ->
                                     if (scannedPayload == null) {
                                         scannedPayload = payload
                                         isProcessing = true
@@ -348,16 +348,33 @@ fun QrScanScreen(
 
 // ── QR decoding ────────────────────────────────────────────
 
-private fun handleQrCode(raw: String, json: Json, onPayload: (QrPairingPayload) -> Unit) {
+private fun handleQrCodeBytes(bytes: ByteArray, json: Json, onPayload: (QrPairingPayload) -> Unit) {
     try {
-        // QR contains base64-encoded JSON
-        val decoded = android.util.Base64.decode(raw, android.util.Base64.DEFAULT)
-        val payload = json.decodeFromString<QrPairingPayload>(String(decoded))
-        if (payload.serviceName.isNotBlank() && payload.pcPubKey.isNotBlank()) {
-            onPayload(payload)
+        if (bytes.isNotEmpty() && bytes[0].toInt() in 1..bytes.size - 33) {
+            val nameLen = bytes[0].toInt()
+            val serviceName = String(bytes, 1, nameLen, Charsets.UTF_8)
+            val pubKeyBytes = bytes.copyOfRange(1 + nameLen, 1 + nameLen + 32)
+            val pubKeyBase64 = android.util.Base64.encodeToString(pubKeyBytes, android.util.Base64.NO_WRAP)
+            onPayload(QrPairingPayload(serviceName, pubKeyBase64))
+        } else {
+            // fallback to parsing json directly if it was just json bytes
+            val str = String(bytes, Charsets.UTF_8)
+            val payload = json.decodeFromString<QrPairingPayload>(str)
+            if (payload.serviceName.isNotBlank() && payload.pcPubKey.isNotBlank()) {
+                onPayload(payload)
+            }
         }
     } catch (e: Exception) {
-        Log.w("QrScan", "Invalid QR data: ${e.message}")
+        Log.w("QrScan", "Invalid QR data bytes: ${e.message}")
+    }
+}
+
+private fun handleQrCodeText(text: String, json: Json, onPayload: (QrPairingPayload) -> Unit) {
+    try {
+        val decoded = android.util.Base64.decode(text, android.util.Base64.DEFAULT)
+        handleQrCodeBytes(decoded, json, onPayload)
+    } catch (e: Exception) {
+        Log.w("QrScan", "Invalid QR data text: ${e.message}")
     }
 }
 

@@ -11,7 +11,6 @@ package main
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -127,36 +126,33 @@ func cmdPair(args []string) {
 		os.Exit(1)
 	}
 
+	// Show human-readable payload
+	rawPayload, _ := base64.StdEncoding.DecodeString(resp.QRData)
+	serviceNameLen := int(rawPayload[0])
+	serviceName := string(rawPayload[1 : 1+serviceNameLen])
+	fmt.Printf("\nService name: %s\n", serviceName)
+	fmt.Println("Waiting for device to connect…")
+
 	if *outFile != "" {
-		if err := os.WriteFile(*outFile, []byte(resp.QRData), 0600); err != nil {
+		if err := os.WriteFile(*outFile, rawPayload, 0600); err != nil {
 			log.Fatalf("Failed to write to file: %v", err)
 		}
 		fmt.Printf("✓ Pairing key successfully saved to %s\n", *outFile)
 	} else {
 		fmt.Println()
 		fmt.Println("╔══════════════════════════════════════════════╗")
-		fmt.Println("║  Scan this QR code with the PamBio Android  ║")
+		fmt.Println("║  Scan this QR code with the PamBio Android   ║")
 		fmt.Println("║  app to pair your device.                    ║")
 		fmt.Println("╚══════════════════════════════════════════════╝")
 		fmt.Println()
-		fmt.Println(resp.QRData)
+		
+		// Print base64 for console copying
+		fmt.Println("Manual copy base64:", resp.QRData)
 		fmt.Println()
 
-		qrterminal.GenerateWithConfig(resp.QRData, qrterminal.Config{
-			Level:     qrterminal.M,
-			Writer:    os.Stdout,
-			BlackChar: qrterminal.BLACK,
-			WhiteChar: qrterminal.WHITE,
-			QuietZone: 2,
-		})
+		// Generate compact QR code with raw binary payload
+		qrterminal.GenerateHalfBlock(string(rawPayload), qrterminal.L, os.Stdout)
 	}
-
-	// Show human-readable payload
-	decoded, _ := base64.StdEncoding.DecodeString(resp.QRData)
-	var payload map[string]string
-	json.Unmarshal(decoded, &payload)
-	fmt.Printf("\nService name: %s\n", payload["service_name"])
-	fmt.Println("Waiting for device to connect…")
 
 	// Second response: pairing result
 	var result protocol.UnixResponse
