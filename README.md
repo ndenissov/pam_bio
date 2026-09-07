@@ -41,6 +41,8 @@ PamBio comes with a Nix Flake that makes installation on NixOS trivial.
         enable = true;
         enableSudoAuth = true; # Use biometrics for sudo
         enableSddmAuth = true; # Use biometrics for SDDM login
+        # port = 34907;        # Set static port (default is 34907)
+        # openFirewall = true; # Open port in firewall automatically
       };
     }
     ```
@@ -59,7 +61,11 @@ You can install PamBio via the official APT repository:
    sudo apt update
    sudo apt install pam-bio
    ```
-3. Enable and start the daemon:
+4. **Firewall:** Ensure the default TCP port `34907` is open on your firewall (e.g., UFW).
+   ```bash
+   sudo ufw allow 34907/tcp
+   ```
+5. Enable and start the daemon:
    ```bash
    sudo systemctl enable --now pambiod
    ```
@@ -88,6 +94,9 @@ cd pam
 make
 sudo make install
 ```
+
+#### Configure Firewall
+By default, `pambiod` listens on TCP port `34907`. You must allow this port through your system's firewall. If you wish to use a dynamic port (by setting `port: 0` in `/etc/pambio/config.json`), you will need to allow local subnet traffic entirely.
 
 #### Configure PAM
 Edit your PAM configuration files (e.g., `/etc/pam.d/sudo`) and add the following line **at the top** of the `auth` section:
