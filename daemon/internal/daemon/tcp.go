@@ -230,9 +230,9 @@ func (d *Daemon) listenForAuthResponses(phone *PhoneConnection) {
 	done := make(chan struct{})
 	defer close(done)
 
-	// Keep-alive loop: send ping every 15 seconds
+	// Keep-alive loop: send ping every 5 seconds
 	go func() {
-		ticker := time.NewTicker(15 * time.Second)
+		ticker := time.NewTicker(5 * time.Second)
 		defer ticker.Stop()
 		for {
 			select {
@@ -260,7 +260,9 @@ func (d *Daemon) listenForAuthResponses(phone *PhoneConnection) {
 		default:
 		}
 
+		phone.conn.SetReadDeadline(time.Now().Add(15 * time.Second))
 		data, err := d.readEncrypted(phone.conn, phone.sessionKey)
+		phone.conn.SetReadDeadline(time.Time{}) // clear deadline
 		if err != nil {
 			log.Printf("connection lost with %s: %v", phone.deviceName, err)
 			return

@@ -185,6 +185,7 @@ class PamBioForegroundService : Service() {
             putExtra(BiometricAuthActivity.EXTRA_NONCE, authReq.nonce)
             putExtra(BiometricAuthActivity.EXTRA_USER, authReq.user)
             putExtra(BiometricAuthActivity.EXTRA_SERVICE, authReq.service)
+            putExtra(BiometricAuthActivity.EXTRA_TIMESTAMP, authReq.timestamp)
         }
 
         // Full-screen notification for lock screen

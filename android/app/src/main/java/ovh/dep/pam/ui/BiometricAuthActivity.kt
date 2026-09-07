@@ -26,8 +26,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 import ovh.dep.pam.crypto.KeyManager
+import ovh.dep.pam.data.history.AuthHistoryItem
+import ovh.dep.pam.data.history.AuthHistoryRepository
 import ovh.dep.pam.network.TcpClient
 import ovh.dep.pam.ui.theme.LinuxBiopamTheme
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * Activity shown over the lock screen when the daemon sends an auth request.
@@ -41,6 +46,7 @@ class BiometricAuthActivity : AppCompatActivity() {
         const val EXTRA_NONCE = "nonce"
         const val EXTRA_USER = "user"
         const val EXTRA_SERVICE = "service"
+        const val EXTRA_TIMESTAMP = "timestamp"
 
         // Shared reference so the service can set the active TcpClient
         @Volatile
@@ -50,6 +56,7 @@ class BiometricAuthActivity : AppCompatActivity() {
     private var nonce: String = ""
     private var user: String = ""
     private var serviceName: String = ""
+    private var timestamp: Long = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,14 +67,16 @@ class BiometricAuthActivity : AppCompatActivity() {
         nonce = intent.getStringExtra(EXTRA_NONCE) ?: ""
         user = intent.getStringExtra(EXTRA_USER) ?: "unknown"
         serviceName = intent.getStringExtra(EXTRA_SERVICE) ?: "unknown"
+        timestamp = intent.getLongExtra(EXTRA_TIMESTAMP, System.currentTimeMillis())
 
         setContent {
             LinuxBiopamTheme {
                 AuthScreen(
                     user = user,
                     service = serviceName,
+                    timestamp = timestamp,
                     onApprove = { showBiometricPrompt() },
-                    onDeny = { sendResponse(approved = false) }
+                    onDeny = { sendResponse(approved = false, method = "none") }
                 )
             }
         }
@@ -77,12 +86,12 @@ class BiometricAuthActivity : AppCompatActivity() {
     }
 
     private fun showBiometricPrompt() {
-        val canAuth = BiometricManager.from(this)
-            .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+        val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        val canAuth = BiometricManager.from(this).canAuthenticate(authenticators)
 
         if (canAuth != BiometricManager.BIOMETRIC_SUCCESS) {
             Toast.makeText(this, getString(R.string.biometric_unavailable), Toast.LENGTH_SHORT).show()
-            sendResponse(approved = false)
+            sendResponse(approved = false, method = "none")
             return
         }
 
@@ -98,15 +107,16 @@ class BiometricAuthActivity : AppCompatActivity() {
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     Log.i(TAG, "Biometric success")
-                    sendResponse(approved = true)
+                    val method = if (result.authenticationType == BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL) "pin" else "biometric"
+                    sendResponse(approved = true, method = method)
                 }
 
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     Log.w(TAG, "Biometric error $errorCode: $errString")
                     // Do not close the activity on CANCELED (5) or USER_CANCELED (10).
                     // This happens automatically on the lock screen.
-                    if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
-                        sendResponse(approved = false)
+                    if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON || errorCode == BiometricPrompt.ERROR_USER_CANCELED) {
+                        sendResponse(approved = false, method = "none")
                     }
                 }
 
@@ -119,13 +129,25 @@ class BiometricAuthActivity : AppCompatActivity() {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle(title)
             .setSubtitle(getString(R.string.user_label, user))
-            .setNegativeButtonText(getString(R.string.auth_deny))
+            .setAllowedAuthenticators(authenticators)
             .build()
 
         prompt.authenticate(promptInfo)
     }
 
-    private fun sendResponse(approved: Boolean) {
+    private fun sendResponse(approved: Boolean, method: String) {
+        // Save to history
+        val repo = AuthHistoryRepository(this)
+        CoroutineScope(Dispatchers.IO).launch {
+            repo.addHistoryItem(AuthHistoryItem(
+                timestamp = timestamp,
+                user = user,
+                service = serviceName,
+                status = if (approved) "approved" else "denied",
+                method = method
+            ))
+        }
+
         val client = activeTcpClient
         if (client != null) {
             CoroutineScope(Dispatchers.IO).launch {
@@ -154,9 +176,12 @@ class BiometricAuthActivity : AppCompatActivity() {
 private fun AuthScreen(
     user: String,
     service: String,
+    timestamp: Long,
     onApprove: () -> Unit,
     onDeny: () -> Unit
 ) {
+    val formatter = remember { SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()) }
+    val timeStr = remember(timestamp) { formatter.format(Date(timestamp)) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -197,7 +222,7 @@ private fun AuthScreen(
                 )
 
                 Text(
-                    text = "${stringResource(R.string.user_label, user)}\n${stringResource(R.string.service_label, service)}",
+                    text = "${stringResource(R.string.user_label, user)}\n${stringResource(R.string.service_label, service)}\n\n${timeStr}",
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant

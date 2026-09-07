@@ -264,10 +264,10 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
         char reason[256] = {0};
         json_get_string(response, "reason", reason, sizeof(reason));
         pam_syslog(pamh, LOG_INFO,
-                   "pam_bio: auth DENIED for %s via %s (%s)",
+                   "pam_bio: auth DENIED for %s via %s (%s) - falling back to password",
                    user, service,
                    reason[0] ? reason : "no reason");
-        ret = PAM_AUTH_ERR;
+        ret = PAM_IGNORE;
     }
 
     return ret;

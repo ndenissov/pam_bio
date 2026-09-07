@@ -52,4 +52,8 @@
     <string name="import_gallery">Выбрать из галереи</string>
     <string name="paste_clipboard">Вставить из буфера обмена</string>
     <string name="invalid_file_format">Неверный формат ключа</string>
+    <string name="history_title">История запросов</string>
+    <string name="history_empty">История пуста</string>
+    <string name="status_label">Статус: %1$s</string>
+    <string name="method_label">Способ: %1$s</string>
 </resources>

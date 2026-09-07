@@ -28,7 +28,7 @@ const (
 	PairingTimeout = 5 * time.Minute
 
 	// AuthTimeout limits how long the daemon waits for a biometric response.
-	AuthTimeout = 30 * time.Second
+	AuthTimeout = 15 * time.Second
 )
 
 // AuthResult carries the outcome of an authentication attempt.

@@ -32,7 +32,8 @@ import ovh.dep.pam.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onNavigateToScan: () -> Unit
+    onNavigateToScan: () -> Unit,
+    onNavigateToHistory: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -51,6 +52,9 @@ fun HomeScreen(
                 ),
                 actions = {
                     Box {
+                        IconButton(onClick = onNavigateToHistory) {
+                            Icon(Icons.Filled.History, contentDescription = "History")
+                        }
                         IconButton(onClick = { showLangMenu = true }) {
                             Icon(Icons.Filled.Language, contentDescription = "Language")
                         }
