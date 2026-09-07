@@ -66,9 +66,7 @@ func LoadServerConfig(configDir string) (*ServerConfig, error) {
 	if strings.HasPrefix(cfg.ServiceName, "pambio_") {
 		cfg.ServiceName = strings.TrimPrefix(cfg.ServiceName, "pambio_")
 	}
-	if cfg.Port == 0 {
-		cfg.Port = 34907
-	}
+
 	return &cfg, nil
 }
 

@@ -114,7 +114,7 @@ func New(configDir string) (*Daemon, error) {
 		cfg = &config.ServerConfig{
 			Hostname:    hostname,
 			ServiceName: hostname,
-			Port:        34907,
+			Port:        0,
 			PrivateKey:  crypto.EncodePrivateKey(priv),
 			PublicKey:   crypto.EncodePublicKey(pub),
 		}
