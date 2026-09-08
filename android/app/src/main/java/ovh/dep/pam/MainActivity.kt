@@ -109,6 +109,14 @@ class MainActivity : AppCompatActivity() {
         return null
     }
 
+    fun deleteKeyAndProbe() {
+        try {
+            val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+            keyStore.deleteEntry(AUTH_KEY_ALIAS)
+        } catch (e: Exception) {}
+        getSharedPreferences(AUTH_PREFS, MODE_PRIVATE).edit().clear().apply()
+    }
+
     fun buildEncryptCipher(): Cipher {
         val cipher = getCipher()
         cipher.init(Cipher.ENCRYPT_MODE, getOrCreateSecretKey())
@@ -355,11 +363,17 @@ private fun UnlockScreen(onUnlockSuccess: () -> Unit) {
             onUnlockSuccess()
         } else {
             val activity = context as MainActivity
-            val probe = activity.getEncryptedProbe()
-            val authCipher = if (probe == null) {
+            var currentProbe = activity.getEncryptedProbe()
+            val authCipher = try {
+                if (currentProbe == null) {
+                    activity.buildEncryptCipher()
+                } else {
+                    activity.buildDecryptCipher(currentProbe.first)
+                }
+            } catch (e: android.security.keystore.KeyPermanentlyInvalidatedException) {
+                activity.deleteKeyAndProbe()
+                currentProbe = null
                 activity.buildEncryptCipher()
-            } else {
-                activity.buildDecryptCipher(probe.first)
             }
 
             val executor = ContextCompat.getMainExecutor(context)
@@ -368,11 +382,11 @@ private fun UnlockScreen(onUnlockSuccess: () -> Unit) {
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                         val cipher = result.cryptoObject?.cipher ?: return
                         try {
-                            if (probe == null) {
+                            if (currentProbe == null) {
                                 val ciphertext = cipher.doFinal("pam-auth-probe".toByteArray(Charsets.UTF_8))
                                 activity.saveEncryptedProbe(cipher.iv, ciphertext)
                             } else {
-                                cipher.doFinal(probe.second)
+                                cipher.doFinal(currentProbe!!.second)
                             }
                             onUnlockSuccess()
                         } catch (_: Exception) {
