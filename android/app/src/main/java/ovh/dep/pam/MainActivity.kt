@@ -54,6 +54,7 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.GCMParameterSpec
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import ovh.dep.pam.data.AppPrefs
@@ -69,11 +70,11 @@ import ovh.dep.pam.ui.theme.LinuxBiopamTheme
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        private const val AUTH_KEY_ALIAS = "pam_bio_auth_key"
-        private const val AUTH_PREFS = "pam_bio_auth_prefs"
+        private const val AUTH_KEY_ALIAS = "pam_bio_auth_key_v2"
+        private const val AUTH_PREFS = "pam_bio_auth_prefs_v2"
         private const val AUTH_IV = "auth_iv"
         private const val AUTH_CT = "auth_ct"
-        private const val CIPHER_TRANSFORMATION = "AES/CBC/PKCS7Padding"
+        private const val CIPHER_TRANSFORMATION = "AES/GCM/NoPadding"
     }
 
     private fun getOrCreateSecretKey(): SecretKey {
@@ -86,8 +87,8 @@ class MainActivity : AppCompatActivity() {
             AUTH_KEY_ALIAS,
             KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
         )
-            .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
             .setUserAuthenticationRequired(true)
             .setInvalidatedByBiometricEnrollment(true)
             .build()
@@ -123,7 +124,7 @@ class MainActivity : AppCompatActivity() {
 
     fun buildDecryptCipher(iv: ByteArray): Cipher {
         val cipher = getCipher()
-        cipher.init(Cipher.DECRYPT_MODE, getOrCreateSecretKey(), IvParameterSpec(iv))
+        cipher.init(Cipher.DECRYPT_MODE, getOrCreateSecretKey(), GCMParameterSpec(128, iv))
         return cipher
     }
 
