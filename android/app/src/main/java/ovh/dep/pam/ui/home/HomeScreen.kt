@@ -66,6 +66,7 @@ fun HomeScreen(
     val prefs = remember { AppPrefs(context) }
     val authCount by prefs.getAuthCountFlow().collectAsState(initial = prefs.authCount)
     val githubStarred by prefs.getGithubStarredFlow().collectAsState(initial = prefs.githubStarred)
+    val githubClicked by prefs.getGithubClickedFlow().collectAsState(initial = prefs.githubClicked)
     var showGithubDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -159,9 +160,15 @@ fun HomeScreen(
                     if (!githubStarred) {
                         Spacer(Modifier.height(8.dp))
                         OutlinedButton(onClick = {
-                            showGithubDialog = true
+                            prefs.githubClicked = true
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ndenissov/pam_bio")))
                         }) {
                             Text(stringResource(R.string.star_on_github))
+                        }
+                        if (githubClicked) {
+                            TextButton(onClick = { showGithubDialog = true }) {
+                                Text(stringResource(R.string.github_star_already), style = MaterialTheme.typography.bodySmall)
+                            }
                         }
                     }
                     Spacer(Modifier.height(8.dp))
@@ -239,15 +246,10 @@ fun HomeScreen(
                 }) { Text(stringResource(R.string.github_star_btn)) }
             },
             dismissButton = {
-                Row {
-                    TextButton(onClick = {
-                        prefs.githubStarred = true
-                        showGithubDialog = false
-                    }) { Text(stringResource(R.string.github_star_already)) }
-                    TextButton(onClick = { showGithubDialog = false }) {
-                        Text(stringResource(R.string.github_star_later))
-                    }
-                }
+                TextButton(onClick = {
+                    prefs.githubStarred = true
+                    showGithubDialog = false
+                }) { Text(stringResource(R.string.github_star_already)) }
             }
         )
     }

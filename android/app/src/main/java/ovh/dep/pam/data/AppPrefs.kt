@@ -15,6 +15,10 @@ class AppPrefs(context: Context) {
         get() = prefs.getBoolean("github_starred", false)
         set(value) = prefs.edit().putBoolean("github_starred", value).apply()
 
+    var githubClicked: Boolean
+        get() = prefs.getBoolean("github_clicked", false)
+        set(value) = prefs.edit().putBoolean("github_clicked", value).apply()
+
     var lastPromptedAuthCount: Int
         get() = prefs.getInt("last_prompted_auth_count", 0)
         set(value) = prefs.edit().putInt("last_prompted_auth_count", value).apply()
@@ -43,6 +47,17 @@ class AppPrefs(context: Context) {
         }
         prefs.registerOnSharedPreferenceChangeListener(listener)
         trySend(prefs.getBoolean("github_starred", false))
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    fun getGithubClickedFlow(): kotlinx.coroutines.flow.Flow<Boolean> = kotlinx.coroutines.flow.callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if (key == "github_clicked") {
+                trySend(sharedPreferences.getBoolean("github_clicked", false))
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        trySend(prefs.getBoolean("github_clicked", false))
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 }
