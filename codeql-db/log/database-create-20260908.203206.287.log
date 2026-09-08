@@ -1,0 +1,1145 @@
+[2026-09-08 20:32:06] This is codeql database create codeql-db --language=java-kotlin --command=./android/gradlew -p android clean assembleDebug --no-daemon --overwrite
+[2026-09-08 20:32:06] Log file was started late.
+[2026-09-08 20:32:06] [PROGRESS] database create> Initializing database at /home/nikita/StudioProjects/pam_bio/codeql-db.
+[2026-09-08 20:32:06] Running plumbing command: codeql database init --overwrite --language=java-kotlin --extractor-options-verbosity=1 --qlconfig-file=/home/nikita/StudioProjects/pam_bio/qlconfig.yml --source-root=/home/nikita/StudioProjects/pam_bio --allow-missing-source-root=false --allow-already-existing -- /home/nikita/StudioProjects/pam_bio/codeql-db
+[2026-09-08 20:32:06] Calling plumbing command: codeql resolve languages --extractor-options-verbosity=1 --format=betterjson
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Scanning for [codeql-extractor.yml] from /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/actions/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/cpp/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/csharp/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/csv/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/go/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/html/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/java/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/javascript/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/properties/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/python/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/ruby/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/rust/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/swift/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/xml/codeql-extractor.yml.
+[2026-09-08 20:32:06] [DETAILS] resolve languages> Parsing /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/yaml/codeql-extractor.yml.
+[2026-09-08 20:32:06] Plumbing command codeql resolve languages completed:
+                      {
+                        "aliases" : {
+                          "c" : "cpp",
+                          "c++" : "cpp",
+                          "c-c++" : "cpp",
+                          "c-cpp" : "cpp",
+                          "c#" : "csharp",
+                          "java-kotlin" : "java",
+                          "kotlin" : "java",
+                          "javascript-typescript" : "javascript",
+                          "typescript" : "javascript"
+                        },
+                        "extractors" : {
+                          "actions" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/actions",
+                              "extractor_options" : { }
+                            }
+                          ],
+                          "cpp" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/cpp",
+                              "extractor_options" : {
+                                "scale_timeouts" : {
+                                  "title" : "Value to scale compiler introspection timeouts with",
+                                  "description" : "The extractor attempts to determine what compiler the source code being extracted is compiled with. To this end the extractor makes additional calls to the compiler, some of which are expected to return within a certain fixed time (either 10s or 15s). On some systems that are under high load this time might be too short, and can be scaled up using this option.\n",
+                                  "type" : "string",
+                                  "pattern" : "[0-9]+"
+                                },
+                                "log_verbosity" : {
+                                  "title" : "Verbosity of the extractor logging",
+                                  "description" : "Set the verbosity of the extractor logging to 'quiet' (0), 'normal' (1), 'chatty' (2), or 'noisy' (3). The default is 'normal'.\n",
+                                  "type" : "string",
+                                  "pattern" : "[0-3]"
+                                }
+                              }
+                            }
+                          ],
+                          "csharp" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/csharp",
+                              "extractor_options" : {
+                                "trap" : {
+                                  "title" : "Options pertaining to TRAP.",
+                                  "description" : "Options pertaining to TRAP.",
+                                  "type" : "object",
+                                  "properties" : {
+                                    "compression" : {
+                                      "title" : "Controls compression for the TRAP files written by the extractor.",
+                                      "description" : "This option is only intended for use in debugging the extractor. Accepted values are 'brotli' (the default, to write brotli-compressed TRAP), 'gzip', and 'none' (to write uncompressed TRAP).\n",
+                                      "type" : "string",
+                                      "pattern" : "^(none|gzip|brotli)$"
+                                    }
+                                  }
+                                },
+                                "buildless" : {
+                                  "title" : "DEPRECATED - Whether to use buildless (standalone) extraction.",
+                                  "description" : "DEPRECATED: Use `--build-mode none` instead.\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\n",
+                                  "type" : "string",
+                                  "pattern" : "^(false|true)$"
+                                },
+                                "logging" : {
+                                  "title" : "Options pertaining to logging.",
+                                  "description" : "Options pertaining to logging.",
+                                  "type" : "object",
+                                  "properties" : {
+                                    "verbosity" : {
+                                      "title" : "Extractor logging verbosity level.",
+                                      "description" : "Controls the level of verbosity of the extractor. The supported levels are (in order of increasing verbosity):\n  - off\n  - errors\n  - warnings\n  - info or progress\n  - debug or progress+\n  - trace or progress++\n  - progress+++\n",
+                                      "type" : "string",
+                                      "pattern" : "^(off|errors|warnings|(info|progress)|(debug|progress\\+)|(trace|progress\\+\\+)|progress\\+\\+\\+)$"
+                                    }
+                                  }
+                                },
+                                "binlog" : {
+                                  "title" : "Binlog",
+                                  "description" : "[EXPERIMENTAL] The value is a path to the MsBuild binary log file that should be extracted. This option only works when `--build-mode none` is also specified.\n",
+                                  "type" : "array"
+                                },
+                                "buildless_dependency_dir" : {
+                                  "title" : "The path where buildless (standalone) extraction should keep dependencies.",
+                                  "description" : "If set, the buildless (standalone) extractor will store dependencies in this directory.\n",
+                                  "type" : "string"
+                                }
+                              }
+                            }
+                          ],
+                          "csv" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/csv"
+                            }
+                          ],
+                          "go" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/go",
+                              "extractor_options" : {
+                                "extract_tests" : {
+                                  "title" : "Whether to include Go test files in the CodeQL database.",
+                                  "description" : "A value indicating whether Go test files should be included in the CodeQL database. The default is 'false'.\n",
+                                  "type" : "string",
+                                  "pattern" : "^(false|true)$"
+                                },
+                                "extract_vendor_dirs" : {
+                                  "title" : "Whether to include Go vendor directories in the CodeQL database.",
+                                  "description" : "A value indicating whether Go vendor directories should be included in the CodeQL database. The default is 'false'.\n",
+                                  "type" : "string",
+                                  "pattern" : "^(false|true)$"
+                                }
+                              }
+                            }
+                          ],
+                          "html" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/html"
+                            }
+                          ],
+                          "java" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/java",
+                              "extractor_options" : {
+                                "exclude" : {
+                                  "title" : "A glob excluding files from analysis.",
+                                  "description" : "A glob indicating what files to exclude from the analysis. This accepts glob patterns that are supported by Java's 'getPathMatcher' implementation.\n",
+                                  "type" : "string"
+                                },
+                                "add_prefer_source" : {
+                                  "title" : "Whether to always prefer source files over class files.",
+                                  "description" : "A value indicating whether source files should be preferred over class files. If set to 'true', the extraction adds '-Xprefer:source' to the javac command line. If set to 'false', the extraction uses the default javac behavior ('-Xprefer:newer'). The default is 'true'.\n",
+                                  "type" : "string",
+                                  "pattern" : "^(false|true)$"
+                                },
+                                "buildless" : {
+                                  "title" : "Whether to use buildless (standalone) extraction (experimental).",
+                                  "description" : "A value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\n",
+                                  "type" : "string",
+                                  "pattern" : "^(false|true)$"
+                                },
+                                "buildless_dependency_dir" : {
+                                  "title" : "The path where buildless (standalone) extraction should keep dependencies.",
+                                  "description" : "If set, the buildless (standalone) extractor will store dependencies in this directory.\n",
+                                  "type" : "string"
+                                },
+                                "minimize_dependency_jars" : {
+                                  "title" : "Whether to rewrite and minimize downloaded JAR dependencies (experimental).",
+                                  "description" : "If 'true', JAR dependencies downloaded during extraction will be rewritten to remove unneeded data, such as method bodies. The default is 'false'.\n",
+                                  "type" : "string",
+                                  "pattern" : "^(false|true)$"
+                                }
+                              }
+                            }
+                          ],
+                          "javascript" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/javascript",
+                              "extractor_options" : {
+                                "skip_types" : {
+                                  "title" : "Skip type extraction for TypeScript",
+                                  "description" : "Whether to skip the extraction of types in a TypeScript application",
+                                  "type" : "string",
+                                  "pattern" : "^(false|true)$"
+                                }
+                              }
+                            }
+                          ],
+                          "properties" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/properties"
+                            }
+                          ],
+                          "python" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/python",
+                              "extractor_options" : {
+                                "logging" : {
+                                  "title" : "Options pertaining to logging.",
+                                  "description" : "Options pertaining to logging.",
+                                  "type" : "object",
+                                  "properties" : {
+                                    "verbosity" : {
+                                      "title" : "Python extractor logging verbosity level.",
+                                      "description" : "Controls the level of verbosity of the CodeQL Python extractor.\nThe supported levels are (in order of increasing verbosity):\n\n  - off\n  - errors\n  - warnings\n  - info or progress\n  - debug or progress+\n  - trace or progress++\n  - progress+++\n",
+                                      "type" : "string",
+                                      "pattern" : "^(off|errors|warnings|(info|progress)|(debug|progress\\+)|(trace|progress\\+\\+)|progress\\+\\+\\+)$"
+                                    }
+                                  }
+                                },
+                                "python_executable_name" : {
+                                  "title" : "Controls the name of the Python executable used by the Python extractor.",
+                                  "description" : "The Python extractor uses platform-dependent heuristics to determine the name of the Python executable to use. Specifying a value for this option overrides the name of the Python executable used by the extractor. Accepted values are py, python and python3. Use this setting with caution, the Python extractor requires Python 3 to run.\n",
+                                  "type" : "string",
+                                  "pattern" : "^(py|python|python3)$"
+                                }
+                              }
+                            }
+                          ],
+                          "ruby" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/ruby",
+                              "extractor_options" : {
+                                "trap" : {
+                                  "title" : "Options pertaining to TRAP.",
+                                  "description" : "Options pertaining to TRAP.",
+                                  "type" : "object",
+                                  "properties" : {
+                                    "compression" : {
+                                      "title" : "Controls compression for the TRAP files written by the extractor.",
+                                      "description" : "This option is only intended for use in debugging the extractor. Accepted values are 'gzip' (the default, to write gzip-compressed TRAP) 'zstd' (to write Zstandard-compressed TRAP) and 'none' (to write uncompressed TRAP).\n",
+                                      "type" : "string",
+                                      "pattern" : "^(none|gzip|zstd)$"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ],
+                          "rust" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/rust",
+                              "extractor_options" : {
+                                "trap" : {
+                                  "title" : "Options pertaining to TRAP.",
+                                  "description" : "Options pertaining to TRAP.",
+                                  "type" : "object",
+                                  "properties" : {
+                                    "compression" : {
+                                      "title" : "Controls compression for the TRAP files written by the extractor.",
+                                      "description" : "This option is only intended for use in debugging the extractor. Accepted values are 'gzip' (to write gzip-compressed TRAP) 'zstd' (to write Zstandard-compressed TRAP) and 'none' (the default, to write uncompressed TRAP).\n",
+                                      "type" : "string",
+                                      "pattern" : "^(none|gzip|zstd)$"
+                                    }
+                                  }
+                                },
+                                "cargo_target_dir" : {
+                                  "title" : "Directory to use for cargo output files.",
+                                  "description" : "This value is an optional path to use as `CARGO_TARGET_DIR` for the internal cargo commands the extractor uses. Pointing it to a persistent directory may reduce execution time of consecutive extractor runs. By default, a new scratch directory is used for each run.\n",
+                                  "type" : "string"
+                                },
+                                "cargo_target" : {
+                                  "title" : "Target architecture",
+                                  "description" : "Target architecture to use for analysis, analogous to `cargo --target`. By default the host architecture is used.\n",
+                                  "type" : "string"
+                                },
+                                "cargo_features" : {
+                                  "title" : "Cargo features to turn on",
+                                  "description" : "Comma-separated list of features to turn on. By default all features are enabled. If any features are specified, then only those features are enabled. The `default` feature must be explicitly specified if only default features are desired. Can be repeated.\n",
+                                  "type" : "array"
+                                },
+                                "cargo_cfg_overrides" : {
+                                  "title" : "Cargo cfg overrides",
+                                  "description" : "Comma-separated list of cfg settings to enable, or disable if prefixed with `-`. Can be repeated.\n",
+                                  "type" : "array"
+                                },
+                                "logging" : {
+                                  "title" : "Options pertaining to logging.",
+                                  "description" : "Options pertaining to logging.",
+                                  "type" : "object",
+                                  "properties" : {
+                                    "verbosity" : {
+                                      "title" : "Extractor logging verbosity level.",
+                                      "description" : "Controls the level of verbosity of the extractor. The supported levels are (in order of increasing verbosity):\n  - off\n  - errors\n  - warnings\n  - info or progress\n  - debug or progress+\n  - trace or progress++\n  - progress+++\n",
+                                      "type" : "string",
+                                      "pattern" : "^(off|errors|warnings|(info|progress)|(debug|progress\\+)|(trace|progress\\+\\+)|progress\\+\\+\\+)$"
+                                    },
+                                    "flamegraph" : {
+                                      "title" : "[Experimental] File path for write flame graph log",
+                                      "description" : "Collect flame graph data using the `tracing-flame` crate. To render a flame graph or chart, run the `inferno-flamegraph` command. See also: https://crates.io/crates/tracing-flame\n",
+                                      "type" : "string"
+                                    }
+                                  }
+                                },
+                                "extract_dependencies_as_source" : {
+                                  "title" : "Extract dependencies as source code",
+                                  "description" : "Extract the full source code of dependencies instead of only extracting signatures.\n",
+                                  "type" : "string",
+                                  "pattern" : "^(false|true)$"
+                                }
+                              }
+                            }
+                          ],
+                          "swift" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/swift"
+                            }
+                          ],
+                          "xml" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/xml"
+                            }
+                          ],
+                          "yaml" : [
+                            {
+                              "extractor_root" : "/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/yaml"
+                            }
+                          ]
+                        }
+                      }
+[2026-09-08 20:32:06] [PROGRESS] database init> Calculating baseline information in /home/nikita/StudioProjects/pam_bio
+[2026-09-08 20:32:06] [SPAMMY] database init> Ignoring the following directories when processing baseline information: .git, .hg, .svn.
+[2026-09-08 20:32:06] [DETAILS] database init> Running command in /home/nikita/StudioProjects/pam_bio: /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/tools/linux64/scc --by-file --exclude-dir .git,.hg,.svn --format json --no-large --no-min .
+[2026-09-08 20:32:06] Using configure-baseline script /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/go/tools/configure-baseline.sh.
+[2026-09-08 20:32:06] [PROGRESS] database init> Running command in /home/nikita/StudioProjects/pam_bio: [/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/go/tools/configure-baseline.sh]
+[2026-09-08 20:32:06] Using configure-baseline script /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/actions/tools/configure-baseline.sh.
+[2026-09-08 20:32:06] [PROGRESS] database init> Running command in /home/nikita/StudioProjects/pam_bio: [/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/actions/tools/configure-baseline.sh]
+[2026-09-08 20:32:06] [SPAMMY] database init> Found 25 baseline files for java.
+[2026-09-08 20:32:06] [SPAMMY] database init> Found 9 baseline files for go.
+[2026-09-08 20:32:06] [SPAMMY] database init> Found 4 baseline files for python.
+[2026-09-08 20:32:06] [SPAMMY] database init> Found 2 baseline files for actions.
+[2026-09-08 20:32:06] [SPAMMY] database init> Found 1 baseline files for cpp.
+[2026-09-08 20:32:06] [PROGRESS] database init> Calculated baseline information for languages: actions, cpp, go, java, python (128ms).
+[2026-09-08 20:32:07] [PROGRESS] database init> Resolving extractor java.
+[2026-09-08 20:32:07] [DETAILS] database init> Found candidate extractor root for java: /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/java.
+[2026-09-08 20:32:07] [PROGRESS] database init> Successfully loaded extractor Java/Kotlin (java) from /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/java.
+[2026-09-08 20:32:07] [PROGRESS] database init> Created skeleton CodeQL database at /home/nikita/StudioProjects/pam_bio/codeql-db. This in-progress database is ready to be populated by an extractor.
+[2026-09-08 20:32:07] Plumbing command codeql database init completed.
+[2026-09-08 20:32:07] [PROGRESS] database create> Running build command: [./android/gradlew, -p, android, clean, assembleDebug, --no-daemon]
+[2026-09-08 20:32:07] Running plumbing command: codeql database trace-command --working-dir=/home/nikita/StudioProjects/pam_bio --index-traceless-dbs --no-db-cluster -- /home/nikita/StudioProjects/pam_bio/codeql-db ./android/gradlew -p android clean assembleDebug --no-daemon
+[2026-09-08 20:32:07] [PROGRESS] database trace-command> Running command in /home/nikita/StudioProjects/pam_bio: [./android/gradlew, -p, android, clean, assembleDebug, --no-daemon]
+[2026-09-08 20:32:07] [build-stdout] To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.4.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+[2026-09-08 20:32:09] [build-stdout] Daemon will be stopped at the end of the build 
+[2026-09-08 20:32:16] [build-stdout] > Task :app:clean
+[2026-09-08 20:32:16] [build-stdout] > Task :app:preBuild UP-TO-DATE
+[2026-09-08 20:32:16] [build-stdout] > Task :app:preDebugBuild UP-TO-DATE
+[2026-09-08 20:32:16] [build-stdout] > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+[2026-09-08 20:32:17] [build-stdout] > Task :app:generateDebugBuildConfig
+[2026-09-08 20:32:17] [build-stdout] > Task :app:generateDebugResources
+[2026-09-08 20:32:17] [build-stdout] > Task :app:packageDebugResources
+[2026-09-08 20:32:17] [build-stdout] > Task :app:processDebugNavigationResources
+[2026-09-08 20:32:17] [build-stdout] > Task :app:generateDebugAssets UP-TO-DATE
+[2026-09-08 20:32:17] [build-stdout] > Task :app:javaPreCompileDebug
+[2026-09-08 20:32:17] [build-stdout] > Task :app:mergeDebugAssets
+[2026-09-08 20:32:17] [build-stdout] > Task :app:parseDebugLocalResources
+[2026-09-08 20:32:17] [build-stdout] > Task :app:compressDebugAssets
+[2026-09-08 20:32:19] [build-stdout] > Task :app:generateDebugGlobalSynthetics
+[2026-09-08 20:32:19] [build-stdout] > Task :app:generateDebugRFile
+[2026-09-08 20:32:20] [build-stdout] > Task :app:checkDebugDuplicateClasses
+[2026-09-08 20:32:20] [build-stdout] > Task :app:desugarDebugFileDependencies
+[2026-09-08 20:32:20] [build-stdout] > Task :app:mergeLibDexDebug
+[2026-09-08 20:32:20] [build-stdout] > Task :app:mapDebugSourceSetPaths
+[2026-09-08 20:32:20] [build-stdout] > Task :app:checkDebugAarMetadata
+[2026-09-08 20:32:20] [build-stdout] > Task :app:compileDebugNavigationResources
+[2026-09-08 20:32:22] [build-stdout] > Task :app:createDebugCompatibleScreenManifests
+[2026-09-08 20:32:22] [build-stdout] > Task :app:extractDeepLinksDebug
+[2026-09-08 20:32:24] [build-stdout] > Task :app:mergeDebugResources
+[2026-09-08 20:32:24] [build-stdout] > Task :app:processDebugMainManifest
+[2026-09-08 20:32:24] [build-stdout] > Task :app:processDebugManifest
+[2026-09-08 20:32:24] [build-stdout] > Task :app:mergeDebugJniLibFolders
+[2026-09-08 20:32:24] [build-stdout] > Task :app:validateSigningDebug
+[2026-09-08 20:32:24] [build-stdout] > Task :app:writeDebugAppMetadata
+[2026-09-08 20:32:24] [build-stdout] > Task :app:processDebugManifestForPackage
+[2026-09-08 20:32:24] [build-stdout] > Task :app:mergeDebugNativeLibs
+[2026-09-08 20:32:25] [build-stdout] > Task :app:writeDebugSigningConfigVersions
+[2026-09-08 20:32:25] [build-stdout] > Task :app:stripDebugDebugSymbols
+[2026-09-08 20:32:26] [build-stdout] > Task :app:processDebugResources
+[2026-09-08 20:32:27] [build-stdout] > Task :app:compileDebugKotlin
+[2026-09-08 20:32:27] [build-stdout] w: file:///home/nikita/StudioProjects/pam_bio/android/app/src/main/java/ovh/dep/pam/network/NsdDiscoveryManager.kt:63:24 'fun resolveService(p0: NsdServiceInfo!, p1: NsdManager.ResolveListener!): Unit' is deprecated. Deprecated in Java.
+[2026-09-08 20:32:27] [build-stdout] w: file:///home/nikita/StudioProjects/pam_bio/android/app/src/main/java/ovh/dep/pam/network/NsdDiscoveryManager.kt:94:29 'var host: InetAddress!' is deprecated. Deprecated in Java.
+[2026-09-08 20:32:27] [build-stdout] w: file:///home/nikita/StudioProjects/pam_bio/android/app/src/main/java/ovh/dep/pam/ui/about/AboutScreen.kt:69:43 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+[2026-09-08 20:32:27] [build-stdout] w: file:///home/nikita/StudioProjects/pam_bio/android/app/src/main/java/ovh/dep/pam/ui/about/AboutScreen.kt:133:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+[2026-09-08 20:32:27] [build-stdout] w: file:///home/nikita/StudioProjects/pam_bio/android/app/src/main/java/ovh/dep/pam/ui/scan/QrScanScreen.kt:79:26 'val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>' is deprecated. Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.
+[2026-09-08 20:32:27] [build-stdout] w: file:///home/nikita/StudioProjects/pam_bio/android/app/src/main/java/ovh/dep/pam/ui/scan/QrScanScreen.kt:141:28 'val LocalClipboardManager: ProvidableCompositionLocal<ClipboardManager>' is deprecated. Use LocalClipboard instead which supports suspend functions.
+[2026-09-08 20:32:32] [build-stdout] > Task :app:compileDebugJavaWithJavac
+[2026-09-08 20:32:32] [build-stdout] > Task :app:processDebugJavaRes
+[2026-09-08 20:32:32] [build-stdout] > Task :app:mergeExtDexDebug
+[2026-09-08 20:32:33] [build-stdout] > Task :app:dexBuilderDebug
+[2026-09-08 20:32:33] [build-stdout] > Task :app:mergeProjectDexDebug
+[2026-09-08 20:32:33] [build-stdout] > Task :app:mergeDebugJavaResource
+[2026-09-08 20:32:35] [build-stdout] > Task :app:packageDebug
+[2026-09-08 20:32:35] [build-stdout] > Task :app:createDebugApkListingFileRedirect
+[2026-09-08 20:32:35] [build-stdout] > Task :app:assembleDebug
+[2026-09-08 20:32:35] [build-stdout] BUILD SUCCESSFUL in 28s
+[2026-09-08 20:32:35] [build-stdout] 39 actionable tasks: 39 executed
+[2026-09-08 20:32:35] [build-stdout] Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.4.1/userguide/configuration_cache_enabling.html
+[2026-09-08 20:32:35] Plumbing command codeql database trace-command completed.
+[2026-09-08 20:32:35] [PROGRESS] database create> Finalizing database at /home/nikita/StudioProjects/pam_bio/codeql-db.
+[2026-09-08 20:32:35] Running plumbing command: codeql database finalize --no-db-cluster -- /home/nikita/StudioProjects/pam_bio/codeql-db
+[2026-09-08 20:32:35] Using pre-finalize script /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/java/tools/pre-finalize.sh.
+[2026-09-08 20:32:35] [PROGRESS] database finalize> Running pre-finalize script /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/java/tools/pre-finalize.sh in /home/nikita/StudioProjects/pam_bio.
+[2026-09-08 20:32:35] Running plumbing command: codeql database trace-command --working-dir=/home/nikita/StudioProjects/pam_bio --no-tracing -- /home/nikita/StudioProjects/pam_bio/codeql-db /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/java/tools/pre-finalize.sh
+[2026-09-08 20:32:35] [PROGRESS] database trace-command> Running command in /home/nikita/StudioProjects/pam_bio: [/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/java/tools/pre-finalize.sh]
+[2026-09-08 20:32:37] [build-stderr] Scanning for files in /home/nikita/StudioProjects/pam_bio...
+[2026-09-08 20:32:37] [build-stderr] /home/nikita/StudioProjects/pam_bio/codeql-db: Indexing files in in /home/nikita/StudioProjects/pam_bio...
+[2026-09-08 20:32:37] [build-stderr] Running command in /home/nikita/StudioProjects/pam_bio: [/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/xml/tools/index-files.sh, /home/nikita/StudioProjects/pam_bio/codeql-db/working/files-to-index16152646535829520307.list]
+[2026-09-08 20:32:39] [build-stdout] [2026-09-08 20:32:39] [build-stdout] [2026-09-08 20:32:39] [XMLExtractor] Processed 167 files in 1686 ms; produced 2824052 bytes of compressed TRAP
+[2026-09-08 20:32:39] [build-stdout] [2026-09-08 20:32:39] [build-stdout] 20:32:39.484 [main] INFO com.semmle.cli.SimpleExtractor.Stats -- Processed 167 files in 1686 ms; produced 2824052 bytes of compressed TRAP
+[2026-09-08 20:32:40] [build-stderr] Scanning for files in /home/nikita/StudioProjects/pam_bio...
+[2026-09-08 20:32:40] [build-stderr] /home/nikita/StudioProjects/pam_bio/codeql-db: Indexing files in in /home/nikita/StudioProjects/pam_bio...
+[2026-09-08 20:32:40] [build-stderr] Running command in /home/nikita/StudioProjects/pam_bio: [/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/properties/tools/index-files.sh, /home/nikita/StudioProjects/pam_bio/codeql-db/working/files-to-index12918790002343490060.list]
+[2026-09-08 20:32:40] [build-stdout] [2026-09-08 20:32:40] [build-stdout] [2026-09-08 20:32:40] [PropertiesExtractor] Processed 11 files in 62 ms; produced 0 bytes of compressed TRAP
+[2026-09-08 20:32:40] Plumbing command codeql database trace-command completed.
+[2026-09-08 20:32:40] [PROGRESS] database finalize> Pre-finalize script /nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/java/tools/pre-finalize.sh completed in 4823 ms.
+[2026-09-08 20:32:40] [PROGRESS] database finalize> Running TRAP import for CodeQL database at /home/nikita/StudioProjects/pam_bio/codeql-db...
+[2026-09-08 20:32:40] Running plumbing command: codeql dataset import --dbscheme=/nix/store/8cdfj1mnxfx3qk63kbbqflzfl95kkd7p-codeql-2.25.4/codeql/java/semmlecode.dbscheme -- /home/nikita/StudioProjects/pam_bio/codeql-db/db-java /home/nikita/StudioProjects/pam_bio/codeql-db/trap/java
+[2026-09-08 20:32:40] Clearing disk cache since the version file /home/nikita/StudioProjects/pam_bio/codeql-db/db-java/default/cache/version does not exist
+[2026-09-08 20:32:40] Tuple pool not found. Clearing relations with cached strings
+[2026-09-08 20:32:40] Trimming disk cache at /home/nikita/StudioProjects/pam_bio/codeql-db/db-java/default/cache in mode clear.
+[2026-09-08 20:32:40] Sequence stamp origin is -5870698193531026003
+[2026-09-08 20:32:40] Pausing evaluation to hard-clear memory at sequence stamp o+0
+[2026-09-08 20:32:40] Unpausing evaluation
+[2026-09-08 20:32:40] Pausing evaluation to quickly trim disk at sequence stamp o+1
+[2026-09-08 20:32:40] Unpausing evaluation
+[2026-09-08 20:32:40] Pausing evaluation to zealously trim disk at sequence stamp o+2
+[2026-09-08 20:32:40] Unpausing evaluation
+[2026-09-08 20:32:40] Trimming completed (7ms): Purged everything.
+[2026-09-08 20:32:40] Scanning for files in /home/nikita/StudioProjects/pam_bio/codeql-db/trap/java
+[2026-09-08 20:32:40] Found 531 TRAP files (6.02 MiB)
+[2026-09-08 20:32:40] [PROGRESS] dataset import> Importing TRAP files
+[2026-09-08 20:32:41] Importing Closeable.members#52.0-1788873028513-java.trap.gz (1 of 531)
+[2026-09-08 20:32:41] Importing File.members#52.0-1788873028513-java.trap.gz (2 of 531)
+[2026-09-08 20:32:41] Importing FileFilter.members#52.0-1788873028513-java.trap.gz (3 of 531)
+[2026-09-08 20:32:41] Importing FileNotFoundException.members#52.0-1788873028513-java.trap.gz (4 of 531)
+[2026-09-08 20:32:41] Importing FilenameFilter.members#52.0-1788873028513-java.trap.gz (5 of 531)
+[2026-09-08 20:32:41] Importing FilterOutputStream.members#52.0-1788873028513-java.trap.gz (6 of 531)
+[2026-09-08 20:32:41] Importing Flushable.members#52.0-1788873028513-java.trap.gz (7 of 531)
+[2026-09-08 20:32:41] Importing IOException.members#52.0-1788873028513-java.trap.gz (8 of 531)
+[2026-09-08 20:32:41] Importing InputStream.members#52.0-1788873028513-java.trap.gz (9 of 531)
+[2026-09-08 20:32:41] Importing InvalidObjectException.members#52.0-1788873028513-java.trap.gz (10 of 531)
+[2026-09-08 20:32:41] Importing ObjectStreamException.members#52.0-1788873028513-java.trap.gz (11 of 531)
+[2026-09-08 20:32:41] Importing OutputStream.members#52.0-1788873028513-java.trap.gz (12 of 531)
+[2026-09-08 20:32:41] Importing PrintStream.members#52.0-1788873028513-java.trap.gz (13 of 531)
+[2026-09-08 20:32:41] Importing PrintWriter.members#52.0-1788873028513-java.trap.gz (14 of 531)
+[2026-09-08 20:32:41] Importing Reader.members#52.0-1788873028513-java.trap.gz (15 of 531)
+[2026-09-08 20:32:41] Importing Serializable.members#52.0-1788873028513-java.trap.gz (16 of 531)
+[2026-09-08 20:32:41] Importing UnsupportedEncodingException.members#52.0-1788873028513-java.trap.gz (17 of 531)
+[2026-09-08 20:32:41] Importing Writer.members#52.0-1788873028513-java.trap.gz (18 of 531)
+[2026-09-08 20:32:41] Importing Appendable.members#52.0-1788873028513-java.trap.gz (19 of 531)
+[2026-09-08 20:32:41] Importing AutoCloseable.members#52.0-1788873028513-java.trap.gz (20 of 531)
+[2026-09-08 20:32:41] Importing Boolean.members#52.0-1788873028513-java.trap.gz (21 of 531)
+[2026-09-08 20:32:41] Importing CharSequence.members#52.0-1788873028513-java.trap.gz (22 of 531)
+[2026-09-08 20:32:41] Importing Character.members#52.0-1788873028513-java.trap.gz (23 of 531)
+[2026-09-08 20:32:41] Importing Class.members#52.0-1788873028513-java.trap.gz (24 of 531)
+[2026-09-08 20:32:41] Importing ClassFormatError.members#52.0-1788873028513-java.trap.gz (25 of 531)
+[2026-09-08 20:32:41] Importing ClassLoader.members#52.0-1788873028513-java.trap.gz (26 of 531)
+[2026-09-08 20:32:41] Importing ClassNotFoundException.members#52.0-1788873028513-java.trap.gz (27 of 531)
+[2026-09-08 20:32:41] Importing CloneNotSupportedException.members#52.0-1788873028513-java.trap.gz (28 of 531)
+[2026-09-08 20:32:41] Importing Cloneable.members#52.0-1788873028513-java.trap.gz (29 of 531)
+[2026-09-08 20:32:41] Importing Comparable.members#52.0-1788873028513-java.trap.gz (30 of 531)
+[2026-09-08 20:32:41] Importing Deprecated.members#52.0-1788873028513-java.trap.gz (31 of 531)
+[2026-09-08 20:32:41] Importing Double.members#52.0-1788873028513-java.trap.gz (32 of 531)
+[2026-09-08 20:32:41] Importing Enum.members#52.0-1788873028513-java.trap.gz (33 of 531)
+[2026-09-08 20:32:41] Importing Error.members#52.0-1788873028513-java.trap.gz (34 of 531)
+[2026-09-08 20:32:41] Importing Exception.members#52.0-1788873028513-java.trap.gz (35 of 531)
+[2026-09-08 20:32:41] Importing FunctionalInterface.members#52.0-1788873028513-java.trap.gz (36 of 531)
+[2026-09-08 20:32:41] Importing IllegalAccessException.members#52.0-1788873028513-java.trap.gz (37 of 531)
+[2026-09-08 20:32:41] Importing IllegalArgumentException.members#52.0-1788873028513-java.trap.gz (38 of 531)
+[2026-09-08 20:32:41] Importing InstantiationException.members#52.0-1788873028513-java.trap.gz (39 of 531)
+[2026-09-08 20:32:41] Importing Integer.members#52.0-1788873028513-java.trap.gz (40 of 531)
+[2026-09-08 20:32:41] Importing InterruptedException.members#52.0-1788873028513-java.trap.gz (41 of 531)
+[2026-09-08 20:32:41] Importing Iterable.members#52.0-1788873028513-java.trap.gz (42 of 531)
+[2026-09-08 20:32:41] Importing LinkageError.members#52.0-1788873028513-java.trap.gz (43 of 531)
+[2026-09-08 20:32:41] Importing Long.members#52.0-1788873028513-java.trap.gz (44 of 531)
+[2026-09-08 20:32:41] Importing NoSuchFieldException.members#52.0-1788873028513-java.trap.gz (45 of 531)
+[2026-09-08 20:32:41] Importing NoSuchMethodException.members#52.0-1788873028513-java.trap.gz (46 of 531)
+[2026-09-08 20:32:41] Importing Number.members#52.0-1788873028513-java.trap.gz (47 of 531)
+[2026-09-08 20:32:41] Importing NumberFormatException.members#52.0-1788873028513-java.trap.gz (48 of 531)
+[2026-09-08 20:32:41] Importing Object.members#52.0-1788873028513-java.trap.gz (49 of 531)
+[2026-09-08 20:32:41] Importing Package.members#52.0-1788873028513-java.trap.gz (50 of 531)
+[2026-09-08 20:32:41] Importing Readable.members#52.0-1788873028513-java.trap.gz (51 of 531)
+[2026-09-08 20:32:41] Importing ReflectiveOperationException.members#52.0-1788873028513-java.trap.gz (52 of 531)
+[2026-09-08 20:32:41] Importing Runnable.members#52.0-1788873028513-java.trap.gz (53 of 531)
+[2026-09-08 20:32:41] Importing RuntimeException.members#52.0-1788873028513-java.trap.gz (54 of 531)
+[2026-09-08 20:32:41] Importing SafeVarargs.members#52.0-1788873028513-java.trap.gz (55 of 531)
+[2026-09-08 20:32:41] Importing SecurityException.members#52.0-1788873028513-java.trap.gz (56 of 531)
+[2026-09-08 20:32:41] Importing StackTraceElement.members#52.0-1788873028513-java.trap.gz (57 of 531)
+[2026-09-08 20:32:41] Importing String.members#52.0-1788873028513-java.trap.gz (58 of 531)
+[2026-09-08 20:32:41] Importing StringBuffer.members#52.0-1788873028513-java.trap.gz (59 of 531)
+[2026-09-08 20:32:41] Importing StringBuilder.members#52.0-1788873028513-java.trap.gz (60 of 531)
+[2026-09-08 20:32:41] Importing Thread$State.members#52.0-1788873028513-java.trap.gz (61 of 531)
+[2026-09-08 20:32:41] Importing Thread$UncaughtExceptionHandler.members#52.0-1788873028513-java.trap.gz (62 of 531)
+[2026-09-08 20:32:41] Importing Thread.members#52.0-1788873028513-java.trap.gz (63 of 531)
+[2026-09-08 20:32:41] Importing ThreadGroup.members#52.0-1788873028513-java.trap.gz (64 of 531)
+[2026-09-08 20:32:41] Importing Throwable.members#52.0-1788873028513-java.trap.gz (65 of 531)
+[2026-09-08 20:32:41] Importing Void.members#52.0-1788873028513-java.trap.gz (66 of 531)
+[2026-09-08 20:32:41] Importing Annotation.members#52.0-1788873028513-java.trap.gz (67 of 531)
+[2026-09-08 20:32:41] Importing Documented.members#52.0-1788873028513-java.trap.gz (68 of 531)
+[2026-09-08 20:32:41] Importing ElementType.members#52.0-1788873028513-java.trap.gz (69 of 531)
+[2026-09-08 20:32:41] Importing Retention.members#52.0-1788873028513-java.trap.gz (70 of 531)
+[2026-09-08 20:32:41] Importing RetentionPolicy.members#52.0-1788873028513-java.trap.gz (71 of 531)
+[2026-09-08 20:32:41] Importing Target.members#52.0-1788873028513-java.trap.gz (72 of 531)
+[2026-09-08 20:32:41] Importing TypeDescriptor$OfField.members#52.0-1788873028513-java.trap.gz (73 of 531)
+[2026-09-08 20:32:41] Importing TypeDescriptor.members#52.0-1788873028513-java.trap.gz (74 of 531)
+[2026-09-08 20:32:41] Importing AccessibleObject.members#52.0-1788873028513-java.trap.gz (75 of 531)
+[2026-09-08 20:32:41] Importing AnnotatedElement.members#52.0-1788873028513-java.trap.gz (76 of 531)
+[2026-09-08 20:32:41] Importing Constructor.members#52.0-1788873028513-java.trap.gz (77 of 531)
+[2026-09-08 20:32:41] Importing Executable.members#52.0-1788873028513-java.trap.gz (78 of 531)
+[2026-09-08 20:32:41] Importing Field.members#52.0-1788873028513-java.trap.gz (79 of 531)
+[2026-09-08 20:32:41] Importing GenericDeclaration.members#52.0-1788873028513-java.trap.gz (80 of 531)
+[2026-09-08 20:32:41] Importing InvocationTargetException.members#52.0-1788873028513-java.trap.gz (81 of 531)
+[2026-09-08 20:32:41] Importing Member.members#52.0-1788873028513-java.trap.gz (82 of 531)
+[2026-09-08 20:32:41] Importing Method.members#52.0-1788873028513-java.trap.gz (83 of 531)
+[2026-09-08 20:32:41] Importing Parameter.members#52.0-1788873028513-java.trap.gz (84 of 531)
+[2026-09-08 20:32:41] Importing RecordComponent.members#52.0-1788873028513-java.trap.gz (85 of 531)
+[2026-09-08 20:32:41] Importing Type.members#52.0-1788873028513-java.trap.gz (86 of 531)
+[2026-09-08 20:32:41] Importing TypeVariable.members#52.0-1788873028513-java.trap.gz (87 of 531)
+[2026-09-08 20:32:41] Importing ContentHandler.members#52.0-1788873028513-java.trap.gz (88 of 531)
+[2026-09-08 20:32:41] Importing ContentHandlerFactory.members#52.0-1788873028513-java.trap.gz (89 of 531)
+[2026-09-08 20:32:41] Importing FileNameMap.members#52.0-1788873028513-java.trap.gz (90 of 531)
+[2026-09-08 20:32:41] Importing InetAddress.members#52.0-1788873028513-java.trap.gz (91 of 531)
+[2026-09-08 20:32:41] Importing InterfaceAddress.members#52.0-1788873028513-java.trap.gz (92 of 531)
+[2026-09-08 20:32:41] Importing MalformedURLException.members#52.0-1788873028513-java.trap.gz (93 of 531)
+[2026-09-08 20:32:41] Importing NetworkInterface.members#52.0-1788873028513-java.trap.gz (94 of 531)
+[2026-09-08 20:32:41] Importing Proxy$Type.members#52.0-1788873028513-java.trap.gz (95 of 531)
+[2026-09-08 20:32:41] Importing Proxy.members#52.0-1788873028513-java.trap.gz (96 of 531)
+[2026-09-08 20:32:41] Importing SocketAddress.members#52.0-1788873028513-java.trap.gz (97 of 531)
+[2026-09-08 20:32:41] Importing SocketException.members#52.0-1788873028513-java.trap.gz (98 of 531)
+[2026-09-08 20:32:41] Importing URI.members#52.0-1788873028513-java.trap.gz (99 of 531)
+[2026-09-08 20:32:41] Importing URISyntaxException.members#52.0-1788873028513-java.trap.gz (100 of 531)
+[2026-09-08 20:32:41] Importing URL.members#52.0-1788873028513-java.trap.gz (101 of 531)
+[2026-09-08 20:32:41] Importing URLConnection.members#52.0-1788873028513-java.trap.gz (102 of 531)
+[2026-09-08 20:32:41] Importing URLStreamHandler.members#52.0-1788873028513-java.trap.gz (103 of 531)
+[2026-09-08 20:32:41] Importing URLStreamHandlerFactory.members#52.0-1788873028513-java.trap.gz (104 of 531)
+[2026-09-08 20:32:41] Importing UnknownHostException.members#52.0-1788873028513-java.trap.gz (105 of 531)
+[2026-09-08 20:32:41] Importing Buffer.members#52.0-1788873028513-java.trap.gz (106 of 531)
+[2026-09-08 20:32:41] Importing ByteBuffer.members#52.0-1788873028513-java.trap.gz (107 of 531)
+[2026-09-08 20:32:41] Importing ByteOrder.members#52.0-1788873028513-java.trap.gz (108 of 531)
+[2026-09-08 20:32:41] Importing CharBuffer.members#52.0-1788873028513-java.trap.gz (109 of 531)
+[2026-09-08 20:32:41] Importing DoubleBuffer.members#52.0-1788873028513-java.trap.gz (110 of 531)
+[2026-09-08 20:32:41] Importing FloatBuffer.members#52.0-1788873028513-java.trap.gz (111 of 531)
+[2026-09-08 20:32:41] Importing IntBuffer.members#52.0-1788873028513-java.trap.gz (112 of 531)
+[2026-09-08 20:32:41] Importing LongBuffer.members#52.0-1788873028513-java.trap.gz (113 of 531)
+[2026-09-08 20:32:41] Importing MappedByteBuffer.members#52.0-1788873028513-java.trap.gz (114 of 531)
+[2026-09-08 20:32:41] Importing ShortBuffer.members#52.0-1788873028513-java.trap.gz (115 of 531)
+[2026-09-08 20:32:41] Importing AsynchronousChannel.members#52.0-1788873028513-java.trap.gz (116 of 531)
+[2026-09-08 20:32:41] Importing AsynchronousCloseException.members#52.0-1788873028513-java.trap.gz (117 of 531)
+[2026-09-08 20:32:41] Importing AsynchronousFileChannel.members#52.0-1788873028513-java.trap.gz (118 of 531)
+[2026-09-08 20:32:41] Importing ByteChannel.members#52.0-1788873028513-java.trap.gz (119 of 531)
+[2026-09-08 20:32:41] Importing Channel.members#52.0-1788873028513-java.trap.gz (120 of 531)
+[2026-09-08 20:32:41] Importing ClosedChannelException.members#52.0-1788873028513-java.trap.gz (121 of 531)
+[2026-09-08 20:32:41] Importing CompletionHandler.members#52.0-1788873028513-java.trap.gz (122 of 531)
+[2026-09-08 20:32:41] Importing FileChannel$MapMode.members#52.0-1788873028513-java.trap.gz (123 of 531)
+[2026-09-08 20:32:41] Importing FileChannel.members#52.0-1788873028513-java.trap.gz (124 of 531)
+[2026-09-08 20:32:41] Importing FileLock.members#52.0-1788873028513-java.trap.gz (125 of 531)
+[2026-09-08 20:32:41] Importing GatheringByteChannel.members#52.0-1788873028513-java.trap.gz (126 of 531)
+[2026-09-08 20:32:41] Importing InterruptibleChannel.members#52.0-1788873028513-java.trap.gz (127 of 531)
+[2026-09-08 20:32:41] Importing ReadableByteChannel.members#52.0-1788873028513-java.trap.gz (128 of 531)
+[2026-09-08 20:32:41] Importing ScatteringByteChannel.members#52.0-1788873028513-java.trap.gz (129 of 531)
+[2026-09-08 20:32:41] Importing SeekableByteChannel.members#52.0-1788873028513-java.trap.gz (130 of 531)
+[2026-09-08 20:32:41] Importing WritableByteChannel.members#52.0-1788873028513-java.trap.gz (131 of 531)
+[2026-09-08 20:32:41] Importing AbstractInterruptibleChannel.members#52.0-1788873028513-java.trap.gz (132 of 531)
+[2026-09-08 20:32:41] Importing CharacterCodingException.members#52.0-1788873028513-java.trap.gz (133 of 531)
+[2026-09-08 20:32:41] Importing Charset.members#52.0-1788873028513-java.trap.gz (134 of 531)
+[2026-09-08 20:32:41] Importing CharsetDecoder.members#52.0-1788873028513-java.trap.gz (135 of 531)
+[2026-09-08 20:32:41] Importing CharsetEncoder.members#52.0-1788873028513-java.trap.gz (136 of 531)
+[2026-09-08 20:32:41] Importing CoderResult.members#52.0-1788873028513-java.trap.gz (137 of 531)
+[2026-09-08 20:32:41] Importing CodingErrorAction.members#52.0-1788873028513-java.trap.gz (138 of 531)
+[2026-09-08 20:32:41] Importing AccessMode.members#52.0-1788873028513-java.trap.gz (139 of 531)
+[2026-09-08 20:32:41] Importing CopyOption.members#52.0-1788873028513-java.trap.gz (140 of 531)
+[2026-09-08 20:32:41] Importing DirectoryStream$Filter.members#52.0-1788873028513-java.trap.gz (141 of 531)
+[2026-09-08 20:32:41] Importing DirectoryStream.members#52.0-1788873028513-java.trap.gz (142 of 531)
+[2026-09-08 20:32:41] Importing FileStore.members#52.0-1788873028513-java.trap.gz (143 of 531)
+[2026-09-08 20:32:41] Importing FileSystem.members#52.0-1788873028513-java.trap.gz (144 of 531)
+[2026-09-08 20:32:41] Importing LinkOption.members#52.0-1788873028513-java.trap.gz (145 of 531)
+[2026-09-08 20:32:41] Importing OpenOption.members#52.0-1788873028513-java.trap.gz (146 of 531)
+[2026-09-08 20:32:41] Importing Path.members#52.0-1788873028513-java.trap.gz (147 of 531)
+[2026-09-08 20:32:41] Importing PathMatcher.members#52.0-1788873028513-java.trap.gz (148 of 531)
+[2026-09-08 20:32:41] Importing WatchEvent$Kind.members#52.0-1788873028513-java.trap.gz (149 of 531)
+[2026-09-08 20:32:41] Importing WatchEvent$Modifier.members#52.0-1788873028513-java.trap.gz (150 of 531)
+[2026-09-08 20:32:41] Importing WatchEvent.members#52.0-1788873028513-java.trap.gz (151 of 531)
+[2026-09-08 20:32:41] Importing WatchKey.members#52.0-1788873028513-java.trap.gz (152 of 531)
+[2026-09-08 20:32:41] Importing WatchService.members#52.0-1788873028513-java.trap.gz (153 of 531)
+[2026-09-08 20:32:41] Importing Watchable.members#52.0-1788873028513-java.trap.gz (154 of 531)
+[2026-09-08 20:32:41] Importing AttributeView.members#52.0-1788873028513-java.trap.gz (155 of 531)
+[2026-09-08 20:32:41] Importing BasicFileAttributes.members#52.0-1788873028513-java.trap.gz (156 of 531)
+[2026-09-08 20:32:41] Importing FileAttribute.members#52.0-1788873028513-java.trap.gz (157 of 531)
+[2026-09-08 20:32:41] Importing FileAttributeView.members#52.0-1788873028513-java.trap.gz (158 of 531)
+[2026-09-08 20:32:41] Importing FileStoreAttributeView.members#52.0-1788873028513-java.trap.gz (159 of 531)
+[2026-09-08 20:32:41] Importing FileTime.members#52.0-1788873028513-java.trap.gz (160 of 531)
+[2026-09-08 20:32:41] Importing GroupPrincipal.members#52.0-1788873028513-java.trap.gz (161 of 531)
+[2026-09-08 20:32:41] Importing UserPrincipal.members#52.0-1788873028513-java.trap.gz (162 of 531)
+[2026-09-08 20:32:41] Importing UserPrincipalLookupService.members#52.0-1788873028513-java.trap.gz (163 of 531)
+[2026-09-08 20:32:41] Importing FileSystemProvider.members#52.0-1788873028513-java.trap.gz (164 of 531)
+[2026-09-08 20:32:41] Importing AccessControlContext.members#52.0-1788873028513-java.trap.gz (165 of 531)
+[2026-09-08 20:32:41] Importing AccessControlException.members#52.0-1788873028513-java.trap.gz (166 of 531)
+[2026-09-08 20:32:41] Importing CodeSigner.members#52.0-1788873028513-java.trap.gz (167 of 531)
+[2026-09-08 20:32:41] Importing CodeSource.members#52.0-1788873028513-java.trap.gz (168 of 531)
+[2026-09-08 20:32:41] Importing DomainCombiner.members#52.0-1788873028513-java.trap.gz (169 of 531)
+[2026-09-08 20:32:41] Importing GeneralSecurityException.members#52.0-1788873028513-java.trap.gz (170 of 531)
+[2026-09-08 20:32:41] Importing Guard.members#52.0-1788873028513-java.trap.gz (171 of 531)
+[2026-09-08 20:32:41] Importing InvalidKeyException.members#52.0-1788873028513-java.trap.gz (172 of 531)
+[2026-09-08 20:32:41] Importing Key.members#52.0-1788873028513-java.trap.gz (173 of 531)
+[2026-09-08 20:32:41] Importing KeyException.members#52.0-1788873028513-java.trap.gz (174 of 531)
+[2026-09-08 20:32:41] Importing NoSuchAlgorithmException.members#52.0-1788873028513-java.trap.gz (175 of 531)
+[2026-09-08 20:32:41] Importing NoSuchProviderException.members#52.0-1788873028513-java.trap.gz (176 of 531)
+[2026-09-08 20:32:41] Importing Permission.members#52.0-1788873028513-java.trap.gz (177 of 531)
+[2026-09-08 20:32:41] Importing PermissionCollection.members#52.0-1788873028513-java.trap.gz (178 of 531)
+[2026-09-08 20:32:41] Importing Principal.members#52.0-1788873028513-java.trap.gz (179 of 531)
+[2026-09-08 20:32:41] Importing PrivilegedAction.members#52.0-1788873028513-java.trap.gz (180 of 531)
+[2026-09-08 20:32:41] Importing PrivilegedActionException.members#52.0-1788873028513-java.trap.gz (181 of 531)
+[2026-09-08 20:32:41] Importing PrivilegedExceptionAction.members#52.0-1788873028513-java.trap.gz (182 of 531)
+[2026-09-08 20:32:41] Importing ProtectionDomain.members#52.0-1788873028513-java.trap.gz (183 of 531)
+[2026-09-08 20:32:41] Importing Provider$Service.members#52.0-1788873028513-java.trap.gz (184 of 531)
+[2026-09-08 20:32:41] Importing Provider.members#52.0-1788873028513-java.trap.gz (185 of 531)
+[2026-09-08 20:32:41] Importing PublicKey.members#52.0-1788873028513-java.trap.gz (186 of 531)
+[2026-09-08 20:32:41] Importing SignatureException.members#52.0-1788873028513-java.trap.gz (187 of 531)
+[2026-09-08 20:32:41] Importing Timestamp.members#52.0-1788873028513-java.trap.gz (188 of 531)
+[2026-09-08 20:32:41] Importing CertPath.members#52.0-1788873028513-java.trap.gz (189 of 531)
+[2026-09-08 20:32:41] Importing Certificate.members#52.0-1788873028513-java.trap.gz (190 of 531)
+[2026-09-08 20:32:41] Importing CertificateEncodingException.members#52.0-1788873028513-java.trap.gz (191 of 531)
+[2026-09-08 20:32:41] Importing CertificateException.members#52.0-1788873028513-java.trap.gz (192 of 531)
+[2026-09-08 20:32:41] Importing AttributedCharacterIterator$Attribute.members#52.0-1788873028513-java.trap.gz (193 of 531)
+[2026-09-08 20:32:41] Importing AttributedCharacterIterator.members#52.0-1788873028513-java.trap.gz (194 of 531)
+[2026-09-08 20:32:41] Importing CharacterIterator.members#52.0-1788873028513-java.trap.gz (195 of 531)
+[2026-09-08 20:32:41] Importing FieldPosition.members#52.0-1788873028513-java.trap.gz (196 of 531)
+[2026-09-08 20:32:41] Importing Format$Field.members#52.0-1788873028513-java.trap.gz (197 of 531)
+[2026-09-08 20:32:41] Importing Format.members#52.0-1788873028513-java.trap.gz (198 of 531)
+[2026-09-08 20:32:41] Importing ParseException.members#52.0-1788873028513-java.trap.gz (199 of 531)
+[2026-09-08 20:32:41] Importing ParsePosition.members#52.0-1788873028513-java.trap.gz (200 of 531)
+[2026-09-08 20:32:41] Importing Clock.members#52.0-1788873028513-java.trap.gz (201 of 531)
+[2026-09-08 20:32:41] Importing DayOfWeek.members#52.0-1788873028513-java.trap.gz (202 of 531)
+[2026-09-08 20:32:41] Importing Duration.members#52.0-1788873028513-java.trap.gz (203 of 531)
+[2026-09-08 20:32:41] Importing Instant.members#52.0-1788873028513-java.trap.gz (204 of 531)
+[2026-09-08 20:32:41] Importing InstantSource.members#52.0-1788873028513-java.trap.gz (205 of 531)
+[2026-09-08 20:32:41] Importing LocalDate.members#52.0-1788873028513-java.trap.gz (206 of 531)
+[2026-09-08 20:32:41] Importing LocalDateTime.members#52.0-1788873028513-java.trap.gz (207 of 531)
+[2026-09-08 20:32:41] Importing LocalTime.members#52.0-1788873028513-java.trap.gz (208 of 531)
+[2026-09-08 20:32:41] Importing Month.members#52.0-1788873028513-java.trap.gz (209 of 531)
+[2026-09-08 20:32:41] Importing OffsetDateTime.members#52.0-1788873028513-java.trap.gz (210 of 531)
+[2026-09-08 20:32:41] Importing OffsetTime.members#52.0-1788873028513-java.trap.gz (211 of 531)
+[2026-09-08 20:32:41] Importing Period.members#52.0-1788873028513-java.trap.gz (212 of 531)
+[2026-09-08 20:32:41] Importing ZoneId.members#52.0-1788873028513-java.trap.gz (213 of 531)
+[2026-09-08 20:32:41] Importing ZoneOffset.members#52.0-1788873028513-java.trap.gz (214 of 531)
+[2026-09-08 20:32:41] Importing ZonedDateTime.members#52.0-1788873028513-java.trap.gz (215 of 531)
+[2026-09-08 20:32:41] Importing AbstractChronology.members#52.0-1788873028513-java.trap.gz (216 of 531)
+[2026-09-08 20:32:41] Importing ChronoLocalDate.members#52.0-1788873028513-java.trap.gz (217 of 531)
+[2026-09-08 20:32:41] Importing ChronoLocalDateTime.members#52.0-1788873028513-java.trap.gz (218 of 531)
+[2026-09-08 20:32:41] Importing ChronoPeriod.members#52.0-1788873028513-java.trap.gz (219 of 531)
+[2026-09-08 20:32:41] Importing ChronoZonedDateTime.members#52.0-1788873028513-java.trap.gz (220 of 531)
+[2026-09-08 20:32:41] Importing Chronology.members#52.0-1788873028513-java.trap.gz (221 of 531)
+[2026-09-08 20:32:41] Importing Era.members#52.0-1788873028513-java.trap.gz (222 of 531)
+[2026-09-08 20:32:41] Importing IsoChronology.members#52.0-1788873028513-java.trap.gz (223 of 531)
+[2026-09-08 20:32:41] Importing IsoEra.members#52.0-1788873028513-java.trap.gz (224 of 531)
+[2026-09-08 20:32:41] Importing DateTimeFormatter.members#52.0-1788873028513-java.trap.gz (225 of 531)
+[2026-09-08 20:32:41] Importing DecimalStyle.members#52.0-1788873028513-java.trap.gz (226 of 531)
+[2026-09-08 20:32:41] Importing FormatStyle.members#52.0-1788873028513-java.trap.gz (227 of 531)
+[2026-09-08 20:32:41] Importing ResolverStyle.members#52.0-1788873028513-java.trap.gz (228 of 531)
+[2026-09-08 20:32:41] Importing TextStyle.members#52.0-1788873028513-java.trap.gz (229 of 531)
+[2026-09-08 20:32:41] Importing ChronoField.members#52.0-1788873028513-java.trap.gz (230 of 531)
+[2026-09-08 20:32:41] Importing ChronoUnit.members#52.0-1788873028513-java.trap.gz (231 of 531)
+[2026-09-08 20:32:41] Importing Temporal.members#52.0-1788873028513-java.trap.gz (232 of 531)
+[2026-09-08 20:32:41] Importing TemporalAccessor.members#52.0-1788873028513-java.trap.gz (233 of 531)
+[2026-09-08 20:32:41] Importing TemporalAdjuster.members#52.0-1788873028513-java.trap.gz (234 of 531)
+[2026-09-08 20:32:41] Importing TemporalAmount.members#52.0-1788873028513-java.trap.gz (235 of 531)
+[2026-09-08 20:32:41] Importing TemporalField.members#52.0-1788873028513-java.trap.gz (236 of 531)
+[2026-09-08 20:32:41] Importing TemporalQuery.members#52.0-1788873028513-java.trap.gz (237 of 531)
+[2026-09-08 20:32:41] Importing TemporalUnit.members#52.0-1788873028513-java.trap.gz (238 of 531)
+[2026-09-08 20:32:41] Importing ValueRange.members#52.0-1788873028513-java.trap.gz (239 of 531)
+[2026-09-08 20:32:41] Importing ZoneOffsetTransition.members#52.0-1788873028513-java.trap.gz (240 of 531)
+[2026-09-08 20:32:41] Importing ZoneOffsetTransitionRule$TimeDefinition.members#52.0-1788873028513-java.trap.gz (241 of 531)
+[2026-09-08 20:32:41] Importing ZoneOffsetTransitionRule.members#52.0-1788873028513-java.trap.gz (242 of 531)
+[2026-09-08 20:32:41] Importing ZoneRules.members#52.0-1788873028513-java.trap.gz (243 of 531)
+[2026-09-08 20:32:41] Importing Collection.members#52.0-1788873028513-java.trap.gz (244 of 531)
+[2026-09-08 20:32:41] Importing Comparator.members#52.0-1788873028513-java.trap.gz (245 of 531)
+[2026-09-08 20:32:41] Importing Date.members#52.0-1788873028513-java.trap.gz (246 of 531)
+[2026-09-08 20:32:41] Importing Dictionary.members#52.0-1788873028513-java.trap.gz (247 of 531)
+[2026-09-08 20:32:41] Importing DoubleSummaryStatistics.members#52.0-1788873028513-java.trap.gz (248 of 531)
+[2026-09-08 20:32:41] Importing Enumeration.members#52.0-1788873028513-java.trap.gz (249 of 531)
+[2026-09-08 20:32:41] Importing Hashtable.members#52.0-1788873028513-java.trap.gz (250 of 531)
+[2026-09-08 20:32:41] Importing IntSummaryStatistics.members#52.0-1788873028513-java.trap.gz (251 of 531)
+[2026-09-08 20:32:41] Importing InvalidPropertiesFormatException.members#52.0-1788873028513-java.trap.gz (252 of 531)
+[2026-09-08 20:32:41] Importing Iterator.members#52.0-1788873028513-java.trap.gz (253 of 531)
+[2026-09-08 20:32:41] Importing List.members#52.0-1788873028513-java.trap.gz (254 of 531)
+[2026-09-08 20:32:41] Importing ListIterator.members#52.0-1788873028513-java.trap.gz (255 of 531)
+[2026-09-08 20:32:41] Importing Locale$Category.members#52.0-1788873028513-java.trap.gz (256 of 531)
+[2026-09-08 20:32:41] Importing Locale$FilteringMode.members#52.0-1788873028513-java.trap.gz (257 of 531)
+[2026-09-08 20:32:41] Importing Locale$IsoCountryCode.members#52.0-1788873028513-java.trap.gz (258 of 531)
+[2026-09-08 20:32:41] Importing Locale$LanguageRange.members#52.0-1788873028513-java.trap.gz (259 of 531)
+[2026-09-08 20:32:41] Importing Locale.members#52.0-1788873028513-java.trap.gz (260 of 531)
+[2026-09-08 20:32:41] Importing LongSummaryStatistics.members#52.0-1788873028513-java.trap.gz (261 of 531)
+[2026-09-08 20:32:41] Importing Map$Entry.members#52.0-1788873028513-java.trap.gz (262 of 531)
+[2026-09-08 20:32:41] Importing Map.members#52.0-1788873028513-java.trap.gz (263 of 531)
+[2026-09-08 20:32:41] Importing MissingResourceException.members#52.0-1788873028513-java.trap.gz (264 of 531)
+[2026-09-08 20:32:41] Importing Optional.members#52.0-1788873028513-java.trap.gz (265 of 531)
+[2026-09-08 20:32:41] Importing OptionalDouble.members#52.0-1788873028513-java.trap.gz (266 of 531)
+[2026-09-08 20:32:41] Importing OptionalInt.members#52.0-1788873028513-java.trap.gz (267 of 531)
+[2026-09-08 20:32:41] Importing OptionalLong.members#52.0-1788873028513-java.trap.gz (268 of 531)
+[2026-09-08 20:32:41] Importing PrimitiveIterator$OfDouble.members#52.0-1788873028513-java.trap.gz (269 of 531)
+[2026-09-08 20:32:41] Importing PrimitiveIterator$OfInt.members#52.0-1788873028513-java.trap.gz (270 of 531)
+[2026-09-08 20:32:41] Importing PrimitiveIterator$OfLong.members#52.0-1788873028513-java.trap.gz (271 of 531)
+[2026-09-08 20:32:41] Importing PrimitiveIterator.members#52.0-1788873028513-java.trap.gz (272 of 531)
+[2026-09-08 20:32:41] Importing Properties.members#52.0-1788873028513-java.trap.gz (273 of 531)
+[2026-09-08 20:32:41] Importing SequencedCollection.members#52.0-1788873028513-java.trap.gz (274 of 531)
+[2026-09-08 20:32:41] Importing SequencedMap.members#52.0-1788873028513-java.trap.gz (275 of 531)
+[2026-09-08 20:32:41] Importing SequencedSet.members#52.0-1788873028513-java.trap.gz (276 of 531)
+[2026-09-08 20:32:41] Importing Set.members#52.0-1788873028513-java.trap.gz (277 of 531)
+[2026-09-08 20:32:41] Importing SortedMap.members#52.0-1788873028513-java.trap.gz (278 of 531)
+[2026-09-08 20:32:41] Importing Spliterator$OfDouble.members#52.0-1788873028513-java.trap.gz (279 of 531)
+[2026-09-08 20:32:41] Importing Spliterator$OfInt.members#52.0-1788873028513-java.trap.gz (280 of 531)
+[2026-09-08 20:32:41] Importing Spliterator$OfLong.members#52.0-1788873028513-java.trap.gz (281 of 531)
+[2026-09-08 20:32:41] Importing Spliterator$OfPrimitive.members#52.0-1788873028513-java.trap.gz (282 of 531)
+[2026-09-08 20:32:41] Importing Spliterator.members#52.0-1788873028513-java.trap.gz (283 of 531)
+[2026-09-08 20:32:41] Importing Callable.members#52.0-1788873028513-java.trap.gz (284 of 531)
+[2026-09-08 20:32:41] Importing ExecutionException.members#52.0-1788873028513-java.trap.gz (285 of 531)
+[2026-09-08 20:32:41] Importing Executor.members#52.0-1788873028513-java.trap.gz (286 of 531)
+[2026-09-08 20:32:41] Importing ExecutorService.members#52.0-1788873028513-java.trap.gz (287 of 531)
+[2026-09-08 20:32:41] Importing Future$State.members#52.0-1788873028513-java.trap.gz (288 of 531)
+[2026-09-08 20:32:41] Importing Future.members#52.0-1788873028513-java.trap.gz (289 of 531)
+[2026-09-08 20:32:41] Importing TimeUnit.members#52.0-1788873028513-java.trap.gz (290 of 531)
+[2026-09-08 20:32:41] Importing TimeoutException.members#52.0-1788873028513-java.trap.gz (291 of 531)
+[2026-09-08 20:32:41] Importing BiConsumer.members#52.0-1788873028513-java.trap.gz (292 of 531)
+[2026-09-08 20:32:41] Importing BiFunction.members#52.0-1788873028513-java.trap.gz (293 of 531)
+[2026-09-08 20:32:41] Importing BinaryOperator.members#52.0-1788873028513-java.trap.gz (294 of 531)
+[2026-09-08 20:32:41] Importing Consumer.members#52.0-1788873028513-java.trap.gz (295 of 531)
+[2026-09-08 20:32:41] Importing DoubleBinaryOperator.members#52.0-1788873028513-java.trap.gz (296 of 531)
+[2026-09-08 20:32:41] Importing DoubleConsumer.members#52.0-1788873028513-java.trap.gz (297 of 531)
+[2026-09-08 20:32:41] Importing DoubleFunction.members#52.0-1788873028513-java.trap.gz (298 of 531)
+[2026-09-08 20:32:41] Importing DoublePredicate.members#52.0-1788873028513-java.trap.gz (299 of 531)
+[2026-09-08 20:32:41] Importing DoubleSupplier.members#52.0-1788873028513-java.trap.gz (300 of 531)
+[2026-09-08 20:32:41] Importing DoubleToIntFunction.members#52.0-1788873028513-java.trap.gz (301 of 531)
+[2026-09-08 20:32:41] Importing DoubleToLongFunction.members#52.0-1788873028513-java.trap.gz (302 of 531)
+[2026-09-08 20:32:41] Importing DoubleUnaryOperator.members#52.0-1788873028513-java.trap.gz (303 of 531)
+[2026-09-08 20:32:41] Importing Function.members#52.0-1788873028513-java.trap.gz (304 of 531)
+[2026-09-08 20:32:41] Importing IntBinaryOperator.members#52.0-1788873028513-java.trap.gz (305 of 531)
+[2026-09-08 20:32:41] Importing IntConsumer.members#52.0-1788873028513-java.trap.gz (306 of 531)
+[2026-09-08 20:32:41] Importing IntFunction.members#52.0-1788873028513-java.trap.gz (307 of 531)
+[2026-09-08 20:32:41] Importing IntPredicate.members#52.0-1788873028513-java.trap.gz (308 of 531)
+[2026-09-08 20:32:41] Importing IntSupplier.members#52.0-1788873028513-java.trap.gz (309 of 531)
+[2026-09-08 20:32:41] Importing IntToDoubleFunction.members#52.0-1788873028513-java.trap.gz (310 of 531)
+[2026-09-08 20:32:41] Importing IntToLongFunction.members#52.0-1788873028513-java.trap.gz (311 of 531)
+[2026-09-08 20:32:41] Importing IntUnaryOperator.members#52.0-1788873028513-java.trap.gz (312 of 531)
+[2026-09-08 20:32:41] Importing LongBinaryOperator.members#52.0-1788873028513-java.trap.gz (313 of 531)
+[2026-09-08 20:32:41] Importing LongConsumer.members#52.0-1788873028513-java.trap.gz (314 of 531)
+[2026-09-08 20:32:41] Importing LongFunction.members#52.0-1788873028513-java.trap.gz (315 of 531)
+[2026-09-08 20:32:41] Importing LongPredicate.members#52.0-1788873028513-java.trap.gz (316 of 531)
+[2026-09-08 20:32:41] Importing LongSupplier.members#52.0-1788873028513-java.trap.gz (317 of 531)
+[2026-09-08 20:32:41] Importing LongToDoubleFunction.members#52.0-1788873028513-java.trap.gz (318 of 531)
+[2026-09-08 20:32:41] Importing LongToIntFunction.members#52.0-1788873028513-java.trap.gz (319 of 531)
+[2026-09-08 20:32:41] Importing LongUnaryOperator.members#52.0-1788873028513-java.trap.gz (320 of 531)
+[2026-09-08 20:32:41] Importing ObjDoubleConsumer.members#52.0-1788873028513-java.trap.gz (321 of 531)
+[2026-09-08 20:32:41] Importing ObjIntConsumer.members#52.0-1788873028513-java.trap.gz (322 of 531)
+[2026-09-08 20:32:41] Importing ObjLongConsumer.members#52.0-1788873028513-java.trap.gz (323 of 531)
+[2026-09-08 20:32:41] Importing Predicate.members#52.0-1788873028513-java.trap.gz (324 of 531)
+[2026-09-08 20:32:41] Importing Supplier.members#52.0-1788873028513-java.trap.gz (325 of 531)
+[2026-09-08 20:32:41] Importing ToDoubleFunction.members#52.0-1788873028513-java.trap.gz (326 of 531)
+[2026-09-08 20:32:41] Importing ToIntFunction.members#52.0-1788873028513-java.trap.gz (327 of 531)
+[2026-09-08 20:32:41] Importing ToLongFunction.members#52.0-1788873028513-java.trap.gz (328 of 531)
+[2026-09-08 20:32:41] Importing UnaryOperator.members#52.0-1788873028513-java.trap.gz (329 of 531)
+[2026-09-08 20:32:41] Importing BaseStream.members#52.0-1788873028513-java.trap.gz (330 of 531)
+[2026-09-08 20:32:41] Importing Collector$Characteristics.members#52.0-1788873028513-java.trap.gz (331 of 531)
+[2026-09-08 20:32:41] Importing Collector.members#52.0-1788873028513-java.trap.gz (332 of 531)
+[2026-09-08 20:32:41] Importing DoubleStream$Builder.members#52.0-1788873028513-java.trap.gz (333 of 531)
+[2026-09-08 20:32:41] Importing DoubleStream$DoubleMapMultiConsumer.members#52.0-1788873028513-java.trap.gz (334 of 531)
+[2026-09-08 20:32:41] Importing DoubleStream.members#52.0-1788873028513-java.trap.gz (335 of 531)
+[2026-09-08 20:32:41] Importing Gatherer$Downstream.members#52.0-1788873028513-java.trap.gz (336 of 531)
+[2026-09-08 20:32:41] Importing Gatherer$Integrator$Greedy.members#52.0-1788873028513-java.trap.gz (337 of 531)
+[2026-09-08 20:32:41] Importing Gatherer$Integrator.members#52.0-1788873028513-java.trap.gz (338 of 531)
+[2026-09-08 20:32:41] Importing Gatherer.members#52.0-1788873028513-java.trap.gz (339 of 531)
+[2026-09-08 20:32:41] Importing IntStream$Builder.members#52.0-1788873028513-java.trap.gz (340 of 531)
+[2026-09-08 20:32:41] Importing IntStream$IntMapMultiConsumer.members#52.0-1788873028513-java.trap.gz (341 of 531)
+[2026-09-08 20:32:41] Importing IntStream.members#52.0-1788873028513-java.trap.gz (342 of 531)
+[2026-09-08 20:32:41] Importing LongStream$Builder.members#52.0-1788873028513-java.trap.gz (343 of 531)
+[2026-09-08 20:32:41] Importing LongStream$LongMapMultiConsumer.members#52.0-1788873028513-java.trap.gz (344 of 531)
+[2026-09-08 20:32:41] Importing LongStream.members#52.0-1788873028513-java.trap.gz (345 of 531)
+[2026-09-08 20:32:41] Importing Stream$Builder.members#52.0-1788873028513-java.trap.gz (346 of 531)
+[2026-09-08 20:32:41] Importing Stream.members#52.0-1788873028513-java.trap.gz (347 of 531)
+[2026-09-08 20:32:41] Importing Subject.members#52.0-1788873028513-java.trap.gz (348 of 531)
+[2026-09-08 20:32:41] Importing BuildConfig.members#0.0-1788881536938-java.trap.gz (349 of 531)
+[2026-09-08 20:32:41] Importing diagnostic.trap.gz (350 of 531)
+[2026-09-08 20:32:41] Importing gc.properties.trap.gz (351 of 531)
+[2026-09-08 20:32:41] Importing cache.properties.trap.gz (352 of 531)
+[2026-09-08 20:32:41] Importing gc.properties.trap.gz (353 of 531)
+[2026-09-08 20:32:41] Importing AndroidProjectSystem.xml.trap.gz (354 of 531)
+[2026-09-08 20:32:41] Importing assetWizardSettings.xml.trap.gz (355 of 531)
+[2026-09-08 20:32:41] Importing deviceStreaming.xml.trap.gz (356 of 531)
+[2026-09-08 20:32:41] Importing Project.xml.trap.gz (357 of 531)
+[2026-09-08 20:32:41] Importing codeStyleConfig.xml.trap.gz (358 of 531)
+[2026-09-08 20:32:41] Importing compiler.xml.trap.gz (359 of 531)
+[2026-09-08 20:32:41] Importing deploymentTargetSelector.xml.trap.gz (360 of 531)
+[2026-09-08 20:32:41] Importing deviceManager.xml.trap.gz (361 of 531)
+[2026-09-08 20:32:41] Importing gradle.xml.trap.gz (362 of 531)
+[2026-09-08 20:32:41] Importing misc.xml.trap.gz (363 of 531)
+[2026-09-08 20:32:41] Importing planningMode.xml.trap.gz (364 of 531)
+[2026-09-08 20:32:41] Importing runConfigurations.xml.trap.gz (365 of 531)
+[2026-09-08 20:32:41] Importing studiobot.xml.trap.gz (366 of 531)
+[2026-09-08 20:32:41] Importing vcs.xml.trap.gz (367 of 531)
+[2026-09-08 20:32:41] Importing workspace.xml.trap.gz (368 of 531)
+[2026-09-08 20:32:41] Importing BuildConfig.java.trap.gz (369 of 531)
+[2026-09-08 20:32:41] Importing app-metadata.properties.trap.gz (370 of 531)
+[2026-09-08 20:32:41] Importing compile-file-map.properties.trap.gz (371 of 531)
+[2026-09-08 20:32:41] Importing values.xml.trap.gz (372 of 531)
+[2026-09-08 20:32:41] Importing values-af.xml.trap.gz (373 of 531)
+[2026-09-08 20:32:41] Importing values-am.xml.trap.gz (374 of 531)
+[2026-09-08 20:32:41] Importing values-ar.xml.trap.gz (375 of 531)
+[2026-09-08 20:32:41] Importing values-as.xml.trap.gz (376 of 531)
+[2026-09-08 20:32:41] Importing values-az.xml.trap.gz (377 of 531)
+[2026-09-08 20:32:41] Importing values-b+sr+Latn.xml.trap.gz (378 of 531)
+[2026-09-08 20:32:41] Importing values-be.xml.trap.gz (379 of 531)
+[2026-09-08 20:32:41] Importing values-bg.xml.trap.gz (380 of 531)
+[2026-09-08 20:32:41] Importing values-bn.xml.trap.gz (381 of 531)
+[2026-09-08 20:32:41] Importing values-bs.xml.trap.gz (382 of 531)
+[2026-09-08 20:32:41] Importing values-ca.xml.trap.gz (383 of 531)
+[2026-09-08 20:32:41] Importing values-cs.xml.trap.gz (384 of 531)
+[2026-09-08 20:32:41] Importing values-da.xml.trap.gz (385 of 531)
+[2026-09-08 20:32:41] Importing values-de.xml.trap.gz (386 of 531)
+[2026-09-08 20:32:41] Importing values-el.xml.trap.gz (387 of 531)
+[2026-09-08 20:32:41] Importing values-en.xml.trap.gz (388 of 531)
+[2026-09-08 20:32:41] Importing values-en-rAU.xml.trap.gz (389 of 531)
+[2026-09-08 20:32:41] Importing values-en-rCA.xml.trap.gz (390 of 531)
+[2026-09-08 20:32:41] Importing values-en-rGB.xml.trap.gz (391 of 531)
+[2026-09-08 20:32:41] Importing values-en-rIN.xml.trap.gz (392 of 531)
+[2026-09-08 20:32:41] Importing values-en-rXC.xml.trap.gz (393 of 531)
+[2026-09-08 20:32:41] Importing values-es.xml.trap.gz (394 of 531)
+[2026-09-08 20:32:41] Importing values-es-rUS.xml.trap.gz (395 of 531)
+[2026-09-08 20:32:41] Importing values-et.xml.trap.gz (396 of 531)
+[2026-09-08 20:32:41] Importing values-eu.xml.trap.gz (397 of 531)
+[2026-09-08 20:32:41] Importing values-fa.xml.trap.gz (398 of 531)
+[2026-09-08 20:32:41] Importing values-fi.xml.trap.gz (399 of 531)
+[2026-09-08 20:32:41] Importing values-fr.xml.trap.gz (400 of 531)
+[2026-09-08 20:32:41] Importing values-fr-rCA.xml.trap.gz (401 of 531)
+[2026-09-08 20:32:41] Importing values-gl.xml.trap.gz (402 of 531)
+[2026-09-08 20:32:41] Importing values-gu.xml.trap.gz (403 of 531)
+[2026-09-08 20:32:41] Importing values-h720dp-v13.xml.trap.gz (404 of 531)
+[2026-09-08 20:32:41] Importing values-hdpi-v4.xml.trap.gz (405 of 531)
+[2026-09-08 20:32:41] Importing values-hi.xml.trap.gz (406 of 531)
+[2026-09-08 20:32:41] Importing values-hr.xml.trap.gz (407 of 531)
+[2026-09-08 20:32:41] Importing values-hu.xml.trap.gz (408 of 531)
+[2026-09-08 20:32:41] Importing values-hy.xml.trap.gz (409 of 531)
+[2026-09-08 20:32:41] Importing values-in.xml.trap.gz (410 of 531)
+[2026-09-08 20:32:41] Importing values-is.xml.trap.gz (411 of 531)
+[2026-09-08 20:32:41] Importing values-it.xml.trap.gz (412 of 531)
+[2026-09-08 20:32:41] Importing values-iw.xml.trap.gz (413 of 531)
+[2026-09-08 20:32:41] Importing values-ja.xml.trap.gz (414 of 531)
+[2026-09-08 20:32:41] Importing values-ka.xml.trap.gz (415 of 531)
+[2026-09-08 20:32:41] Importing values-kk.xml.trap.gz (416 of 531)
+[2026-09-08 20:32:41] Importing values-km.xml.trap.gz (417 of 531)
+[2026-09-08 20:32:41] Importing values-kn.xml.trap.gz (418 of 531)
+[2026-09-08 20:32:41] Importing values-ko.xml.trap.gz (419 of 531)
+[2026-09-08 20:32:41] Importing values-ky.xml.trap.gz (420 of 531)
+[2026-09-08 20:32:41] Importing values-land.xml.trap.gz (421 of 531)
+[2026-09-08 20:32:41] Importing values-large-v4.xml.trap.gz (422 of 531)
+[2026-09-08 20:32:41] Importing values-ldltr-v21.xml.trap.gz (423 of 531)
+[2026-09-08 20:32:41] Importing values-lo.xml.trap.gz (424 of 531)
+[2026-09-08 20:32:41] Importing values-lt.xml.trap.gz (425 of 531)
+[2026-09-08 20:32:41] Importing values-lv.xml.trap.gz (426 of 531)
+[2026-09-08 20:32:41] Importing values-mk.xml.trap.gz (427 of 531)
+[2026-09-08 20:32:41] Importing values-ml.xml.trap.gz (428 of 531)
+[2026-09-08 20:32:41] Importing values-mn.xml.trap.gz (429 of 531)
+[2026-09-08 20:32:41] Importing values-mr.xml.trap.gz (430 of 531)
+[2026-09-08 20:32:41] Importing values-ms.xml.trap.gz (431 of 531)
+[2026-09-08 20:32:41] Importing values-my.xml.trap.gz (432 of 531)
+[2026-09-08 20:32:41] Importing values-nb.xml.trap.gz (433 of 531)
+[2026-09-08 20:32:41] Importing values-ne.xml.trap.gz (434 of 531)
+[2026-09-08 20:32:41] Importing values-night-v8.xml.trap.gz (435 of 531)
+[2026-09-08 20:32:41] Importing values-nl.xml.trap.gz (436 of 531)
+[2026-09-08 20:32:41] Importing values-or.xml.trap.gz (437 of 531)
+[2026-09-08 20:32:41] Importing values-pa.xml.trap.gz (438 of 531)
+[2026-09-08 20:32:41] Importing values-pl.xml.trap.gz (439 of 531)
+[2026-09-08 20:32:41] Importing values-port.xml.trap.gz (440 of 531)
+[2026-09-08 20:32:41] Importing values-pt.xml.trap.gz (441 of 531)
+[2026-09-08 20:32:41] Importing values-pt-rBR.xml.trap.gz (442 of 531)
+[2026-09-08 20:32:41] Importing values-pt-rPT.xml.trap.gz (443 of 531)
+[2026-09-08 20:32:41] Importing values-ro.xml.trap.gz (444 of 531)
+[2026-09-08 20:32:41] Importing values-ru.xml.trap.gz (445 of 531)
+[2026-09-08 20:32:41] Importing values-si.xml.trap.gz (446 of 531)
+[2026-09-08 20:32:41] Importing values-sk.xml.trap.gz (447 of 531)
+[2026-09-08 20:32:41] Importing values-sl.xml.trap.gz (448 of 531)
+[2026-09-08 20:32:41] Importing values-sq.xml.trap.gz (449 of 531)
+[2026-09-08 20:32:41] Importing values-sr.xml.trap.gz (450 of 531)
+[2026-09-08 20:32:41] Importing values-sv.xml.trap.gz (451 of 531)
+[2026-09-08 20:32:41] Importing values-sw.xml.trap.gz (452 of 531)
+[2026-09-08 20:32:41] Importing values-sw600dp-v13.xml.trap.gz (453 of 531)
+[2026-09-08 20:32:41] Importing values-ta.xml.trap.gz (454 of 531)
+[2026-09-08 20:32:41] Importing values-te.xml.trap.gz (455 of 531)
+[2026-09-08 20:32:41] Importing values-th.xml.trap.gz (456 of 531)
+[2026-09-08 20:32:41] Importing values-tl.xml.trap.gz (457 of 531)
+[2026-09-08 20:32:41] Importing values-tr.xml.trap.gz (458 of 531)
+[2026-09-08 20:32:41] Importing values-uk.xml.trap.gz (459 of 531)
+[2026-09-08 20:32:41] Importing values-ur.xml.trap.gz (460 of 531)
+[2026-09-08 20:32:41] Importing values-uz.xml.trap.gz (461 of 531)
+[2026-09-08 20:32:41] Importing values-v16.xml.trap.gz (462 of 531)
+[2026-09-08 20:32:41] Importing values-v17.xml.trap.gz (463 of 531)
+[2026-09-08 20:32:41] Importing values-v18.xml.trap.gz (464 of 531)
+[2026-09-08 20:32:41] Importing values-v21.xml.trap.gz (465 of 531)
+[2026-09-08 20:32:41] Importing values-v22.xml.trap.gz (466 of 531)
+[2026-09-08 20:32:41] Importing values-v23.xml.trap.gz (467 of 531)
+[2026-09-08 20:32:41] Importing values-v24.xml.trap.gz (468 of 531)
+[2026-09-08 20:32:41] Importing values-v25.xml.trap.gz (469 of 531)
+[2026-09-08 20:32:41] Importing values-v26.xml.trap.gz (470 of 531)
+[2026-09-08 20:32:41] Importing values-v28.xml.trap.gz (471 of 531)
+[2026-09-08 20:32:41] Importing values-v30.xml.trap.gz (472 of 531)
+[2026-09-08 20:32:41] Importing values-vi.xml.trap.gz (473 of 531)
+[2026-09-08 20:32:41] Importing values-watch-v20.xml.trap.gz (474 of 531)
+[2026-09-08 20:32:41] Importing values-watch-v21.xml.trap.gz (475 of 531)
+[2026-09-08 20:32:41] Importing values-xlarge-v4.xml.trap.gz (476 of 531)
+[2026-09-08 20:32:41] Importing values-zh.xml.trap.gz (477 of 531)
+[2026-09-08 20:32:41] Importing values-zh-rCN.xml.trap.gz (478 of 531)
+[2026-09-08 20:32:41] Importing values-zh-rHK.xml.trap.gz (479 of 531)
+[2026-09-08 20:32:41] Importing values-zh-rTW.xml.trap.gz (480 of 531)
+[2026-09-08 20:32:41] Importing values-zu.xml.trap.gz (481 of 531)
+[2026-09-08 20:32:41] Importing merger.xml.trap.gz (482 of 531)
+[2026-09-08 20:32:42] Importing compile-file-map.properties.trap.gz (483 of 531)
+[2026-09-08 20:32:42] Importing values.xml.trap.gz (484 of 531)
+[2026-09-08 20:32:42] Importing values-en.xml.trap.gz (485 of 531)
+[2026-09-08 20:32:42] Importing values-zh.xml.trap.gz (486 of 531)
+[2026-09-08 20:32:42] Importing merger.xml.trap.gz (487 of 531)
+[2026-09-08 20:32:42] Importing merger.xml.trap.gz (488 of 531)
+[2026-09-08 20:32:42] Importing merger.xml.trap.gz (489 of 531)
+[2026-09-08 20:32:42] Importing AndroidManifest.xml.trap.gz (490 of 531)
+[2026-09-08 20:32:42] Importing AndroidManifest.xml.trap.gz (491 of 531)
+[2026-09-08 20:32:42] Importing AndroidManifest.xml.trap.gz (492 of 531)
+[2026-09-08 20:32:42] Importing AndroidManifest.xml.trap.gz (493 of 531)
+[2026-09-08 20:32:42] Importing AndroidManifest.xml.trap.gz (494 of 531)
+[2026-09-08 20:32:42] Importing AndroidManifest.xml.trap.gz (495 of 531)
+[2026-09-08 20:32:42] Importing AndroidManifest.xml.trap.gz (496 of 531)
+[2026-09-08 20:32:42] Importing AndroidManifest.xml.trap.gz (497 of 531)
+[2026-09-08 20:32:42] Importing AndroidManifest.xml.trap.gz (498 of 531)
+[2026-09-08 20:32:42] Importing AndroidManifest.xml.trap.gz (499 of 531)
+[2026-09-08 20:32:42] Importing AndroidManifest.xml.trap.gz (500 of 531)
+[2026-09-08 20:32:42] Importing ic_stat_name.xml.trap.gz (501 of 531)
+[2026-09-08 20:32:42] Importing ic_launcher.xml.trap.gz (502 of 531)
+[2026-09-08 20:32:42] Importing ic_launcher_round.xml.trap.gz (503 of 531)
+[2026-09-08 20:32:42] Importing values.xml.trap.gz (504 of 531)
+[2026-09-08 20:32:42] Importing values-en.xml.trap.gz (505 of 531)
+[2026-09-08 20:32:42] Importing values-zh.xml.trap.gz (506 of 531)
+[2026-09-08 20:32:42] Importing backup_rules.xml.trap.gz (507 of 531)
+[2026-09-08 20:32:42] Importing data_extraction_rules.xml.trap.gz (508 of 531)
+[2026-09-08 20:32:42] Importing keystore.properties.trap.gz (509 of 531)
+[2026-09-08 20:32:42] Importing AndroidManifest.xml.trap.gz (510 of 531)
+[2026-09-08 20:32:42] Importing ic_stat_name.xml.trap.gz (511 of 531)
+[2026-09-08 20:32:42] Importing ic_launcher.xml.trap.gz (512 of 531)
+[2026-09-08 20:32:42] Importing ic_launcher_round.xml.trap.gz (513 of 531)
+[2026-09-08 20:32:42] Importing colors.xml.trap.gz (514 of 531)
+[2026-09-08 20:32:42] Importing ic_launcher_background.xml.trap.gz (515 of 531)
+[2026-09-08 20:32:42] Importing strings.xml.trap.gz (516 of 531)
+[2026-09-08 20:32:42] Importing themes.xml.trap.gz (517 of 531)
+[2026-09-08 20:32:42] Importing strings.xml.trap.gz (518 of 531)
+[2026-09-08 20:32:42] Importing strings.xml.trap.gz (519 of 531)
+[2026-09-08 20:32:42] Importing backup_rules.xml.trap.gz (520 of 531)
+[2026-09-08 20:32:42] Importing data_extraction_rules.xml.trap.gz (521 of 531)
+[2026-09-08 20:32:42] Importing gradle-daemon-jvm.properties.trap.gz (522 of 531)
+[2026-09-08 20:32:42] Importing gradle-wrapper.properties.trap.gz (523 of 531)
+[2026-09-08 20:32:42] Importing gradle.properties.trap.gz (524 of 531)
+[2026-09-08 20:32:42] Importing local.properties.trap.gz (525 of 531)
+[2026-09-08 20:32:42] Importing go.imports.xml.trap.gz (526 of 531)
+[2026-09-08 20:32:42] Importing modules.xml.trap.gz (527 of 531)
+[2026-09-08 20:32:42] Importing vcs.xml.trap.gz (528 of 531)
+[2026-09-08 20:32:42] Importing workspace.xml.trap.gz (529 of 531)
+[2026-09-08 20:32:42] Importing metadata.trap.gz (530 of 531)
+[2026-09-08 20:32:42] Importing java.base.trap.gz (531 of 531)
+[2026-09-08 20:32:42] [PROGRESS] dataset import> Merging relations
+[2026-09-08 20:32:42] Merging 1 fragment for 'packages'.
+[2026-09-08 20:32:42] Merged 239 bytes for 'packages'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'classes_or_interfaces'.
+[2026-09-08 20:32:42] Merged 7111 bytes (6.94 KiB) for 'classes_or_interfaces'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'isInterface'.
+[2026-09-08 20:32:42] Merged 1058 bytes (1.03 KiB) for 'isInterface'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'files'.
+[2026-09-08 20:32:42] Merged 1325 bytes (1.29 KiB) for 'files'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'folders'.
+[2026-09-08 20:32:42] Merged 702 bytes for 'folders'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'containerparent'.
+[2026-09-08 20:32:42] Merged 1619 bytes (1.58 KiB) for 'containerparent'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'cupackage'.
+[2026-09-08 20:32:42] Merged 617 bytes for 'cupackage'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'cumodule'.
+[2026-09-08 20:32:42] Merged 404 bytes for 'cumodule'.
+[2026-09-08 20:32:42] Merging 2 fragments for 'locations_default'.
+[2026-09-08 20:32:42] Merged 580151 bytes (566.55 KiB) for 'locations_default'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'hasLocation'.
+[2026-09-08 20:32:42] Merged 16415 bytes (16.03 KiB) for 'hasLocation'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'extendsReftype'.
+[2026-09-08 20:32:42] Merged 3573 bytes (3.49 KiB) for 'extendsReftype'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'modifiers'.
+[2026-09-08 20:32:42] Merged 50 bytes for 'modifiers'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'hasModifier'.
+[2026-09-08 20:32:42] Merged 29175 bytes (28.49 KiB) for 'hasModifier'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'primitives'.
+[2026-09-08 20:32:42] Merged 47 bytes for 'primitives'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'methods'.
+[2026-09-08 20:32:42] Merged 32623 bytes (31.86 KiB) for 'methods'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'exceptions'.
+[2026-09-08 20:32:42] Merged 1335 bytes (1.30 KiB) for 'exceptions'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'typeArgs'.
+[2026-09-08 20:32:42] Merged 3150 bytes (3.08 KiB) for 'typeArgs'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'isParameterized'.
+[2026-09-08 20:32:42] Merged 949 bytes for 'isParameterized'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'implInterface'.
+[2026-09-08 20:32:42] Merged 1909 bytes (1.86 KiB) for 'implInterface'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'params'.
+[2026-09-08 20:32:42] Merged 23375 bytes (22.83 KiB) for 'params'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'exprs'.
+[2026-09-08 20:32:42] Merged 5407 bytes (5.28 KiB) for 'exprs'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'namestrings'.
+[2026-09-08 20:32:42] Merged 217 bytes for 'namestrings'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'annotValue'.
+[2026-09-08 20:32:42] Merged 509 bytes for 'annotValue'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'arrays'.
+[2026-09-08 20:32:42] Merged 643 bytes for 'arrays'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'fields'.
+[2026-09-08 20:32:42] Merged 1794 bytes (1.75 KiB) for 'fields'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'constrs'.
+[2026-09-08 20:32:42] Merged 2067 bytes (2.02 KiB) for 'constrs'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'isVarargsParam'.
+[2026-09-08 20:32:42] Merged 86 bytes for 'isVarargsParam'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'wildcards'.
+[2026-09-08 20:32:42] Merged 538 bytes for 'wildcards'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'typeBounds'.
+[2026-09-08 20:32:42] Merged 791 bytes for 'typeBounds'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'enclInReftype'.
+[2026-09-08 20:32:42] Merged 223 bytes for 'enclInReftype'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'isRaw'.
+[2026-09-08 20:32:42] Merged 98 bytes for 'isRaw'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'typeVars'.
+[2026-09-08 20:32:42] Merged 1410 bytes (1.38 KiB) for 'typeVars'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'isAnnotType'.
+[2026-09-08 20:32:42] Merged 25 bytes for 'isAnnotType'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'variableBinding'.
+[2026-09-08 20:32:42] Merged 93 bytes for 'variableBinding'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'isAnnotElem'.
+[2026-09-08 20:32:42] Merged 21 bytes for 'isAnnotElem'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'isEnumType'.
+[2026-09-08 20:32:42] Merged 52 bytes for 'isEnumType'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'isEnumConst'.
+[2026-09-08 20:32:42] Merged 164 bytes for 'isEnumConst'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'isDefConstr'.
+[2026-09-08 20:32:42] Merged 18 bytes for 'isDefConstr'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'compilations'.
+[2026-09-08 20:32:42] Merged 50 bytes for 'compilations'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'compilation_args'.
+[2026-09-08 20:32:42] Merged 49 bytes for 'compilation_args'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'compilation_expanded_args'.
+[2026-09-08 20:32:42] Merged 93 bytes for 'compilation_expanded_args'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'diagnostic_for'.
+[2026-09-08 20:32:42] Merged 52 bytes for 'diagnostic_for'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'diagnostics'.
+[2026-09-08 20:32:42] Merged 77 bytes for 'diagnostics'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'compilation_info'.
+[2026-09-08 20:32:42] Merged 41 bytes for 'compilation_info'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'compilation_time'.
+[2026-09-08 20:32:42] Merged 130 bytes for 'compilation_time'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'compilation_compiling_files'.
+[2026-09-08 20:32:42] Merged 42 bytes for 'compilation_compiling_files'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'compilation_compiling_files_completed'.
+[2026-09-08 20:32:42] Merged 41 bytes for 'compilation_compiling_files_completed'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'compilation_finished'.
+[2026-09-08 20:32:42] Merged 80 bytes for 'compilation_finished'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'configs'.
+[2026-09-08 20:32:42] Merged 102 bytes for 'configs'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'configLocations'.
+[2026-09-08 20:32:42] Merged 503 bytes for 'configLocations'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'configNames'.
+[2026-09-08 20:32:42] Merged 285 bytes for 'configNames'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'configValues'.
+[2026-09-08 20:32:42] Merged 294 bytes for 'configValues'.
+[2026-09-08 20:32:42] Merging 2 fragments for 'xmllocations'.
+[2026-09-08 20:32:42] Merged 335443 bytes (327.58 KiB) for 'xmllocations'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'xmlElements'.
+[2026-09-08 20:32:42] Merged 117258 bytes (114.51 KiB) for 'xmlElements'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'xmlAttrs'.
+[2026-09-08 20:32:42] Merged 538082 bytes (525.47 KiB) for 'xmlAttrs'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'numlines'.
+[2026-09-08 20:32:42] Merged 56385 bytes (55.06 KiB) for 'numlines'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'xmlEncoding'.
+[2026-09-08 20:32:42] Merged 302 bytes for 'xmlEncoding'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'xmlChars'.
+[2026-09-08 20:32:42] Merged 113810 bytes (111.14 KiB) for 'xmlChars'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'stmts'.
+[2026-09-08 20:32:42] Merged 102 bytes for 'stmts'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'callableEnclosingExpr'.
+[2026-09-08 20:32:42] Merged 50 bytes for 'callableEnclosingExpr'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'statementEnclosingExpr'.
+[2026-09-08 20:32:42] Merged 63 bytes for 'statementEnclosingExpr'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'callableBinding'.
+[2026-09-08 20:32:42] Merged 34 bytes for 'callableBinding'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'fielddecls'.
+[2026-09-08 20:32:42] Merged 38 bytes for 'fielddecls'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'fieldDeclaredIn'.
+[2026-09-08 20:32:42] Merged 48 bytes for 'fieldDeclaredIn'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'javadoc'.
+[2026-09-08 20:32:42] Merged 21 bytes for 'javadoc'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'javadocText'.
+[2026-09-08 20:32:42] Merged 53 bytes for 'javadocText'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'xmlNs'.
+[2026-09-08 20:32:42] Merged 294 bytes for 'xmlNs'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'xmlHasNs'.
+[2026-09-08 20:32:42] Merged 2323 bytes (2.27 KiB) for 'xmlHasNs'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'xmlComments'.
+[2026-09-08 20:32:42] Merged 794 bytes for 'xmlComments'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'sourceLocationPrefix'.
+[2026-09-08 20:32:42] Merged 18 bytes for 'sourceLocationPrefix'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'modules'.
+[2026-09-08 20:32:42] Merged 28 bytes for 'modules'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'exports'.
+[2026-09-08 20:32:42] Merged 249 bytes for 'exports'.
+[2026-09-08 20:32:42] Merging 1 fragment for 'directives'.
+[2026-09-08 20:32:42] Merged 114 bytes for 'directives'.
+[2026-09-08 20:32:42] Saving string and id pools to disk.
+[2026-09-08 20:32:42] Finished importing TRAP files.
+[2026-09-08 20:32:42] Read 31.22 MiB of uncompressed TRAP data.
+[2026-09-08 20:32:42] Uncompressed relation data size: 8.26 MiB
+[2026-09-08 20:32:42] Relation data size: 1.80 MiB (merge rate: 10.95 MiB/s)
+[2026-09-08 20:32:42] String pool size: 2.78 MiB
+[2026-09-08 20:32:42] ID pool size: 10.00 MiB
+[2026-09-08 20:32:42] [PROGRESS] dataset import> Finished writing database (relations: 1.80 MiB; string pool: 2.78 MiB).
+[2026-09-08 20:32:42] Pausing evaluation to close the cache at sequence stamp o+153
+[2026-09-08 20:32:42] The disk cache is freshly trimmed; leave it be.
+[2026-09-08 20:32:42] Unpausing evaluation
+[2026-09-08 20:32:42] Plumbing command codeql dataset import completed.
+[2026-09-08 20:32:42] [PROGRESS] database finalize> TRAP import complete (2s).
+[2026-09-08 20:32:42] Running plumbing command: codeql database cleanup -- /home/nikita/StudioProjects/pam_bio/codeql-db
+[2026-09-08 20:32:42] [PROGRESS] database cleanup> Cleaning up existing TRAP files after import...
+[2026-09-08 20:32:42] [PROGRESS] database cleanup> TRAP files cleaned up (91ms).
+[2026-09-08 20:32:42] [PROGRESS] database cleanup> Cleaning up scratch directory...
+[2026-09-08 20:32:42] [PROGRESS] database cleanup> Scratch directory cleaned up (1ms).
+[2026-09-08 20:32:42] Running plumbing command: codeql dataset cleanup -- /home/nikita/StudioProjects/pam_bio/codeql-db/db-java
+[2026-09-08 20:32:42] [PROGRESS] dataset cleanup> Cleaning up dataset in /home/nikita/StudioProjects/pam_bio/codeql-db/db-java.
+[2026-09-08 20:32:42] Trimming disk cache at /home/nikita/StudioProjects/pam_bio/codeql-db/db-java/default/cache in mode trim.
+[2026-09-08 20:32:42] Sequence stamp origin is -5870698184692734197
+[2026-09-08 20:32:42] Pausing evaluation to quickly trim memory at sequence stamp o+0
+[2026-09-08 20:32:42] Unpausing evaluation
+[2026-09-08 20:32:42] Pausing evaluation to zealously trim disk at sequence stamp o+1
+[2026-09-08 20:32:42] Unpausing evaluation
+[2026-09-08 20:32:42] Trimming completed (1ms): Trimmed disposable data from cache.
+[2026-09-08 20:32:42] Pausing evaluation to close the cache at sequence stamp o+2
+[2026-09-08 20:32:42] The disk cache is freshly trimmed; leave it be.
+[2026-09-08 20:32:42] Unpausing evaluation
+[2026-09-08 20:32:42] [PROGRESS] dataset cleanup> Trimmed disposable data from cache.
+[2026-09-08 20:32:42] [PROGRESS] dataset cleanup> Finalizing dataset in /home/nikita/StudioProjects/pam_bio/codeql-db/db-java
+[2026-09-08 20:32:42] [DETAILS] dataset cleanup> Finished deleting ID pool from /home/nikita/StudioProjects/pam_bio/codeql-db/db-java (3ms).
+[2026-09-08 20:32:42] Plumbing command codeql dataset cleanup completed.
+[2026-09-08 20:32:42] Plumbing command codeql database cleanup completed with status 0.
+[2026-09-08 20:32:42] [PROGRESS] database finalize> Finished zipping source archive (894.02 KiB).
+[2026-09-08 20:32:42] Plumbing command codeql database finalize completed.
+[2026-09-08 20:32:42] [PROGRESS] database create> Successfully created database at /home/nikita/StudioProjects/pam_bio/codeql-db.
+[2026-09-08 20:32:42] Terminating normally.

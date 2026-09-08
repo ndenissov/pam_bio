@@ -4,19 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.31.5] - 2026-09-08
-* fix(android): resolve CodeQL PRs by migrating crypto to AES/GCM and using explicit Intent constructors
+## [0.31.6]
+* fix: address remaining implicit Intent warning for BiometricAuthActivity
 
-## [0.31.4] - 2026-09-08
-* fix(android): fix service restart action and improve permission flows (notifications explanation, full-screen alerts, delayed camera check)
+## [0.31.5]
+* fix: migrate crypto to AES/GCM and use explicit intents for CodeQL compliance
 
-## [0.31.3] - 2026-09-08
-* fix: resolve CodeQL security alerts (cryptography, intent handling, input validation)
+## [0.31.4]
+* fix: reliable service restart action
+* feat: improved permission flows (notifications, full-screen alerts, camera)
 
-## [0.31.0] - 2026-09-08
+## [0.31.3]
+* fix: initial resolution of CodeQL security alerts (cryptography, intents)
+
+## [0.31.0]
 * feat(android): add GitHub release update checker UI
 
-## [0.30.0] - 2026-09-08
+## [0.30.0]
 * fix: handle null crypto signatures to prevent application crash during network requests
 * feat: add dynamic Approve button to foreground service persistent notification
 

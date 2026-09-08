@@ -25,8 +25,8 @@ android {
         applicationId = "ovh.dep.pam"
         minSdk = 26
         targetSdk = 36
-        versionCode = 36
-        versionName = "0.31.5"
+        versionCode = 37
+        versionName = "0.31.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

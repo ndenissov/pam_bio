@@ -1,0 +1,13 @@
+[2026-09-08 20:32:29] [javac-extractor-573819] Starting extraction for:
+                                               sun.java.command=com.semmle.extractor.java.JavaExtractor --jdk-version 21 --javac-args @@@/home/nikita/StudioProjects/pam_bio/codeql-db/log/ext/javac.args
+                                               user.dir=/home/nikita/StudioProjects/pam_bio
+[2026-09-08 20:32:29] [javac-extractor-573819] Compilation name /home/nikita/StudioProjects/pam_bio/codeql-db/trap/java/diagnostics/diagnostic.trap.gz
+[2026-09-08 20:32:29] [javac-extractor-573819] [WARN] Appending source destination directory /home/nikita/StudioProjects/pam_bio/android/app/build/generated/ap_generated_sources/debug/out to sourcepath
+[2026-09-08 20:32:30] [javac-extractor-573819] 1 files will be passed to the attrib/flow phase
+[2026-09-08 20:32:30] [javac-extractor-573819] Processing file /home/nikita/StudioProjects/pam_bio/android/app/build/generated/source/buildConfig/debug/ovh/dep/pam/BuildConfig.java
+[2026-09-08 20:32:31] [javac-extractor-573819] Processing module java.base
+[2026-09-08 20:32:31] [javac-extractor-573819] Javac init time: 0.9s
+[2026-09-08 20:32:31] [javac-extractor-573819] Javac attr time: 0.0s
+[2026-09-08 20:32:31] [javac-extractor-573819] Extractor time: 1.3s
+[2026-09-08 20:32:31] [javac-extractor-573819] Other time: 0.2s
+[2026-09-08 20:32:31] [javac-extractor-573819] Total time: 2.4s

@@ -21,6 +21,7 @@ import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.ComponentName
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Build
@@ -249,14 +250,14 @@ class PamBioForegroundService : Service() {
         Log.i(TAG, "Auth request: user=${authReq.user} service=${authReq.service}")
 
         // Launch BiometricAuthActivity as a full-screen intent
-        val intent = Intent().apply {
-            setClass(this@PamBioForegroundService, BiometricAuthActivity::class.java)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            putExtra(BiometricAuthActivity.EXTRA_NONCE, authReq.nonce)
-            putExtra(BiometricAuthActivity.EXTRA_USER, authReq.user)
-            putExtra(BiometricAuthActivity.EXTRA_SERVICE, authReq.service)
-            putExtra(BiometricAuthActivity.EXTRA_TIMESTAMP, authReq.timestamp)
-        }
+        val intent = Intent()
+        intent.setClass(this, BiometricAuthActivity::class.java)
+        intent.setPackage(packageName)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent.putExtra(BiometricAuthActivity.EXTRA_NONCE, authReq.nonce)
+        intent.putExtra(BiometricAuthActivity.EXTRA_USER, authReq.user)
+        intent.putExtra(BiometricAuthActivity.EXTRA_SERVICE, authReq.service)
+        intent.putExtra(BiometricAuthActivity.EXTRA_TIMESTAMP, authReq.timestamp)
 
         // Full-screen notification for lock screen
         val pendingIntent = PendingIntent.getActivity(
@@ -311,17 +312,19 @@ class PamBioForegroundService : Service() {
     }
 
     private fun buildNotification(text: String): Notification {
-        val stopIntent = Intent(this, PamBioForegroundService::class.java).apply {
-            action = ACTION_STOP
-        }
+        val stopIntent = Intent()
+        stopIntent.setClass(this, PamBioForegroundService::class.java)
+        stopIntent.setPackage(packageName)
+        stopIntent.action = ACTION_STOP
         val stopPending = PendingIntent.getService(
             this, 0, stopIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val mainIntent = Intent(this, ovh.dep.pam.MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
+        val mainIntent = Intent()
+        mainIntent.setClass(this, ovh.dep.pam.MainActivity::class.java)
+        mainIntent.setPackage(packageName)
+        mainIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         val mainPending = PendingIntent.getActivity(
             this, 0, mainIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
@@ -337,13 +340,14 @@ class PamBioForegroundService : Service() {
             .addAction(0, getString(R.string.stop), stopPending)
 
         pendingAuthRequest?.let { authReq ->
-            val authIntent = Intent(this, BiometricAuthActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                putExtra(BiometricAuthActivity.EXTRA_NONCE, authReq.nonce)
-                putExtra(BiometricAuthActivity.EXTRA_USER, authReq.user)
-                putExtra(BiometricAuthActivity.EXTRA_SERVICE, authReq.service)
-                putExtra(BiometricAuthActivity.EXTRA_TIMESTAMP, authReq.timestamp)
-            }
+            val authIntent = Intent()
+            authIntent.setClass(this, BiometricAuthActivity::class.java)
+            authIntent.setPackage(packageName)
+            authIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            authIntent.putExtra(BiometricAuthActivity.EXTRA_NONCE, authReq.nonce)
+            authIntent.putExtra(BiometricAuthActivity.EXTRA_USER, authReq.user)
+            authIntent.putExtra(BiometricAuthActivity.EXTRA_SERVICE, authReq.service)
+            authIntent.putExtra(BiometricAuthActivity.EXTRA_TIMESTAMP, authReq.timestamp)
             val authPending = PendingIntent.getActivity(
                 this, 1, authIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
