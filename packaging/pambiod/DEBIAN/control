@@ -1,5 +1,5 @@
 Package: pambiod
-Version: 0.31.1
+Version: 0.31.2
 Section: utils
 Priority: optional
 Architecture: amd64

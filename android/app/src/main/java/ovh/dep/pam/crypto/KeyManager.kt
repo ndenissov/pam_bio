@@ -73,10 +73,20 @@ class KeyManager(context: Context) {
         val pubBase64 = Base64.encodeToString(pubParams.encoded, Base64.NO_WRAP)
 
         // Encrypt private key with KeyStore-backed AES key
-        ensureKeystoreKey()
-        val cipher = getEncryptCipher()
-        val encryptedPriv = cipher.doFinal(privParams.encoded)
-        val iv = cipher.iv
+        val (encryptedPriv, iv) = try {
+            ensureKeystoreKey()
+            val cipher = getEncryptCipher()
+            val enc = cipher.doFinal(privParams.encoded)
+            Pair(enc, cipher.iv)
+        } catch (e: Exception) {
+            // If Keystore key is corrupted or throws InvalidKeyException, delete and retry once
+            val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+            ks.deleteEntry(KEYSTORE_ALIAS)
+            ensureKeystoreKey()
+            val cipher = getEncryptCipher()
+            val enc = cipher.doFinal(privParams.encoded)
+            Pair(enc, cipher.iv)
+        }
 
         prefs.edit()
             .putString(PREF_PUB, pubBase64)
@@ -115,8 +125,14 @@ class KeyManager(context: Context) {
             val privBytes = cipher.doFinal(encrypted)
             Ed25519PrivateKeyParameters(privBytes, 0)
         } catch (e: Exception) {
-            // If Keystore key is missing (e.g. Auto Backup restore), or decryption fails:
+            // If Keystore key is missing (e.g. Auto Backup restore), corrupted, or decryption fails:
             // wipe the corrupted keys so the user can re-pair.
+            try {
+                val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+                ks.deleteEntry(KEYSTORE_ALIAS)
+            } catch (e2: Exception) {
+                // Ignore
+            }
             clearKeys()
             null
         }
