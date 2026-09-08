@@ -51,6 +51,7 @@ class PamBioForegroundService : Service() {
         private const val NOTIFICATION_ID = 1
         const val ACTION_START = "ovh.dep.pam.START_SERVICE"
         const val ACTION_STOP = "ovh.dep.pam.STOP_SERVICE"
+        const val ACTION_RESTART = "ovh.dep.pam.RESTART_SERVICE"
 
         val isRunning = kotlinx.coroutines.flow.MutableStateFlow(false)
         val connectedDevices = kotlinx.coroutines.flow.MutableStateFlow<Set<String>>(emptySet())
@@ -65,7 +66,7 @@ class PamBioForegroundService : Service() {
     private var tcpClient: TcpClient? = null
     private var currentNotificationText: String? = null
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var connectionJob: Job? = null
 
 
@@ -83,6 +84,10 @@ class PamBioForegroundService : Service() {
             ACTION_STOP -> {
                 stopSelf()
                 return START_NOT_STICKY
+            }
+            ACTION_RESTART -> {
+                performRestart()
+                return START_STICKY
             }
             ACTION_CLEAR_AUTH -> {
                 pendingAuthRequest = null
@@ -119,6 +124,31 @@ class PamBioForegroundService : Service() {
         connectionJob = scope.launch { watchAndConnect() }
 
         return START_STICKY
+    }
+
+    private fun performRestart() {
+        Log.i(TAG, "Performing in-place restart")
+        // Cancel all connection jobs
+        connectionJobs.values.forEach { it.cancel() }
+        connectionJobs.clear()
+        connectionJob?.cancel()
+        scope.cancel()
+
+        // Disconnect all clients
+        tcpClient?.disconnect()
+        tcpClient = null
+        BiometricAuthActivity.activeTcpClient = null
+        connectedDevices.value = emptySet()
+
+        // Restart discovery
+        nsdManager.stopDiscovery()
+        nsdManager.startDiscovery()
+
+        // Recreate scope and reconnect
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        connectionJob = scope.launch { watchAndConnect() }
+
+        updateNotification(getString(R.string.waiting_connection))
     }
 
     override fun onDestroy() {

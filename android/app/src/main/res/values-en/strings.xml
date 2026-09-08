@@ -95,4 +95,11 @@
     <string name="update_available_msg">New version %1$s is available to download.\n\n%2$s</string>
     <string name="update_download_btn">Download</string>
     <string name="update_skip_btn">Skip for now</string>
+
+    <string name="notifications_denied_title">Notifications Disabled</string>
+    <string name="notifications_denied_text">Without notification permission the app cannot run in the background — the background service requires a persistent notification, and authentication requests are delivered through notifications too.\n\nWe promise: not a single extra notification. Only authentication requests and service status.</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="fullscreen_permission_title">Full-Screen Alerts</string>
+    <string name="fullscreen_permission_text">To show authentication prompts on the lock screen, the app needs permission for full-screen notifications.\n\nWithout it, sudo and screen unlock requests will only appear as regular notifications.</string>
+    <string name="allow">Allow</string>
 </resources>

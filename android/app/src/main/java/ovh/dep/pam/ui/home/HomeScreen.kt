@@ -127,8 +127,10 @@ fun HomeScreen(
                         toggleService(context, enabled)
                     },
                     onRestart = {
-                        toggleService(context, false)
-                        toggleService(context, true)
+                        val intent = Intent(context, PamBioForegroundService::class.java).apply {
+                            action = PamBioForegroundService.ACTION_RESTART
+                        }
+                        context.startService(intent)
                     }
                 )
             }

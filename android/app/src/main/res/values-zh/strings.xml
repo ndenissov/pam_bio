@@ -91,4 +91,11 @@
     <string name="settings_language_title">语言</string>
     <string name="settings_language_desc">更改应用语言</string>
     <string name="settings_about_desc">应用版本和链接</string>
+
+    <string name="notifications_denied_title">通知已禁用</string>
+    <string name="notifications_denied_text">没有通知权限，应用无法在后台运行——后台服务需要常驻通知，身份验证请求也通过通知发送。\n\n我们承诺：不会有任何多余的通知。只有身份验证请求和服务状态。</string>
+    <string name="open_settings">打开设置</string>
+    <string name="fullscreen_permission_title">全屏通知</string>
+    <string name="fullscreen_permission_text">要在锁屏上显示身份验证提示，应用需要全屏通知权限。\n\n没有此权限，sudo 和屏幕解锁请求将仅显示为普通通知。</string>
+    <string name="allow">允许</string>
 </resources>

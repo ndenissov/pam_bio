@@ -21,20 +21,21 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
@@ -62,7 +63,6 @@ import ovh.dep.pam.ui.about.AboutScreen
 import ovh.dep.pam.ui.home.HomeScreen
 import ovh.dep.pam.ui.history.HistoryScreen
 import ovh.dep.pam.ui.settings.SettingsScreen
-import ovh.dep.pam.ui.scan.QrScanScreen
 import ovh.dep.pam.ui.scan.QrScanScreen
 import ovh.dep.pam.ui.theme.LinuxBiopamTheme
 
@@ -138,20 +138,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val permissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { results ->
-        val denied = results.filterValues { !it }.keys
-        if (denied.isNotEmpty()) {
-            Toast.makeText(this, getString(R.string.permissions_denied, denied), Toast.LENGTH_LONG).show()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        requestPermissions()
-        checkFullScreenIntentPermission()
 
         lifecycleScope.launch {
             // Sync authCount from history to fix initial state
@@ -188,46 +177,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-    private fun checkFullScreenIntentPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            val notificationManager = getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
-            if (!notificationManager.canUseFullScreenIntent()) {
-                val intent = android.content.Intent(android.provider.Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
-                    data = android.net.Uri.parse("package:$packageName")
-                }
-                startActivity(intent)
-            }
-        }
-    }
-
-
-    private fun requestPermissions() {
-        val needed = mutableListOf<String>()
-
-        // Camera
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED) {
-            needed += Manifest.permission.CAMERA
-        }
-
-        // Notifications (Android 13+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-                needed += Manifest.permission.POST_NOTIFICATIONS
-            }
-        }
-
-        if (needed.isNotEmpty()) {
-            permissionLauncher.launch(needed.toTypedArray())
-        }
-    }
 }
 
 @Composable
 private fun PamBioNavigation() {
     val navController = rememberNavController()
+
+    // Permission checks happen here — after biometric unlock
+    PostAuthPermissionChecks()
 
     NavHost(navController = navController, startDestination = "home") {
         composable("home") {
@@ -261,6 +218,127 @@ private fun PamBioNavigation() {
                 onNavigateToAbout = { navController.navigate("about") }
             )
         }
+    }
+}
+
+/**
+ * Handles post-authentication permission checks:
+ * 1. Notification permission (Android 13+) — required for foreground service
+ * 2. Full-screen intent permission (Android 14+) — required for lock-screen auth prompts
+ */
+@Composable
+private fun PostAuthPermissionChecks() {
+    val context = LocalContext.current
+
+    // ── Notification permission ────────────────────────────────
+    var showNotificationDeniedDialog by remember { mutableStateOf(false) }
+    var notificationPermissionChecked by remember { mutableStateOf(false) }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        notificationPermissionChecked = true
+        if (!isGranted) {
+            showNotificationDeniedDialog = true
+        }
+    }
+
+    // ── Full-screen intent permission ──────────────────────────
+    var showFullScreenDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        // 1. Check notification permission (Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                notificationPermissionChecked = true
+            }
+        } else {
+            notificationPermissionChecked = true
+        }
+    }
+
+    // 2. Check full-screen intent permission after notification permission is resolved
+    LaunchedEffect(notificationPermissionChecked) {
+        if (!notificationPermissionChecked) return@LaunchedEffect
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            val nm = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            if (!nm.canUseFullScreenIntent()) {
+                showFullScreenDialog = true
+            }
+        }
+    }
+
+    // ── Notification denied dialog ─────────────────────────────
+    if (showNotificationDeniedDialog) {
+        AlertDialog(
+            onDismissRequest = { showNotificationDeniedDialog = false },
+            icon = {
+                Icon(
+                    Icons.Filled.Notifications,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(32.dp)
+                )
+            },
+            title = { Text(stringResource(R.string.notifications_denied_title)) },
+            text = {
+                Text(
+                    stringResource(R.string.notifications_denied_text),
+                    textAlign = TextAlign.Start
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showNotificationDeniedDialog = false
+                    val intent = Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                        putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
+                    }
+                    context.startActivity(intent)
+                }) {
+                    Text(stringResource(R.string.open_settings))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNotificationDeniedDialog = false }) {
+                    Text(stringResource(R.string.later))
+                }
+            }
+        )
+    }
+
+    // ── Full-screen intent dialog ──────────────────────────────
+    if (showFullScreenDialog) {
+        AlertDialog(
+            onDismissRequest = { showFullScreenDialog = false },
+            title = { Text(stringResource(R.string.fullscreen_permission_title)) },
+            text = {
+                Text(
+                    stringResource(R.string.fullscreen_permission_text),
+                    textAlign = TextAlign.Start
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showFullScreenDialog = false
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
+                            data = android.net.Uri.parse("package:${context.packageName}")
+                        }
+                        context.startActivity(intent)
+                    }
+                }) {
+                    Text(stringResource(R.string.allow))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showFullScreenDialog = false }) {
+                    Text(stringResource(R.string.later))
+                }
+            }
+        )
     }
 }
 
