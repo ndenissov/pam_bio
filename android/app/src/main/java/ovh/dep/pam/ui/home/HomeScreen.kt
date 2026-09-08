@@ -110,7 +110,12 @@ fun HomeScreen(
                 ServiceToggleCard(
                     isRunning = serviceRunning,
                     onToggle = { enabled ->
+                        prefs.serviceEnabled = enabled
                         toggleService(context, enabled)
+                    },
+                    onRestart = {
+                        toggleService(context, false)
+                        toggleService(context, true)
                     }
                 )
             }
@@ -256,7 +261,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun ServiceToggleCard(isRunning: Boolean, onToggle: (Boolean) -> Unit) {
+private fun ServiceToggleCard(isRunning: Boolean, onToggle: (Boolean) -> Unit, onRestart: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -273,16 +278,6 @@ private fun ServiceToggleCard(isRunning: Boolean, onToggle: (Boolean) -> Unit) {
                 .padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = if (isRunning) Icons.Filled.LinkOff else Icons.Filled.Link,
-                contentDescription = null,
-                modifier = Modifier.size(32.dp),
-                tint = if (isRunning)
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                else
-                    MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = if (isRunning) stringResource(R.string.service_active) else stringResource(R.string.service_stopped),
@@ -298,10 +293,26 @@ private fun ServiceToggleCard(isRunning: Boolean, onToggle: (Boolean) -> Unit) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Switch(
-                checked = isRunning,
-                onCheckedChange = onToggle
-            )
+            if (isRunning) {
+                IconButton(onClick = onRestart) {
+                    Icon(
+                        imageVector = Icons.Filled.Refresh,
+                        contentDescription = "Restart",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
+            }
+            IconButton(onClick = { onToggle(!isRunning) }) {
+                Icon(
+                    imageVector = if (isRunning) Icons.Filled.LinkOff else Icons.Filled.Link,
+                    contentDescription = if (isRunning) "Stop service" else "Start service",
+                    tint = if (isRunning)
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }

@@ -46,6 +46,8 @@ import androidx.biometric.BiometricPrompt
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
+import android.content.Intent
+import ovh.dep.pam.data.AppPrefs
 import ovh.dep.pam.data.PairedDeviceRepository
 import ovh.dep.pam.service.PamBioForegroundService
 import ovh.dep.pam.ui.about.AboutScreen
@@ -57,6 +59,17 @@ import ovh.dep.pam.ui.scan.QrScanScreen
 import ovh.dep.pam.ui.theme.LinuxBiopamTheme
 
 class MainActivity : AppCompatActivity() {
+
+    override fun onResume() {
+        super.onResume()
+        val prefs = AppPrefs(this)
+        if (prefs.serviceEnabled && !PamBioForegroundService.isRunning.value) {
+            val intent = Intent(this, PamBioForegroundService::class.java).apply {
+                action = PamBioForegroundService.ACTION_START
+            }
+            startForegroundService(intent)
+        }
+    }
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
