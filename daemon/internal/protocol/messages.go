@@ -169,6 +169,9 @@ type DeviceInfo struct {
 
 // WriteMessage writes a length-prefixed binary message.
 func WriteMessage(conn net.Conn, data []byte) error {
+	if len(data) > MaxMessageSize {
+		return fmt.Errorf("message too large: %d bytes (max %d)", len(data), MaxMessageSize)
+	}
 	header := make([]byte, 4)
 	binary.BigEndian.PutUint32(header, uint32(len(data)))
 	buf := make([]byte, 0, 4+len(data))
