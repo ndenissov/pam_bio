@@ -33,7 +33,7 @@
     <string name="auth_default_param">Аутентификация (%1$s)</string>
     <string name="user_label">Пользователь: %1$s</string>
     <string name="service_label">Сервис: %1$s</string>
-    <string name="auth_approve">Подтвердить биометрией</string>
+    <string name="auth_approve">Подтвердить</string>
     <string name="auth_deny">Отклонить</string>
     <string name="scan_qr_title">Сканировать QR</string>
     <string name="point_camera">Наведите камеру на QR-код</string>
@@ -67,4 +67,19 @@
     <string name="github_repo">Репозиторий GitHub</string>
     <string name="about_title">О приложении</string>
     <string name="app_version">Версия: %1$s</string>
+
+    <string name="auth_count_footer">Вызвано %1$d раз</string>
+    <string name="star_on_github">⭐ Оценить на GitHub</string>
+    <string name="bug_report_btn">Сообщить об ошибке / Предложить идею</string>
+    <string name="bug_report_desc">Приложение в активной разработке. Баги — это нормально, но вы можете помочь их исправить!</string>
+
+    <string name="github_star_title">Звёздочка на GitHub</string>
+    <string name="github_star_msg_1">Если pam_bio сэкономил вам пару нажатий клавиш сегодня, подумайте о том, чтобы поставить ⭐ на GitHub.</string>
+    <string name="github_star_msg_2">Мой психотерапевт говорит, что мне нужна внешняя валидация для нормального функционирования. Звёздочка на GitHub отлично подойдёт.</string>
+    <string name="github_star_msg_3">Звёзды GitHub не оплатят мою аренду, но они тешат моё эго. Пожалуйста, потешьте его.</string>
+    <string name="github_star_msg_4">Я потратил слишком много времени, чтобы сделать это таким простым. Звёздочка на GitHub действительно оправдает мой жизненный выбор.</string>
+    <string name="github_star_msg_5">Я написал это бесплатно вместо того, чтобы спать. Звёздочки на GitHub — единственная приемлемая валюта за мои потерянные часы.</string>
+    <string name="github_star_btn">⭐ Поставить</string>
+    <string name="github_star_later">Позже</string>
+    <string name="github_star_already">Уже поставил</string>
 </resources>

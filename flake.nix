@@ -117,8 +117,20 @@
 
             port = lib.mkOption {
               type = lib.types.port;
-              default = 0;
-              description = "TCP port for pambiod to listen on. Default 0 allows the OS to assign a random port. Set to a static port (e.g. 34907) if you want strict firewall rules.";
+              default = 34907;
+              description = "TCP port for pambiod to listen on. Set to 0 to allow the OS to assign a random port (useful for multiple instances, but requires manual firewall configuration).";
+            };
+
+            openFirewall = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              description = "Whether to open the configured port in the firewall (only if port is not 0).";
+            };
+
+            showWatermark = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              description = "Whether to display 'Authenticated via pam_bio' in the terminal when unlocking.";
             };
           };
 
@@ -126,8 +138,8 @@
             # Install pambiod + pam_bio.so
             environment.systemPackages = [ pambioPkgs.pambiod ];
 
-            # Open firewall port if static port is chosen
-            networking.firewall.allowedTCPPorts = lib.mkIf (cfg.port != 0) [ cfg.port ];
+            # Open firewall port if static port is chosen and openFirewall is true
+            networking.firewall.allowedTCPPorts = lib.mkIf (cfg.port != 0 && cfg.openFirewall) [ cfg.port ];
 
             # Systemd service
             systemd.services.pambiod = {
@@ -142,6 +154,7 @@
                 Environment = [
                   "PAMBIO_CONFIG_DIR=${cfg.configDir}"
                   "PAMBIO_PORT=${toString cfg.port}"
+                  "PAMBIO_SHOW_WATERMARK=${if cfg.showWatermark then "1" else "0"}"
                 ];
                 Restart = "on-failure";
                 RestartSec = 5;

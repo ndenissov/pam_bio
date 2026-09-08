@@ -149,6 +149,7 @@ type UnixRequest struct {
 type UnixResponse struct {
 	Status         string       `json:"status"`
 	Reason         string       `json:"reason,omitempty"`
+	Watermark      string       `json:"watermark,omitempty"`        // "yes" if PAM module should print watermark
 	QRData         string       `json:"qr_data,omitempty"`          // for start_pairing
 	DeviceName     string       `json:"device_name,omitempty"`      // for pairing_complete
 	PairedDevices  []DeviceInfo `json:"paired_devices,omitempty"`   // for status

@@ -165,6 +165,11 @@ class BiometricAuthActivity : AppCompatActivity() {
             ))
         }
 
+        if (approved) {
+            val prefs = ovh.dep.pam.data.AppPrefs(this)
+            prefs.incrementAuthCount()
+        }
+
         val client = activeTcpClient
         if (client != null) {
             CoroutineScope(Dispatchers.IO).launch {

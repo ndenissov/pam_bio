@@ -47,11 +47,12 @@ const (
 
 // ServerConfig holds the daemon's identity.
 type ServerConfig struct {
-	Hostname    string `json:"hostname"`
-	ServiceName string `json:"service_name"` // mDNS instance name
-	Port        int    `json:"port"`         // TCP port
-	PrivateKey  string `json:"private_key"`  // base64 Ed25519 seed (32 bytes)
-	PublicKey   string `json:"public_key"`   // base64 Ed25519 public key
+	Hostname      string `json:"hostname"`
+	ServiceName   string `json:"service_name"` // mDNS instance name
+	Port          int    `json:"port"`         // TCP port
+	ShowWatermark bool   `json:"show_watermark"`
+	PrivateKey    string `json:"private_key"` // base64 Ed25519 seed (32 bytes)
+	PublicKey     string `json:"public_key"`  // base64 Ed25519 public key
 }
 
 // LoadServerConfig reads the server config from disk.
@@ -71,6 +72,19 @@ func LoadServerConfig(configDir string) (*ServerConfig, error) {
 	if envPort := os.Getenv("PAMBIO_PORT"); envPort != "" {
 		if p, err := strconv.Atoi(envPort); err == nil {
 			cfg.Port = p
+		}
+	}
+
+	// Default watermark to true unless explicitly disabled
+	cfg.ShowWatermark = true
+	if strings.Contains(string(data), `"show_watermark":false`) || strings.Contains(string(data), `"show_watermark": false`) {
+		cfg.ShowWatermark = false
+	}
+	if envWM := os.Getenv("PAMBIO_SHOW_WATERMARK"); envWM != "" {
+		if envWM == "0" || envWM == "false" {
+			cfg.ShowWatermark = false
+		} else if envWM == "1" || envWM == "true" {
+			cfg.ShowWatermark = true
 		}
 	}
 

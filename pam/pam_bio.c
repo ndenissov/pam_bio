@@ -161,6 +161,31 @@ static void sanitize_for_json(const char *in, char *out, size_t out_size)
     out[i] = '\0';
 }
 
+/* ──────────────────────────────────────────────
+ * Display an info message to the user via pam_conv
+ * ────────────────────────────────────────────── */
+static void pam_info_msg(pam_handle_t *pamh, const char *msg)
+{
+    struct pam_conv *conv = NULL;
+    const void *tmp = NULL;
+    if (pam_get_item(pamh, PAM_CONV, &tmp) == PAM_SUCCESS && tmp != NULL) {
+        conv = (struct pam_conv *)tmp;
+        if (conv->conv) {
+            struct pam_message pam_msg;
+            const struct pam_message *msgp = &pam_msg;
+            struct pam_response *resp = NULL;
+
+            pam_msg.msg_style = PAM_TEXT_INFO;
+            pam_msg.msg = msg;
+
+            conv->conv(1, &msgp, &resp, conv->appdata_ptr);
+            if (resp) {
+                free(resp);
+            }
+        }
+    }
+}
+
 /* ══════════════════════════════════════════════
  * PAM entry points
  * ══════════════════════════════════════════════ */
@@ -275,6 +300,14 @@ pam_sm_authenticate(pam_handle_t *pamh, int flags,
     if (strcmp(status, "success") == 0) {
         pam_syslog(pamh, LOG_INFO,
                    "pam_bio: auth SUCCESS for %s via %s", user, service);
+        
+        char watermark[16] = {0};
+        if (json_get_string(response, "watermark", watermark, sizeof(watermark))) {
+            if (strcmp(watermark, "yes") == 0) {
+                pam_info_msg(pamh, "Authenticated via pam_bio (by @ndenissov)");
+            }
+        }
+
         ret = PAM_SUCCESS;
     } else {
         char reason[256] = {0};

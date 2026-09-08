@@ -21,6 +21,7 @@ usermod -aG sudo tester
 echo 'tester:password' | chpasswd
 
 echo '>>> Starting pambiod daemon in the background...'
+export PAMBIO_PORT=34907
 pambiod serve &
 sleep 2
 

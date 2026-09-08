@@ -131,6 +131,9 @@ func (d *Daemon) handlePAMAuth(conn net.Conn, req *protocol.UnixRequest) {
 	resp := protocol.UnixResponse{}
 	if result.Success {
 		resp.Status = "success"
+		if d.cfg.ShowWatermark {
+			resp.Watermark = "yes"
+		}
 		log.Printf("PAM auth: approved for %s (%s)", req.User, req.Service)
 	} else {
 		resp.Status = "denied"

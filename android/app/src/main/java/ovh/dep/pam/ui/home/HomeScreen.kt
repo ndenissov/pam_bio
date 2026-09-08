@@ -19,6 +19,7 @@ package ovh.dep.pam.ui.home
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -42,6 +43,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.compose.ui.res.stringResource
 import ovh.dep.pam.R
+import ovh.dep.pam.data.AppPrefs
 
 /**
  * Home screen — list of paired PCs, service toggle, and "add device" FAB.
@@ -60,6 +62,10 @@ fun HomeScreen(
     val serviceRunning by PamBioForegroundService.isRunning.collectAsState()
     val connectedDevices by PamBioForegroundService.connectedDevices.collectAsState()
     var showLangMenu by remember { mutableStateOf(false) }
+
+    val prefs = remember { AppPrefs(context) }
+    var showGithubDialog by remember { mutableStateOf(false) }
+    var githubStarred by remember { mutableStateOf(prefs.githubStarred) }
 
     Scaffold(
         topBar = {
@@ -168,18 +174,109 @@ fun HomeScreen(
                 }
             }
 
-            // Author signature
+            // Footer: auth count + GitHub star + bug report
             item {
                 Spacer(Modifier.height(32.dp))
-                Text(
-                    text = stringResource(R.string.with_love),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.auth_count_footer, prefs.authCount),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    )
+                    if (!githubStarred) {
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedButton(onClick = {
+                            prefs.githubStarred = true
+                            githubStarred = true
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ndenissov/pam_bio")))
+                        }) {
+                            Text(stringResource(R.string.star_on_github))
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    TextButton(onClick = {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ndenissov/pam_bio/issues/new")))
+                    }) {
+                        Text(stringResource(R.string.bug_report_btn), style = MaterialTheme.typography.bodySmall)
+                    }
+                    Text(
+                        text = stringResource(R.string.bug_report_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.with_love),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    )
+                }
             }
         }
+    }
+
+    // Nag dialog logic: show at thresholds 8, 16, 32, ..., 512, 1024, 2048, 3072, 4096, ...
+    LaunchedEffect(Unit) {
+        if (!prefs.githubStarred && prefs.authCount >= 8) {
+            val count = prefs.authCount
+            // Find the highest threshold <= count
+            var threshold = 8
+            while (threshold * 2 <= count && threshold < 512) {
+                threshold *= 2
+            }
+            if (threshold >= 512) {
+                // After 512: 1024, 2048, 3072, 4096, ...
+                threshold = 1024
+                while (threshold + 1024 <= count) {
+                    threshold += 1024
+                }
+            }
+            if (prefs.lastPromptedAuthCount < threshold) {
+                showGithubDialog = true
+                prefs.lastPromptedAuthCount = threshold
+            }
+        }
+    }
+
+    if (showGithubDialog) {
+        val msgs = listOf(
+            R.string.github_star_msg_1,
+            R.string.github_star_msg_2,
+            R.string.github_star_msg_3,
+            R.string.github_star_msg_4,
+            R.string.github_star_msg_5
+        )
+        val randomMsg = remember { msgs.random() }
+        AlertDialog(
+            onDismissRequest = { showGithubDialog = false },
+            title = { Text(stringResource(R.string.github_star_title)) },
+            text = { Text(stringResource(randomMsg)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    prefs.githubStarred = true
+                    githubStarred = true
+                    showGithubDialog = false
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ndenissov/pam_bio")))
+                }) { Text(stringResource(R.string.github_star_btn)) }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(onClick = {
+                        prefs.githubStarred = true
+                        githubStarred = true
+                        showGithubDialog = false
+                    }) { Text(stringResource(R.string.github_star_already)) }
+                    TextButton(onClick = { showGithubDialog = false }) {
+                        Text(stringResource(R.string.github_star_later))
+                    }
+                }
+            }
+        )
     }
 }
 

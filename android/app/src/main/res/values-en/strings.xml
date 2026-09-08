@@ -33,7 +33,7 @@
     <string name="auth_default_param">Authentication (%1$s)</string>
     <string name="user_label">User: %1$s</string>
     <string name="service_label">Service: %1$s</string>
-    <string name="auth_approve">Approve with Biometrics</string>
+    <string name="auth_approve">Approve</string>
     <string name="auth_deny">Deny</string>
     <string name="scan_qr_title">Scan QR</string>
     <string name="point_camera">Point camera at QR code</string>
@@ -67,4 +67,19 @@
     <string name="github_repo">GitHub Repo</string>
     <string name="about_title">About</string>
     <string name="app_version">Version: %1$s</string>
+
+    <string name="auth_count_footer">Called %1$d times</string>
+    <string name="star_on_github">⭐ Star on GitHub</string>
+    <string name="bug_report_btn">Bug Report / Feature Request</string>
+    <string name="bug_report_desc">The app is in active development. Bugs are normal, but you can help fix them!</string>
+
+    <string name="github_star_title">GitHub Star</string>
+    <string name="github_star_msg_1">If pam_bio saved you a few keystrokes today, consider dropping a ⭐ on GitHub.</string>
+    <string name="github_star_msg_2">My therapist says I need external validation to function. A GitHub star works perfectly.</string>
+    <string name="github_star_msg_3">GitHub stars don\'t pay my rent, but they do feed my ego. Please feed.</string>
+    <string name="github_star_msg_4">I spent way too much time making this look easy. A GitHub star would really validate my life choices.</string>
+    <string name="github_star_msg_5">I wrote this for free instead of sleeping. GitHub stars are the only acceptable currency for my lost hours.</string>
+    <string name="github_star_btn">⭐ Star</string>
+    <string name="github_star_later">Later</string>
+    <string name="github_star_already">Already starred</string>
 </resources>

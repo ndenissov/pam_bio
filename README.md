@@ -1,5 +1,11 @@
 # PamBio
 
+[![Go](https://img.shields.io/badge/Go-1.22-00ADD8?logo=go&logoColor=white)](https://go.dev)
+[![C](https://img.shields.io/badge/C-PAM%20Module-A8B9CC?logo=c&logoColor=white)](https://en.wikipedia.org/wiki/C_(programming_language))
+[![Android](https://img.shields.io/badge/Android-Compose-3DDC84?logo=android&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/ndenissov/pam_bio?style=social)](https://github.com/ndenissov/pam_bio/stargazers)
+
 **PamBio** is a biometric authentication bridge that allows you to unlock your Linux PC or authenticate `sudo` requests using your Android smartphone's biometric sensors (fingerprint/face unlock) over your local network.
 
 ## Architecture
@@ -132,3 +138,45 @@ To unpair a device from your PC:
 ```bash
 pambiod unpair <device_name>
 ```
+
+---
+
+## Watermark
+
+By default, successful authentications via pam_bio print a subtle message in the terminal:
+```
+Authenticated via pam_bio (by @ndenissov)
+```
+
+To disable this on **NixOS**, set:
+```nix
+services.pambio.showWatermark = false;
+```
+
+On other systems, set the environment variable before starting the daemon:
+```bash
+export PAMBIO_SHOW_WATERMARK=0
+```
+
+Or set `"show_watermark": false` in the daemon config JSON.
+
+---
+
+## Hall of Fame
+
+A big thank you to everyone who supports this project! ⭐
+
+<!-- HOF:START -->
+*Be the first to star the repo and appear here!*
+<!-- HOF:END -->
+
+---
+
+## Contributing
+
+This project is in active development. Bugs are expected and any feedback is genuinely appreciated.
+Please [open an issue](https://github.com/ndenissov/pam_bio/issues/new) for bug reports or feature requests.
+
+## License
+
+Apache License 2.0 — see [LICENSE](LICENSE) for details.
