@@ -181,7 +181,11 @@ Or set `"show_watermark": false` in the daemon config JSON.
 A big thank you to everyone who supports this project! ⭐
 
 <!-- HOF:START -->
-*Be the first to star the repo and appear here!*
+<p align="center">
+<a href="https://github.com/ndenissov"><img src="https://avatars.githubusercontent.com/u/70575593?v=4" width="48" height="48" alt="@ndenissov" title="@ndenissov" style="border-radius:50%"></a> <a href="https://github.com/WHYCRASH"><img src="https://avatars.githubusercontent.com/u/6760226?v=4" width="48" height="48" alt="@WHYCRASH" title="@WHYCRASH" style="border-radius:50%"></a>
+</p>
+
+*2 amazing people — thank you!*
 <!-- HOF:END -->
 
 ---
