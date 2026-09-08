@@ -124,7 +124,7 @@ func cmdPair() {
 		fmt.Fprintf(os.Stderr, "  %v\n", err)
 		os.Exit(1)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// Request pairing mode
 	if err := protocol.WriteJSON(conn, protocol.UnixRequest{Action: "start_pairing"}); err != nil {
@@ -186,12 +186,12 @@ func cmdUnpair(deviceName string) {
 		fmt.Fprintln(os.Stderr, "Error: cannot connect to daemon.")
 		os.Exit(1)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
-	protocol.WriteJSON(conn, protocol.UnixRequest{Action: "unpair", Device: deviceName})
+	_ = protocol.WriteJSON(conn, protocol.UnixRequest{Action: "unpair", Device: deviceName})
 
 	var resp protocol.UnixResponse
-	protocol.ReadJSON(conn, &resp)
+	_ = protocol.ReadJSON(conn, &resp)
 
 	if resp.Status == "success" {
 		fmt.Printf("✓ Device '%s' unpaired\n", deviceName)
@@ -211,12 +211,12 @@ func cmdStatus() {
 		fmt.Fprintln(os.Stderr, "Daemon is not running.")
 		os.Exit(1)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
-	protocol.WriteJSON(conn, protocol.UnixRequest{Action: "status"})
+	_ = protocol.WriteJSON(conn, protocol.UnixRequest{Action: "status"})
 
 	var resp protocol.UnixResponse
-	protocol.ReadJSON(conn, &resp)
+	_ = protocol.ReadJSON(conn, &resp)
 
 	fmt.Println("PamBio Daemon Status")
 	fmt.Println("════════════════════")

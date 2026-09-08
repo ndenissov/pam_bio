@@ -15,6 +15,7 @@
     <string name="no_paired_devices">Нет спаренных устройств</string>
     <string name="no_paired_devices_desc">Запустите \'pambiod pair\' на ПК\nи нажмите «Добавить ПК»</string>
     <string name="with_love">С любовью от Nikita Denissov</string>
+    <string name="developer">Разработчик: Nikita Denissov</string>
     <string name="waiting_connection">Ожидание подключения…</string>
     <string name="connected_to">Подключено к %1$s</string>
     <string name="disconnected">Отключено, ожидание…</string>
@@ -102,4 +103,7 @@
     <string name="fullscreen_permission_title">Полноэкранные уведомления</string>
     <string name="fullscreen_permission_text">Для показа запроса аутентификации на заблокированном экране нужно разрешение на полноэкранные уведомления.\n\nБез него запросы sudo и разблокировки экрана будут показываться только как обычные уведомления.</string>
     <string name="allow">Разрешить</string>
+    <string name="security_required_title">Требуется защита экрана</string>
+    <string name="security_required_desc">PamBio требует, чтобы на вашем устройстве была настроена безопасная блокировка экрана (ПИН-код, пароль или биометрия) для безопасного хранения ключей аутентификации.</string>
+    <string name="open_security_settings">Открыть настройки безопасности</string>
 </resources>

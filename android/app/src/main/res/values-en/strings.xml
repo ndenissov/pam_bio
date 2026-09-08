@@ -14,7 +14,8 @@
     <string name="cancel">Cancel</string>
     <string name="no_paired_devices">No paired devices</string>
     <string name="no_paired_devices_desc">Run \'pambiod pair\' on PC\nand tap "Add PC"</string>
-    <string name="with_love">With love from Nikita Denissov</string>
+    <string name="with_love">Made with love by Nikita Denissov</string>
+    <string name="developer">Developer: Nikita Denissov</string>
     <string name="waiting_connection">Waiting for connection…</string>
     <string name="connected_to">Connected to %1$s</string>
     <string name="disconnected">Disconnected, waiting…</string>
@@ -102,4 +103,7 @@
     <string name="fullscreen_permission_title">Full-Screen Alerts</string>
     <string name="fullscreen_permission_text">To show authentication prompts on the lock screen, the app needs permission for full-screen notifications.\n\nWithout it, sudo and screen unlock requests will only appear as regular notifications.</string>
     <string name="allow">Allow</string>
+    <string name="security_required_title">Screen Lock Required</string>
+    <string name="security_required_desc">PamBio requires your device to have a secure screen lock (PIN, Password, or Biometrics) to safely store authentication keys.</string>
+    <string name="open_security_settings">Open Security Settings</string>
 </resources>

@@ -65,9 +65,7 @@ func LoadServerConfig(configDir string) (*ServerConfig, error) {
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("parse %s: %w", configFile, err)
 	}
-	if strings.HasPrefix(cfg.ServiceName, "pambio_") {
-		cfg.ServiceName = strings.TrimPrefix(cfg.ServiceName, "pambio_")
-	}
+	cfg.ServiceName = strings.TrimPrefix(cfg.ServiceName, "pambio_")
 
 	if envPort := os.Getenv("PAMBIO_PORT"); envPort != "" {
 		if p, err := strconv.Atoi(envPort); err == nil {
@@ -81,9 +79,10 @@ func LoadServerConfig(configDir string) (*ServerConfig, error) {
 		cfg.ShowWatermark = false
 	}
 	if envWM := os.Getenv("PAMBIO_SHOW_WATERMARK"); envWM != "" {
-		if envWM == "0" || envWM == "false" {
+		switch envWM {
+		case "0", "false":
 			cfg.ShowWatermark = false
-		} else if envWM == "1" || envWM == "true" {
+		case "1", "true":
 			cfg.ShowWatermark = true
 		}
 	}

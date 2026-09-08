@@ -168,16 +168,16 @@ func (d *Daemon) Start() error {
 
 	// mDNS
 	if err := d.startMDNS(); err != nil {
-		tcpLn.Close()
+		_ = tcpLn.Close()
 		return fmt.Errorf("mdns: %w", err)
 	}
 	log.Printf("mDNS: %s._pambio._tcp (port %d)", d.cfg.ServiceName, d.tcpPort)
 
 	// Unix socket
-	os.Remove(UnixSocketPath) // clean up stale socket
+	_ = os.Remove(UnixSocketPath) // clean up stale socket
 	unixLn, err := net.Listen("unix", UnixSocketPath)
 	if err != nil {
-		tcpLn.Close()
+		_ = tcpLn.Close()
 		d.stopMDNS()
 		return fmt.Errorf("unix listen: %w", err)
 	}
@@ -216,7 +216,7 @@ func (d *Daemon) TriggerPing() {
 		go func(p *PhoneConnection) {
 			p.mu.Lock()
 			defer p.mu.Unlock()
-			d.writeEncrypted(p.conn, p.sessionKey, protocol.PingMessage{Type: protocol.TypePing})
+			_ = d.writeEncrypted(p.conn, p.sessionKey, protocol.PingMessage{Type: protocol.TypePing})
 		}(phone)
 	}
 }
@@ -226,17 +226,17 @@ func (d *Daemon) Stop() {
 	d.cancel()
 
 	if d.tcpListener != nil {
-		d.tcpListener.Close()
+		_ = d.tcpListener.Close()
 	}
 	if d.unixListener != nil {
-		d.unixListener.Close()
+		_ = d.unixListener.Close()
 	}
 	d.stopMDNS()
-	os.Remove(UnixSocketPath)
+	_ = os.Remove(UnixSocketPath)
 
 	d.phonesMu.Lock()
 	for _, p := range d.phones {
-		p.conn.Close()
+		_ = p.conn.Close()
 	}
 	d.phonesMu.Unlock()
 
@@ -252,7 +252,7 @@ func (d *Daemon) registerPhone(key string, phone *PhoneConnection) {
 	defer d.phonesMu.Unlock()
 	// Close any existing connection from same device
 	if old, ok := d.phones[key]; ok {
-		old.conn.Close()
+		_ = old.conn.Close()
 	}
 	d.phones[key] = phone
 	log.Printf("Phone registered: %s", phone.deviceName)

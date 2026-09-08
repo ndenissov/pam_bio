@@ -15,6 +15,7 @@
     <string name="no_paired_devices">无已配对设备</string>
     <string name="no_paired_devices_desc">在电脑上运行 \'pambiod pair\'\n然后点击“添加电脑”</string>
     <string name="with_love">来自 Nikita Denissov 的爱</string>
+    <string name="developer">开发者：Nikita Denissov</string>
     <string name="waiting_connection">等待连接…</string>
     <string name="connected_to">已连接至 %1$s</string>
     <string name="disconnected">已断开连接，等待中…</string>
@@ -98,4 +99,12 @@
     <string name="fullscreen_permission_title">全屏通知</string>
     <string name="fullscreen_permission_text">要在锁屏上显示身份验证提示，应用需要全屏通知权限。\n\n没有此权限，sudo 和屏幕解锁请求将仅显示为普通通知。</string>
     <string name="allow">允许</string>
+
+    <string name="update_available_title">发现新版本</string>
+    <string name="update_available_msg">新版本 %1$s 已可供下载。\n\n%2$s</string>
+    <string name="update_download_btn">下载</string>
+    <string name="update_skip_btn">跳过</string>
+    <string name="security_required_title">需要屏幕锁定</string>
+    <string name="security_required_desc">PamBio 需要您的设备设置安全的屏幕锁定（PIN、密码或生物识别）以安全地存储身份验证密钥。</string>
+    <string name="open_security_settings">打开安全设置</string>
 </resources>

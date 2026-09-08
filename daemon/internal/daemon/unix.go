@@ -75,7 +75,7 @@ func getUid(conn net.Conn) (uint32, error) {
 }
 
 func (d *Daemon) handleUnixConnection(conn net.Conn) {
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// Trigger a status check to all connected devices on any IPC interaction
 	go d.TriggerPing()
@@ -99,7 +99,7 @@ func (d *Daemon) handleUnixConnection(conn net.Conn) {
 		uid, err := getUid(conn)
 		if err != nil || uid != 0 {
 			log.Printf("start_pairing denied: require root (uid=0), got uid=%d (err: %v)", uid, err)
-			protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: "root privileges required"})
+			_ = protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: "root privileges required"})
 			return
 		}
 		d.handleStartPairing(conn)
@@ -107,7 +107,7 @@ func (d *Daemon) handleUnixConnection(conn net.Conn) {
 		uid, err := getUid(conn)
 		if err != nil || uid != 0 {
 			log.Printf("unpair denied: require root (uid=0), got uid=%d (err: %v)", uid, err)
-			protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: "root privileges required"})
+			_ = protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: "root privileges required"})
 			return
 		}
 		d.handleUnpair(conn, &req)
@@ -115,7 +115,7 @@ func (d *Daemon) handleUnixConnection(conn net.Conn) {
 		d.handleStatus(conn)
 	default:
 		log.Printf("unknown unix action: %s", req.Action)
-		protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: "unknown action"})
+		_ = protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: "unknown action"})
 	}
 }
 
@@ -141,7 +141,7 @@ func (d *Daemon) handlePAMAuth(conn net.Conn, req *protocol.UnixRequest) {
 		log.Printf("PAM auth: denied for %s (%s): %s", req.User, req.Service, result.Reason)
 	}
 
-	protocol.WriteJSON(conn, resp)
+	_ = protocol.WriteJSON(conn, resp)
 }
 
 // ──────────────────────────────────────────────
@@ -178,7 +178,7 @@ func (d *Daemon) handleStartPairing(conn net.Conn) {
 	result := <-pairingCh
 
 	if result.Success {
-		protocol.WriteJSON(conn, protocol.UnixResponse{
+		_ = protocol.WriteJSON(conn, protocol.UnixResponse{
 			Status:     "paired",
 			DeviceName: result.DeviceName,
 		})
@@ -187,7 +187,7 @@ func (d *Daemon) handleStartPairing(conn net.Conn) {
 		if result.Error != nil {
 			errMsg = result.Error.Error()
 		}
-		protocol.WriteJSON(conn, protocol.UnixResponse{
+		_ = protocol.WriteJSON(conn, protocol.UnixResponse{
 			Status: "error",
 			Reason: errMsg,
 		})
@@ -200,11 +200,11 @@ func (d *Daemon) handleStartPairing(conn net.Conn) {
 
 func (d *Daemon) handleUnpair(conn net.Conn, req *protocol.UnixRequest) {
 	if err := d.devices.RemoveDevice(req.Device); err != nil {
-		protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: err.Error()})
+		_ = protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: err.Error()})
 		return
 	}
 	log.Printf("Device unpaired: %s", req.Device)
-	protocol.WriteJSON(conn, protocol.UnixResponse{Status: "success"})
+	_ = protocol.WriteJSON(conn, protocol.UnixResponse{Status: "success"})
 }
 
 // ──────────────────────────────────────────────
@@ -231,7 +231,7 @@ func (d *Daemon) handleStatus(conn net.Conn) {
 		}
 	}
 
-	protocol.WriteJSON(conn, protocol.UnixResponse{
+	_ = protocol.WriteJSON(conn, protocol.UnixResponse{
 		Status:        "ok",
 		PairedDevices: infos,
 	})

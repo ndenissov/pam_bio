@@ -205,10 +205,31 @@ fun HomeScreen(
                         modifier = Modifier.padding(horizontal = 32.dp)
                     )
                     Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(R.string.with_love),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    val loveText = stringResource(R.string.with_love)
+                    val devName = "Nikita Denissov"
+                    val loveStart = loveText.indexOf(devName)
+                    val loveAnnotated = androidx.compose.ui.text.buildAnnotatedString {
+                        append(loveText)
+                        if (loveStart >= 0) {
+                            addStyle(
+                                style = androidx.compose.ui.text.SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline
+                                ),
+                                start = loveStart,
+                                end = loveStart + devName.length
+                            )
+                            addStringAnnotation("URL", "https://github.com/ndenissov", loveStart, loveStart + devName.length)
+                        }
+                    }
+                    androidx.compose.foundation.text.ClickableText(
+                        text = loveAnnotated,
+                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)),
+                        onClick = { offset ->
+                            loveAnnotated.getStringAnnotations("URL", offset, offset).firstOrNull()?.let {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it.item)))
+                            }
+                        }
                     )
                 }
             }

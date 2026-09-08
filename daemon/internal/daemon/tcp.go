@@ -47,7 +47,7 @@ func (d *Daemon) acceptTCP() {
 }
 
 func (d *Daemon) handleTCPConnection(conn net.Conn) {
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 	remote := conn.RemoteAddr().String()
 	log.Printf("TCP connect from %s", remote)
 
@@ -86,8 +86,8 @@ func (d *Daemon) handleTCPConnection(conn net.Conn) {
 // ──────────────────────────────────────────────
 
 func (d *Daemon) performHandshake(conn net.Conn) (sessionKey, sessionID []byte, err error) {
-	conn.SetDeadline(time.Now().Add(10 * time.Second))
-	defer conn.SetDeadline(time.Time{})
+	_ = conn.SetDeadline(time.Now().Add(10 * time.Second))
+	defer func() { _ = conn.SetDeadline(time.Time{}) }()
 
 	// Generate ephemeral X25519 keypair
 	kp, err := crypto.GenerateECDHKeypair()
@@ -140,7 +140,7 @@ func (d *Daemon) performHandshake(conn net.Conn) (sessionKey, sessionID []byte, 
 func (d *Daemon) handlePairRequest(conn net.Conn, sessionKey, data []byte) {
 	if !d.isPairingActive() {
 		log.Printf("pair request rejected: pairing mode not active")
-		d.writeEncrypted(conn, sessionKey, protocol.PairResponseMessage{
+		_ = d.writeEncrypted(conn, sessionKey, protocol.PairResponseMessage{
 			Type: protocol.TypePairResponse, Status: protocol.PairRejected,
 		})
 		return
@@ -162,7 +162,7 @@ func (d *Daemon) handlePairRequest(conn net.Conn, sessionKey, data []byte) {
 	// Verify proof: phone must have signed our public key
 	if !crypto.Verify(devicePub, d.pubKey, req.Proof) {
 		log.Printf("invalid pairing proof from %s", req.DeviceName)
-		d.writeEncrypted(conn, sessionKey, protocol.PairResponseMessage{
+		_ = d.writeEncrypted(conn, sessionKey, protocol.PairResponseMessage{
 			Type: protocol.TypePairResponse, Status: protocol.PairRejected,
 		})
 		return
@@ -172,13 +172,13 @@ func (d *Daemon) handlePairRequest(conn net.Conn, sessionKey, data []byte) {
 	if err := d.devices.AddDevice(req.DeviceName, req.DevicePubKey); err != nil {
 		log.Printf("save device: %v", err)
 		// Still try to notify, might be a duplicate
-		d.writeEncrypted(conn, sessionKey, protocol.PairResponseMessage{
+		_ = d.writeEncrypted(conn, sessionKey, protocol.PairResponseMessage{
 			Type: protocol.TypePairResponse, Status: protocol.PairRejected,
 		})
 		return
 	}
 
-	d.writeEncrypted(conn, sessionKey, protocol.PairResponseMessage{
+	_ = d.writeEncrypted(conn, sessionKey, protocol.PairResponseMessage{
 		Type: protocol.TypePairResponse, Status: protocol.PairAccepted,
 	})
 
@@ -200,7 +200,7 @@ func (d *Daemon) handleIdentify(conn net.Conn, sessionKey, sessionID, data []byt
 	device := d.devices.FindByPublicKey(msg.DevicePubKey)
 	if device == nil {
 		log.Printf("unknown device key: %.20s…", msg.DevicePubKey)
-		d.writeEncrypted(conn, sessionKey, protocol.IdentifyAckMessage{
+		_ = d.writeEncrypted(conn, sessionKey, protocol.IdentifyAckMessage{
 			Type: protocol.TypeIdentifyAck, Status: "rejected",
 		})
 		return
@@ -214,13 +214,13 @@ func (d *Daemon) handleIdentify(conn net.Conn, sessionKey, sessionID, data []byt
 
 	if !crypto.Verify(devicePub, sessionID, msg.Signature) {
 		log.Printf("invalid identify proof from %s", device.DeviceName)
-		d.writeEncrypted(conn, sessionKey, protocol.IdentifyAckMessage{
+		_ = d.writeEncrypted(conn, sessionKey, protocol.IdentifyAckMessage{
 			Type: protocol.TypeIdentifyAck, Status: "rejected",
 		})
 		return
 	}
 
-	d.writeEncrypted(conn, sessionKey, protocol.IdentifyAckMessage{
+	_ = d.writeEncrypted(conn, sessionKey, protocol.IdentifyAckMessage{
 		Type: protocol.TypeIdentifyAck, Status: "accepted",
 	})
 
@@ -257,7 +257,7 @@ func (d *Daemon) listenForAuthResponses(phone *PhoneConnection) {
 				phone.mu.Unlock()
 				if err != nil {
 					log.Printf("ping to %s failed, dropping connection: %v", phone.deviceName, err)
-					phone.conn.Close()
+					_ = phone.conn.Close()
 					return
 				}
 			case <-done:
@@ -275,9 +275,9 @@ func (d *Daemon) listenForAuthResponses(phone *PhoneConnection) {
 		default:
 		}
 
-		phone.conn.SetReadDeadline(time.Now().Add(15 * time.Second))
+		_ = phone.conn.SetReadDeadline(time.Now().Add(15 * time.Second))
 		data, err := d.readEncrypted(phone.conn, phone.sessionKey)
-		phone.conn.SetReadDeadline(time.Time{}) // clear deadline
+		_ = phone.conn.SetReadDeadline(time.Time{}) // clear deadline
 		if err != nil {
 			log.Printf("connection lost with %s: %v", phone.deviceName, err)
 			return
@@ -300,8 +300,8 @@ func (d *Daemon) listenForAuthResponses(phone *PhoneConnection) {
 			var resp protocol.PongMessage
 			if err := json.Unmarshal(data, &resp); err == nil && resp.Status == "unpaired" {
 				log.Printf("Device %s reported it is no longer paired. Removing.", phone.deviceName)
-				d.devices.RemoveDevice(phone.deviceName)
-				phone.conn.Close()
+				_ = d.devices.RemoveDevice(phone.deviceName)
+				_ = phone.conn.Close()
 				return
 			}
 		} else {

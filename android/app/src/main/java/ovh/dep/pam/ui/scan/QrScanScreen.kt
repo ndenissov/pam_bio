@@ -70,6 +70,8 @@ import java.util.concurrent.Executors
  * via mDNS and completes the pairing handshake.
  */
 @OptIn(ExperimentalMaterial3Api::class)
+@androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
+@android.annotation.SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun QrScanScreen(
     onNavigateBack: () -> Unit,

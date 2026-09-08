@@ -114,10 +114,31 @@ fun AboutScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(R.string.with_love),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    val devText = stringResource(R.string.developer)
+                    val devName = "Nikita Denissov"
+                    val devStart = devText.indexOf(devName)
+                    val devAnnotated = androidx.compose.ui.text.buildAnnotatedString {
+                        append(devText)
+                        if (devStart >= 0) {
+                            addStyle(
+                                style = androidx.compose.ui.text.SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline
+                                ),
+                                start = devStart,
+                                end = devStart + devName.length
+                            )
+                            addStringAnnotation("URL", "https://github.com/ndenissov", devStart, devStart + devName.length)
+                        }
+                    }
+                    androidx.compose.foundation.text.ClickableText(
+                        text = devAnnotated,
+                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
+                        onClick = { offset ->
+                            devAnnotated.getStringAnnotations("URL", offset, offset).firstOrNull()?.let {
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it.item)))
+                            }
+                        }
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
