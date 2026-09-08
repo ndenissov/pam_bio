@@ -52,6 +52,7 @@ import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.IvParameterSpec
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
@@ -73,7 +74,8 @@ class MainActivity : AppCompatActivity() {
         private const val AUTH_PREFS = "pam_bio_auth_prefs"
         private const val AUTH_IV = "auth_iv"
         private const val AUTH_CT = "auth_ct"
-        private const val CIPHER_TRANSFORMATION = "AES/CBC/PKCS7Padding"
+        private const val CIPHER_TRANSFORMATION = "AES/GCM/NoPadding"
+        private const val GCM_TAG_LENGTH_BITS = 128
     }
 
     private fun getOrCreateSecretKey(): SecretKey {
@@ -86,8 +88,8 @@ class MainActivity : AppCompatActivity() {
             AUTH_KEY_ALIAS,
             KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
         )
-            .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
             .setUserAuthenticationRequired(true)
             .setInvalidatedByBiometricEnrollment(true)
             .build()
@@ -96,6 +98,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getCipher(): Cipher = Cipher.getInstance(CIPHER_TRANSFORMATION)
+
+    fun buildDecryptCipher(iv: ByteArray): Cipher {
+        val cipher = getCipher()
+        val spec = GCMParameterSpec(GCM_TAG_LENGTH_BITS, iv)
+        cipher.init(Cipher.DECRYPT_MODE, getOrCreateSecretKey(), spec)
+        return cipher
+    }
 
     fun getEncryptedProbe(): Pair<ByteArray, ByteArray>? {
         val prefs = getSharedPreferences(AUTH_PREFS, MODE_PRIVATE)
