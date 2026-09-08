@@ -280,7 +280,8 @@ class PamBioForegroundService : Service() {
     }
 
     private fun buildNotification(text: String): Notification {
-        val stopIntent = Intent(this, PamBioForegroundService::class.java).apply {
+        val stopIntent = Intent().apply {
+            setClass(this@PamBioForegroundService, PamBioForegroundService::class.java)
             action = ACTION_STOP
         }
         val stopPending = PendingIntent.getService(
@@ -288,7 +289,8 @@ class PamBioForegroundService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val mainIntent = Intent(this, ovh.dep.pam.MainActivity::class.java).apply {
+        val mainIntent = Intent().apply {
+            setClass(this@PamBioForegroundService, ovh.dep.pam.MainActivity::class.java)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         val mainPending = PendingIntent.getActivity(
@@ -306,7 +308,8 @@ class PamBioForegroundService : Service() {
             .addAction(0, getString(R.string.stop), stopPending)
 
         pendingAuthRequest?.let { authReq ->
-            val authIntent = Intent(this, BiometricAuthActivity::class.java).apply {
+            val authIntent = Intent().apply {
+                setClass(this@PamBioForegroundService, BiometricAuthActivity::class.java)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 putExtra(BiometricAuthActivity.EXTRA_NONCE, authReq.nonce)
                 putExtra(BiometricAuthActivity.EXTRA_USER, authReq.user)
