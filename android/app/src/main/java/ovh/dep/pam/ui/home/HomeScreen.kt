@@ -45,6 +45,8 @@ import androidx.core.os.LocaleListCompat
 import androidx.compose.ui.res.stringResource
 import ovh.dep.pam.R
 import ovh.dep.pam.data.AppPrefs
+import ovh.dep.pam.network.GithubRelease
+import ovh.dep.pam.network.UpdateChecker
 
 /**
  * Home screen — list of paired PCs, service toggle, and "add device" FAB.
@@ -68,6 +70,17 @@ fun HomeScreen(
     val githubStarred by prefs.getGithubStarredFlow().collectAsState(initial = prefs.githubStarred)
     val githubClicked by prefs.getGithubClickedFlow().collectAsState(initial = prefs.githubClicked)
     var showGithubDialog by remember { mutableStateOf(false) }
+
+    var githubRelease by remember { mutableStateOf<GithubRelease?>(null) }
+
+    LaunchedEffect(Unit) {
+        val release = UpdateChecker.getLatestRelease()
+        if (release != null && UpdateChecker.isNewVersionAvailable(release.tag_name)) {
+            if (prefs.skippedUpdateVersion != release.tag_name) {
+                githubRelease = release
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -255,6 +268,31 @@ fun HomeScreen(
                     prefs.githubStarred = true
                     showGithubDialog = false
                 }) { Text(stringResource(R.string.github_star_already)) }
+            }
+        )
+    }
+
+    if (githubRelease != null) {
+        val release = githubRelease!!
+        AlertDialog(
+            onDismissRequest = { githubRelease = null },
+            title = { Text(stringResource(R.string.update_available_title)) },
+            text = { Text(stringResource(R.string.update_available_msg, release.tag_name, release.body)) },
+            confirmButton = {
+                Button(onClick = {
+                    githubRelease = null
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(release.html_url)))
+                }) {
+                    Text(stringResource(R.string.update_download_btn))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    prefs.skippedUpdateVersion = release.tag_name
+                    githubRelease = null
+                }) {
+                    Text(stringResource(R.string.update_skip_btn))
+                }
             }
         )
     }

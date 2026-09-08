@@ -27,6 +27,10 @@ class AppPrefs(context: Context) {
         get() = prefs.getInt("last_prompted_auth_count", 0)
         set(value) = prefs.edit().putInt("last_prompted_auth_count", value).apply()
 
+    var skippedUpdateVersion: String
+        get() = prefs.getString("skipped_update_version", "") ?: ""
+        set(value) = prefs.edit().putString("skipped_update_version", value).apply()
+
     fun incrementAuthCount() {
         authCount++
     }

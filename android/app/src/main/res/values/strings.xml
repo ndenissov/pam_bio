@@ -91,4 +91,8 @@
     <string name="settings_language_title">Язык</string>
     <string name="settings_language_desc">Сменить язык приложения</string>
     <string name="settings_about_desc">Версия приложения и ссылки</string>
+    <string name="update_available_title">Доступно обновление</string>
+    <string name="update_available_msg">Новая версия %1$s доступна для скачивания.\n\n%2$s</string>
+    <string name="update_download_btn">Скачать</string>
+    <string name="update_skip_btn">Пропустить</string>
 </resources>

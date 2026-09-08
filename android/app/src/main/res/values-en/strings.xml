@@ -91,4 +91,8 @@
     <string name="settings_language_title">Language</string>
     <string name="settings_language_desc">Change app language</string>
     <string name="settings_about_desc">App version and links</string>
+    <string name="update_available_title">Update Available</string>
+    <string name="update_available_msg">New version %1$s is available to download.\n\n%2$s</string>
+    <string name="update_download_btn">Download</string>
+    <string name="update_skip_btn">Skip for now</string>
 </resources>
