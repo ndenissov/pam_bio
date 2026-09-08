@@ -6,8 +6,8 @@ Currently, only the latest release is supported with security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| >= 0.30.0 | :white_check_mark: |
-| < 0.30.0  | :x:                |
+| Latest    | :white_check_mark: |
+| Older     | :x:                |
 
 ## Reporting a Vulnerability
 
