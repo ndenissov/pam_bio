@@ -127,6 +127,7 @@ class TcpClient(
         withContext(Dispatchers.IO) {
             val pubKey = keyManager.publicKeyBase64 ?: keyManager.generateKeyPair()
             val proof = keyManager.sign(android.util.Base64.decode(pcPubKey, android.util.Base64.NO_WRAP))
+                ?: return@withContext false
 
             val req = PairRequestMessage(
                 devicePubKey = pubKey,
@@ -152,7 +153,7 @@ class TcpClient(
         val pubKey = keyManager.publicKeyBase64 ?: error("No keypair")
         val sessionId = crypto.sessionId ?: error("No session ID")
 
-        val signature = keyManager.sign(sessionId)
+        val signature = keyManager.sign(sessionId) ?: return@withContext false
         val msg = IdentifyMessage(
             devicePubKey = pubKey,
             signature = signature
@@ -172,7 +173,7 @@ class TcpClient(
      */
     suspend fun sendAuthResponse(nonce: String, approved: Boolean) = withContext(Dispatchers.IO) {
         val status = if (approved) "approved" else "denied"
-        val signature = if (approved) keyManager.sign(nonce.toByteArray()) else ""
+        val signature = if (approved) keyManager.sign(nonce.toByteArray()) ?: "" else ""
 
         val resp = AuthResponseMessage(
             status = status,

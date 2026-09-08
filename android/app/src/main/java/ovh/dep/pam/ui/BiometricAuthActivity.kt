@@ -17,6 +17,7 @@
 
 package ovh.dep.pam.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -97,9 +98,21 @@ class BiometricAuthActivity : AppCompatActivity() {
                 )
             }
         }
-
         // Auto-trigger biometric prompt
         showBiometricPrompt()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Tell the service to clear the pending request from its notification
+        val intent = Intent(this, ovh.dep.pam.service.PamBioForegroundService::class.java).apply {
+            action = ovh.dep.pam.service.PamBioForegroundService.ACTION_CLEAR_AUTH
+        }
+        try {
+            startService(intent)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to clear pending auth notification", e)
+        }
     }
 
     private fun showBiometricPrompt() {

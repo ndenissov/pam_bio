@@ -30,30 +30,8 @@ jobs:
             pambiod_*.deb
             pam-bio_*.deb
 
-  build-android:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: gradle
-          
-      - name: Build APK
-        run: cd android && ./gradlew assembleRelease
-        
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release
-          path: android/app/build/outputs/apk/release/*.apk
-
   release:
-    needs: [build-deb, build-android]
+    needs: [build-deb]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -63,15 +41,9 @@ jobs:
         with:
           name: debian-packages
           
-      - name: Download APK
-        uses: actions/download-artifact@v4
-        with:
-          name: app-release
-          
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             *.deb
-            app-release.apk
           generate_release_notes: true

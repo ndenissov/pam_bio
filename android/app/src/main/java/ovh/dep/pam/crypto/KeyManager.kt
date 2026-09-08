@@ -92,8 +92,8 @@ class KeyManager(context: Context) {
      *
      * @return base64-encoded signature
      */
-    fun sign(data: ByteArray): String {
-        val privKey = loadPrivateKey()
+    fun sign(data: ByteArray): String? {
+        val privKey = loadPrivateKey() ?: return null
         val signer = Ed25519Signer()
         signer.init(true, privKey)
         signer.update(data, 0, data.size)
@@ -103,18 +103,28 @@ class KeyManager(context: Context) {
 
     // ── Internal ──────────────────────────────────────────────
 
-    private fun loadPrivateKey(): Ed25519PrivateKeyParameters {
-        val encStr = prefs.getString(PREF_ENC_PRIV, null)
-            ?: error("No private key stored")
-        val ivStr = prefs.getString(PREF_ENC_IV, null)
-            ?: error("No IV stored")
+    private fun loadPrivateKey(): Ed25519PrivateKeyParameters? {
+        val encStr = prefs.getString(PREF_ENC_PRIV, null) ?: return null
+        val ivStr = prefs.getString(PREF_ENC_IV, null) ?: return null
 
         val encrypted = Base64.decode(encStr, Base64.NO_WRAP)
         val iv = Base64.decode(ivStr, Base64.NO_WRAP)
 
-        val cipher = getDecryptCipher(iv)
-        val privBytes = cipher.doFinal(encrypted)
-        return Ed25519PrivateKeyParameters(privBytes, 0)
+        return try {
+            val cipher = getDecryptCipher(iv)
+            val privBytes = cipher.doFinal(encrypted)
+            Ed25519PrivateKeyParameters(privBytes, 0)
+        } catch (e: Exception) {
+            // If Keystore key is missing (e.g. Auto Backup restore), or decryption fails:
+            // wipe the corrupted keys so the user can re-pair.
+            clearKeys()
+            null
+        }
+    }
+
+    /** Wipes the keypair from SharedPreferences. */
+    fun clearKeys() {
+        prefs.edit().clear().apply()
     }
 
     private fun ensureKeystoreKey() {
@@ -146,6 +156,8 @@ class KeyManager(context: Context) {
     private fun getDecryptCipher(iv: ByteArray): Cipher {
         val ks = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         val key = ks.getKey(KEYSTORE_ALIAS, null)
+            ?: throw IllegalStateException("Keystore key missing")
+            
         return Cipher.getInstance("AES/GCM/NoPadding").apply {
             init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, iv))
         }

@@ -54,6 +54,9 @@ class PamBioForegroundService : Service() {
 
         val isRunning = kotlinx.coroutines.flow.MutableStateFlow(false)
         val connectedDevices = kotlinx.coroutines.flow.MutableStateFlow<Set<String>>(emptySet())
+        
+        var pendingAuthRequest: AuthRequestMessage? = null
+        const val ACTION_CLEAR_AUTH = "ovh.dep.pam.CLEAR_AUTH"
     }
 
     private lateinit var nsdManager: NsdDiscoveryManager
@@ -80,6 +83,10 @@ class PamBioForegroundService : Service() {
             ACTION_STOP -> {
                 stopSelf()
                 return START_NOT_STICKY
+            }
+            ACTION_CLEAR_AUTH -> {
+                pendingAuthRequest = null
+                updateNotification(currentNotificationText ?: "")
             }
         }
 
@@ -238,6 +245,10 @@ class PamBioForegroundService : Service() {
 
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.notify(2, notification)
+
+        // Also update the persistent notification to show the "Approve" button
+        pendingAuthRequest = authReq
+        updateNotification(currentNotificationText ?: "")
     }
 
     // ── Notification ───────────────────────────────────────
@@ -285,7 +296,7 @@ class PamBioForegroundService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        return NotificationCompat.Builder(this, CHANNEL_SERVICE_ID)
+        val builder = NotificationCompat.Builder(this, CHANNEL_SERVICE_ID)
             .setSmallIcon(R.drawable.ic_stat_name)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(text)
@@ -293,7 +304,27 @@ class PamBioForegroundService : Service() {
             .setOngoing(true)
             .setContentIntent(mainPending)
             .addAction(0, getString(R.string.stop), stopPending)
-            .build()
+
+        pendingAuthRequest?.let { authReq ->
+            val authIntent = Intent(this, BiometricAuthActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                putExtra(BiometricAuthActivity.EXTRA_NONCE, authReq.nonce)
+                putExtra(BiometricAuthActivity.EXTRA_USER, authReq.user)
+                putExtra(BiometricAuthActivity.EXTRA_SERVICE, authReq.service)
+                putExtra(BiometricAuthActivity.EXTRA_TIMESTAMP, authReq.timestamp)
+            }
+            val authPending = PendingIntent.getActivity(
+                this, 1, authIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            builder.addAction(
+                R.drawable.ic_stat_name, 
+                getString(R.string.auth_approve), 
+                authPending
+            )
+        }
+
+        return builder.build()
     }
 
     private fun updateNotification(text: String) {
