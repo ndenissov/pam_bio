@@ -1,10 +1,10 @@
 Package: pam-bio
-Version: 0.31.2
+Version: 0.31.3
 Section: admin
 Priority: optional
 Architecture: amd64
 Maintainer: Nikita Denissov <nikita@dep.ovh>
-Depends: pambiod (>= 0.31.2), libpam0g (>= 1.1.8-3.1~)
+Depends: pambiod (>= 0.31.3), libpam0g (>= 1.1.8-3.1~)
 Description: PamBio PAM module
  PAM module that delegates authentication to the PamBio daemon,
  enabling smartphone biometric unlock for Linux.

@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getCipher(): Cipher = Cipher.getInstance(CIPHER_TRANSFORMATION)
 
-    fun getOrCreateEncryptedProbe(): Pair<ByteArray, ByteArray> {
+    fun getEncryptedProbe(): Pair<ByteArray, ByteArray>? {
         val prefs = getSharedPreferences(AUTH_PREFS, MODE_PRIVATE)
         val ivB64 = prefs.getString(AUTH_IV, null)
         val ctB64 = prefs.getString(AUTH_CT, null)
@@ -105,18 +105,20 @@ class MainActivity : AppCompatActivity() {
         if (ivB64 != null && ctB64 != null) {
             return Base64.decode(ivB64, Base64.DEFAULT) to Base64.decode(ctB64, Base64.DEFAULT)
         }
+        return null
+    }
 
+    fun buildEncryptCipher(): Cipher {
         val cipher = getCipher()
         cipher.init(Cipher.ENCRYPT_MODE, getOrCreateSecretKey())
-        val ciphertext = cipher.doFinal("pam-auth-probe".toByteArray(Charsets.UTF_8))
-        val iv = cipher.iv
+        return cipher
+    }
 
-        prefs.edit()
+    fun saveEncryptedProbe(iv: ByteArray, ciphertext: ByteArray) {
+        getSharedPreferences(AUTH_PREFS, MODE_PRIVATE).edit()
             .putString(AUTH_IV, Base64.encodeToString(iv, Base64.NO_WRAP))
             .putString(AUTH_CT, Base64.encodeToString(ciphertext, Base64.NO_WRAP))
             .apply()
-
-        return iv to ciphertext
     }
 
     fun buildDecryptCipher(iv: ByteArray): Cipher {
@@ -274,8 +276,12 @@ private fun UnlockScreen(onUnlockSuccess: () -> Unit) {
             onUnlockSuccess()
         } else {
             val activity = context as MainActivity
-            val (iv, ciphertext) = activity.getOrCreateEncryptedProbe()
-            val decryptCipher = activity.buildDecryptCipher(iv)
+            val probe = activity.getEncryptedProbe()
+            val authCipher = if (probe == null) {
+                activity.buildEncryptCipher()
+            } else {
+                activity.buildDecryptCipher(probe.first)
+            }
 
             val executor = ContextCompat.getMainExecutor(context)
             val prompt = BiometricPrompt(context, executor,
@@ -283,7 +289,12 @@ private fun UnlockScreen(onUnlockSuccess: () -> Unit) {
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                         val cipher = result.cryptoObject?.cipher ?: return
                         try {
-                            cipher.doFinal(ciphertext)
+                            if (probe == null) {
+                                val ciphertext = cipher.doFinal("pam-auth-probe".toByteArray(Charsets.UTF_8))
+                                activity.saveEncryptedProbe(cipher.iv, ciphertext)
+                            } else {
+                                cipher.doFinal(probe.second)
+                            }
                             onUnlockSuccess()
                         } catch (_: Exception) {
                             // Authentication did not unlock the keystore-backed key operation.
@@ -298,7 +309,7 @@ private fun UnlockScreen(onUnlockSuccess: () -> Unit) {
                 .setSubtitle(context.getString(R.string.unlock_subtitle))
                 .setAllowedAuthenticators(authenticators)
                 .build()
-            prompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(decryptCipher))
+            prompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(authCipher))
         }
     }
 
