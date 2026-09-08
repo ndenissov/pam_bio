@@ -189,9 +189,7 @@ fun HomeScreen(
                     if (!githubStarred) {
                         Spacer(Modifier.height(8.dp))
                         OutlinedButton(onClick = {
-                            prefs.githubStarred = true
-                            githubStarred = true
-                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ndenissov/pam_bio")))
+                            showGithubDialog = true
                         }) {
                             Text(stringResource(R.string.star_on_github))
                         }
@@ -221,22 +219,23 @@ fun HomeScreen(
     }
 
     // Nag dialog logic: show at thresholds 8, 16, 32, ..., 512, 1024, 2048, 3072, 4096, ...
+    var showPreamble by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         if (!prefs.githubStarred && prefs.authCount >= 8) {
             val count = prefs.authCount
-            // Find the highest threshold <= count
             var threshold = 8
             while (threshold * 2 <= count && threshold < 512) {
                 threshold *= 2
             }
             if (threshold >= 512) {
-                // After 512: 1024, 2048, 3072, 4096, ...
                 threshold = 1024
                 while (threshold + 1024 <= count) {
                     threshold += 1024
                 }
             }
             if (prefs.lastPromptedAuthCount < threshold) {
+                showPreamble = (count - threshold) >= 10
                 showGithubDialog = true
                 prefs.lastPromptedAuthCount = threshold
             }
@@ -252,10 +251,16 @@ fun HomeScreen(
             R.string.github_star_msg_5
         )
         val randomMsg = remember { msgs.random() }
+        val dialogText = if (showPreamble) {
+            stringResource(R.string.github_star_preamble, prefs.authCount) + "\n\n" + stringResource(randomMsg)
+        } else {
+            stringResource(randomMsg)
+        }
+
         AlertDialog(
             onDismissRequest = { showGithubDialog = false },
             title = { Text(stringResource(R.string.github_star_title)) },
-            text = { Text(stringResource(randomMsg)) },
+            text = { Text(dialogText) },
             confirmButton = {
                 TextButton(onClick = {
                     prefs.githubStarred = true
@@ -414,6 +419,13 @@ private fun EmptyState() {
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+        )
+        Spacer(Modifier.height(16.dp))
+        Text(
+            text = stringResource(R.string.empty_state_help),
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }

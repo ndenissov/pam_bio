@@ -58,7 +58,7 @@
     <string name="method_label">方法: %1$s</string>
     <string name="status_connected">已连接</string>
     <string name="status_disconnected">已断开连接</string>
-    <string name="unlock_pambio">解锁 PamBio</string>
+    <string name="unlock_pambio">解锁</string>
     <string name="unlock_subtitle">解锁以访问 PamBio</string>
     <string name="channel_service_name">服务状态</string>
     <string name="channel_service_desc">显示后台服务是否正在运行</string>
@@ -82,4 +82,6 @@
     <string name="github_star_btn">⭐ 加星</string>
     <string name="github_star_later">以后再说</string>
     <string name="github_star_already">已经加了</string>
+    <string name="github_star_preamble">刚刚注意到这已经是第 %1$d 次调用了。不想显得太纠缠，但是…</string>
+    <string name="empty_state_help">可以在 pam.dep.ovh 找到 PC 端设置说明</string>
 </resources>

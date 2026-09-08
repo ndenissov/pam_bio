@@ -58,7 +58,7 @@
     <string name="method_label">Method: %1$s</string>
     <string name="status_connected">Connected</string>
     <string name="status_disconnected">Disconnected</string>
-    <string name="unlock_pambio">Unlock PamBio</string>
+    <string name="unlock_pambio">Unlock</string>
     <string name="unlock_subtitle">Unlock to access PamBio</string>
     <string name="channel_service_name">Service Status</string>
     <string name="channel_service_desc">Shows whether the background service is running</string>
@@ -82,4 +82,6 @@
     <string name="github_star_btn">⭐ Star</string>
     <string name="github_star_later">Later</string>
     <string name="github_star_already">Already starred</string>
+    <string name="github_star_preamble">Just noticed this is the %1$d-th invocation. Not to be pushy, but…</string>
+    <string name="empty_state_help">PC setup instructions are available at pam.dep.ovh</string>
 </resources>

@@ -58,7 +58,7 @@
     <string name="method_label">Способ: %1$s</string>
     <string name="status_connected">Подключено</string>
     <string name="status_disconnected">Отключено</string>
-    <string name="unlock_pambio">Разблокировать PamBio</string>
+    <string name="unlock_pambio">Разблокировать</string>
     <string name="unlock_subtitle">Разблокируйте для доступа к PamBio</string>
     <string name="channel_service_name">Статус службы</string>
     <string name="channel_service_desc">Показывает, работает ли фоновая служба</string>
@@ -82,4 +82,6 @@
     <string name="github_star_btn">⭐ Поставить</string>
     <string name="github_star_later">Позже</string>
     <string name="github_star_already">Уже поставил</string>
+    <string name="github_star_preamble">Только заметил, что это уже %1$d-е срабатывание. Не хочу показаться навязчивым, но…</string>
+    <string name="empty_state_help">Инструкции по настройке ПК доступны на pam.dep.ovh</string>
 </resources>
