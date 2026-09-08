@@ -8,7 +8,7 @@ import os
 import json
 import urllib.request
 
-REPO = "ndenissov/pam_bio"
+REPO = os.environ.get("GITHUB_REPOSITORY", "ndenissov/pam_bio")
 README = "README.md"
 START_MARKER = "<!-- HOF:START -->"
 END_MARKER = "<!-- HOF:END -->"
@@ -26,17 +26,22 @@ def github_api(endpoint):
 
     items = []
     page = 1
-    while True:
-        sep = "&" if "?" in url else "?"
-        req = urllib.request.Request(f"{url}{sep}per_page=100&page={page}", headers=headers)
-        with urllib.request.urlopen(req) as resp:
-            data = json.loads(resp.read())
-        if not data:
-            break
-        items.extend(data)
-        page += 1
-        if len(data) < 100:
-            break
+    try:
+        while True:
+            sep = "&" if "?" in url else "?"
+            req = urllib.request.Request(f"{url}{sep}per_page=100&page={page}", headers=headers)
+            with urllib.request.urlopen(req) as resp:
+                data = json.loads(resp.read())
+            if not data:
+                break
+            items.extend(data)
+            page += 1
+            if len(data) < 100:
+                break
+    except Exception as e:
+        print(f"Failed to fetch {url}: {e}")
+        # Return None on error so we can abort and not wipe the HOF
+        return None
     return items
 
 
@@ -51,6 +56,10 @@ def main():
     stargazers = github_api(f"/repos/{REPO}/stargazers")
     forks = github_api(f"/repos/{REPO}/forks")
     contributors = github_api(f"/repos/{REPO}/contributors")
+
+    if stargazers is None or forks is None or contributors is None:
+        print("API error occurred. Aborting to prevent wiping the Hall of Fame.")
+        return
 
     # Deduplicate by login
     seen = set()
@@ -78,7 +87,7 @@ def main():
             seen.add(login)
             all_users.append(user)
 
-    if not all_users:
+    if len(all_users) == 0:
         hof_content = "*Be the first to star the repo and appear here!*"
     else:
         avatars = " ".join(make_avatar(u) for u in all_users[:100])

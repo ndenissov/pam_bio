@@ -28,6 +28,20 @@ PamBio is designed with a strong focus on security:
 
 ---
 
+## Download Android App
+
+The Android app is currently in preparation for a **Google Play Store** release!
+While it is not yet available, you can follow my [Google Play Developer Page](https://play.google.com/store/apps/dev?id=7887460610476705873) for updates. I am also looking for volunteers to participate in the closed beta test on Google Play — if you're interested, please open an issue or reach out.
+
+In the meantime, you can download the pre-compiled **Split APKs** from the GitHub Releases page. 
+To minimize app size and improve performance, the release APKs are obfuscated and split by CPU architecture:
+*   **`arm64-v8a`**: This is the architecture for **almost all modern smartphones**. If you are unsure, download this one.
+*   **`armeabi-v7a`**: For older 32-bit devices.
+*   **`x86` / `x86_64`**: Mostly used for Android emulators.
+*(You can check your exact architecture using apps like AIDA64, or simply try installing `arm64-v8a` first.)*
+
+---
+
 ## Installation & Setup
 
 ### 1. NixOS (Recommended)
