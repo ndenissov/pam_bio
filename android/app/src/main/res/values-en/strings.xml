@@ -84,4 +84,11 @@
     <string name="github_star_already">Already starred</string>
     <string name="github_star_preamble">Just noticed this is the %1$d-th invocation. Not to be pushy, but…</string>
     <string name="empty_state_help">PC setup instructions are available at pam.dep.ovh</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_notifications_title">Notifications</string>
+    <string name="settings_notifications_desc">Configure sound, vibration, and service icon in Android system settings</string>
+    <string name="settings_language_title">Language</string>
+    <string name="settings_language_desc">Change app language</string>
+    <string name="settings_about_desc">App version and links</string>
 </resources>

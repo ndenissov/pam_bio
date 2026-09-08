@@ -53,7 +53,7 @@ import ovh.dep.pam.data.AppPrefs
 fun HomeScreen(
     onNavigateToScan: () -> Unit,
     onNavigateToHistory: () -> Unit,
-    onNavigateToAbout: () -> Unit
+    onNavigateToSettings: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -61,11 +61,11 @@ fun HomeScreen(
     val devices by deviceRepo.devicesFlow.collectAsState(initial = emptyList())
     val serviceRunning by PamBioForegroundService.isRunning.collectAsState()
     val connectedDevices by PamBioForegroundService.connectedDevices.collectAsState()
-    var showLangMenu by remember { mutableStateOf(false) }
 
     val prefs = remember { AppPrefs(context) }
+    val authCount by prefs.getAuthCountFlow().collectAsState(initial = prefs.authCount)
+    val githubStarred by prefs.getGithubStarredFlow().collectAsState(initial = prefs.githubStarred)
     var showGithubDialog by remember { mutableStateOf(false) }
-    var githubStarred by remember { mutableStateOf(prefs.githubStarred) }
 
     Scaffold(
         topBar = {
@@ -79,39 +79,8 @@ fun HomeScreen(
                     IconButton(onClick = onNavigateToHistory) {
                         Icon(Icons.Filled.History, contentDescription = "History")
                     }
-                    IconButton(onClick = onNavigateToAbout) {
-                        Icon(Icons.Filled.Info, contentDescription = "About")
-                    }
-                    Box {
-                        IconButton(onClick = { showLangMenu = true }) {
-                            Icon(Icons.Filled.Language, contentDescription = "Language")
-                        }
-                        DropdownMenu(
-                            expanded = showLangMenu,
-                            onDismissRequest = { showLangMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("EN") },
-                                onClick = {
-                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
-                                    showLangMenu = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("RU") },
-                                onClick = {
-                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ru"))
-                                    showLangMenu = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("ZH") },
-                                onClick = {
-                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("zh"))
-                                    showLangMenu = false
-                                }
-                            )
-                        }
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
                     }
                 }
             )
@@ -182,7 +151,7 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = stringResource(R.string.auth_count_footer, prefs.authCount),
+                        text = stringResource(R.string.auth_count_footer, authCount),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                     )
@@ -221,9 +190,9 @@ fun HomeScreen(
     // Nag dialog logic: show at thresholds 8, 16, 32, ..., 512, 1024, 2048, 3072, 4096, ...
     var showPreamble by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        if (!prefs.githubStarred && prefs.authCount >= 8) {
-            val count = prefs.authCount
+    LaunchedEffect(authCount, githubStarred) {
+        if (!githubStarred && authCount >= 8) {
+            val count = authCount
             var threshold = 8
             while (threshold * 2 <= count && threshold < 512) {
                 threshold *= 2
@@ -252,7 +221,7 @@ fun HomeScreen(
         )
         val randomMsg = remember { msgs.random() }
         val dialogText = if (showPreamble) {
-            stringResource(R.string.github_star_preamble, prefs.authCount) + "\n\n" + stringResource(randomMsg)
+            stringResource(R.string.github_star_preamble, authCount) + "\n\n" + stringResource(randomMsg)
         } else {
             stringResource(randomMsg)
         }
@@ -264,7 +233,6 @@ fun HomeScreen(
             confirmButton = {
                 TextButton(onClick = {
                     prefs.githubStarred = true
-                    githubStarred = true
                     showGithubDialog = false
                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ndenissov/pam_bio")))
                 }) { Text(stringResource(R.string.github_star_btn)) }
@@ -273,7 +241,6 @@ fun HomeScreen(
                 Row {
                     TextButton(onClick = {
                         prefs.githubStarred = true
-                        githubStarred = true
                         showGithubDialog = false
                     }) { Text(stringResource(R.string.github_star_already)) }
                     TextButton(onClick = { showGithubDialog = false }) {

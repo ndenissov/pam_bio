@@ -45,11 +45,14 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import ovh.dep.pam.data.PairedDeviceRepository
 import ovh.dep.pam.service.PamBioForegroundService
 import ovh.dep.pam.ui.about.AboutScreen
 import ovh.dep.pam.ui.home.HomeScreen
 import ovh.dep.pam.ui.history.HistoryScreen
+import ovh.dep.pam.ui.settings.SettingsScreen
+import ovh.dep.pam.ui.scan.QrScanScreen
 import ovh.dep.pam.ui.scan.QrScanScreen
 import ovh.dep.pam.ui.theme.LinuxBiopamTheme
 
@@ -71,6 +74,14 @@ class MainActivity : AppCompatActivity() {
         checkFullScreenIntentPermission()
 
         lifecycleScope.launch {
+            // Sync authCount from history to fix initial state
+            val historyRepo = ovh.dep.pam.data.history.AuthHistoryRepository(this@MainActivity)
+            val prefs = ovh.dep.pam.data.AppPrefs(this@MainActivity)
+            val historySize = historyRepo.getHistory().first().size
+            if (prefs.authCount < historySize) {
+                prefs.authCount = historySize
+            }
+
             val pairedDevices = PairedDeviceRepository(this@MainActivity).getAll()
             if (pairedDevices.isNotEmpty()) {
                 val serviceIntent = android.content.Intent(this@MainActivity, PamBioForegroundService::class.java)
@@ -143,7 +154,7 @@ private fun PamBioNavigation() {
             HomeScreen(
                 onNavigateToScan = { navController.navigate("scan") },
                 onNavigateToHistory = { navController.navigate("history") },
-                onNavigateToAbout = { navController.navigate("about") }
+                onNavigateToSettings = { navController.navigate("settings") }
             )
         }
         composable("scan") {
@@ -162,6 +173,12 @@ private fun PamBioNavigation() {
         composable("about") {
             AboutScreen(
                 onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("settings") {
+            SettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToAbout = { navController.navigate("about") }
             )
         }
     }

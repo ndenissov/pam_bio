@@ -84,4 +84,11 @@
     <string name="github_star_already">Уже поставил</string>
     <string name="github_star_preamble">Только заметил, что это уже %1$d-е срабатывание. Не хочу показаться навязчивым, но…</string>
     <string name="empty_state_help">Инструкции по настройке ПК доступны на pam.dep.ovh</string>
+
+    <string name="settings_title">Настройки</string>
+    <string name="settings_notifications_title">Уведомления</string>
+    <string name="settings_notifications_desc">Настроить звук, вибрацию и иконку сервиса в системных настройках Android</string>
+    <string name="settings_language_title">Язык</string>
+    <string name="settings_language_desc">Сменить язык приложения</string>
+    <string name="settings_about_desc">Версия приложения и ссылки</string>
 </resources>

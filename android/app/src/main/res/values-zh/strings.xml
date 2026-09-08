@@ -84,4 +84,11 @@
     <string name="github_star_already">已经加了</string>
     <string name="github_star_preamble">刚刚注意到这已经是第 %1$d 次调用了。不想显得太纠缠，但是…</string>
     <string name="empty_state_help">可以在 pam.dep.ovh 找到 PC 端设置说明</string>
+
+    <string name="settings_title">设置</string>
+    <string name="settings_notifications_title">通知</string>
+    <string name="settings_notifications_desc">在 Android 系统设置中配置声音、振动和服务图标</string>
+    <string name="settings_language_title">语言</string>
+    <string name="settings_language_desc">更改应用语言</string>
+    <string name="settings_about_desc">应用版本和链接</string>
 </resources>
