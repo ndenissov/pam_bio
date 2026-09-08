@@ -47,6 +47,14 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 import android.content.Intent
+import android.util.Base64
+import java.security.KeyStore
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.IvParameterSpec
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import ovh.dep.pam.data.AppPrefs
 import ovh.dep.pam.data.PairedDeviceRepository
 import ovh.dep.pam.service.PamBioForegroundService
@@ -59,6 +67,63 @@ import ovh.dep.pam.ui.scan.QrScanScreen
 import ovh.dep.pam.ui.theme.LinuxBiopamTheme
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val AUTH_KEY_ALIAS = "pam_bio_auth_key"
+        private const val AUTH_PREFS = "pam_bio_auth_prefs"
+        private const val AUTH_IV = "auth_iv"
+        private const val AUTH_CT = "auth_ct"
+        private const val CIPHER_TRANSFORMATION = "AES/CBC/PKCS7Padding"
+    }
+
+    private fun getOrCreateSecretKey(): SecretKey {
+        val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+        val existing = keyStore.getKey(AUTH_KEY_ALIAS, null) as? SecretKey
+        if (existing != null) return existing
+
+        val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+        val spec = KeyGenParameterSpec.Builder(
+            AUTH_KEY_ALIAS,
+            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+        )
+            .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+            .setUserAuthenticationRequired(true)
+            .setInvalidatedByBiometricEnrollment(true)
+            .build()
+        keyGenerator.init(spec)
+        return keyGenerator.generateKey()
+    }
+
+    private fun getCipher(): Cipher = Cipher.getInstance(CIPHER_TRANSFORMATION)
+
+    private fun getOrCreateEncryptedProbe(): Pair<ByteArray, ByteArray> {
+        val prefs = getSharedPreferences(AUTH_PREFS, MODE_PRIVATE)
+        val ivB64 = prefs.getString(AUTH_IV, null)
+        val ctB64 = prefs.getString(AUTH_CT, null)
+
+        if (ivB64 != null && ctB64 != null) {
+            return Base64.decode(ivB64, Base64.DEFAULT) to Base64.decode(ctB64, Base64.DEFAULT)
+        }
+
+        val cipher = getCipher()
+        cipher.init(Cipher.ENCRYPT_MODE, getOrCreateSecretKey())
+        val ciphertext = cipher.doFinal("pam-auth-probe".toByteArray(Charsets.UTF_8))
+        val iv = cipher.iv
+
+        prefs.edit()
+            .putString(AUTH_IV, Base64.encodeToString(iv, Base64.NO_WRAP))
+            .putString(AUTH_CT, Base64.encodeToString(ciphertext, Base64.NO_WRAP))
+            .apply()
+
+        return iv to ciphertext
+    }
+
+    private fun buildDecryptCipher(iv: ByteArray): Cipher {
+        val cipher = getCipher()
+        cipher.init(Cipher.DECRYPT_MODE, getOrCreateSecretKey(), IvParameterSpec(iv))
+        return cipher
+    }
 
     override fun onResume() {
         super.onResume()
@@ -200,7 +265,7 @@ private fun PamBioNavigation() {
 @Composable
 private fun UnlockScreen(onUnlockSuccess: () -> Unit) {
     val context = LocalContext.current as AppCompatActivity
-    
+
     val showAuth = {
         val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
         val canAuth = BiometricManager.from(context).canAuthenticate(authenticators)
@@ -208,11 +273,21 @@ private fun UnlockScreen(onUnlockSuccess: () -> Unit) {
         if (canAuth != BiometricManager.BIOMETRIC_SUCCESS) {
             onUnlockSuccess()
         } else {
+            val activity = context as MainActivity
+            val (iv, ciphertext) = activity.getOrCreateEncryptedProbe()
+            val decryptCipher = activity.buildDecryptCipher(iv)
+
             val executor = ContextCompat.getMainExecutor(context)
             val prompt = BiometricPrompt(context, executor,
                 object : BiometricPrompt.AuthenticationCallback() {
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                        onUnlockSuccess()
+                        val cipher = result.cryptoObject?.cipher ?: return
+                        try {
+                            cipher.doFinal(ciphertext)
+                            onUnlockSuccess()
+                        } catch (_: Exception) {
+                            // Authentication did not unlock the keystore-backed key operation.
+                        }
                     }
                     override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                         // Just let the user retry by clicking the button
@@ -223,7 +298,7 @@ private fun UnlockScreen(onUnlockSuccess: () -> Unit) {
                 .setSubtitle(context.getString(R.string.unlock_subtitle))
                 .setAllowedAuthenticators(authenticators)
                 .build()
-            prompt.authenticate(promptInfo)
+            prompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(decryptCipher))
         }
     }
 
