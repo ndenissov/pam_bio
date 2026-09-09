@@ -106,4 +106,16 @@
     <string name="security_required_title">Требуется защита экрана</string>
     <string name="security_required_desc">PamBio требует, чтобы на вашем устройстве была настроена безопасная блокировка экрана (ПИН-код, пароль или биометрия) для безопасного хранения ключей аутентификации.</string>
     <string name="open_security_settings">Открыть настройки безопасности</string>
+    <string name="first_launch_bio_title">Защитить вход в приложение?</string>
+    <string name="first_launch_bio_text">По умолчанию вход в приложение не требует биометрии, так как это не даёт доступа к вашему ПК. Однако, посторонний может увидеть историю запросов и удалить спаренные ПК. Хотите ли вы запрашивать биометрию при каждом открытии приложения?</string>
+    <string name="first_launch_bio_yes">Да, защитить</string>
+    <string name="first_launch_bio_no">Нет, оставить так</string>
+    <string name="settings_bio_title">Вход по биометрии</string>
+    <string name="settings_bio_desc">Требовать биометрию при открытии приложения</string>
+    <string name="settings_screenshots_title">Запретить скриншоты</string>
+    <string name="settings_screenshots_desc">Запретить создание снимков экрана в приложении (повышает приватность)</string>
+    <string name="settings_timer_title">Перезапуск по расписанию</string>
+    <string name="settings_timer_desc">Автоматически отключать сервис на ночь (по умолчанию с 23:00 до 07:00), чтобы Android не "убивал" его.</string>
+    <string name="settings_timer_start">Выключение</string>
+    <string name="settings_timer_stop">Включение</string>
 </resources>

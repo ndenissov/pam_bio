@@ -31,6 +31,38 @@ class AppPrefs(context: Context) {
         get() = prefs.getString("skipped_update_version", "") ?: ""
         set(value) = prefs.edit().putString("skipped_update_version", value).apply()
 
+    var requireBiometricOnStart: Boolean
+        get() = prefs.getBoolean("require_biometric_on_start", false)
+        set(value) = prefs.edit().putBoolean("require_biometric_on_start", value).apply()
+
+    var hasPromptedBiometricOnStart: Boolean
+        get() = prefs.getBoolean("has_prompted_biometric_on_start", false)
+        set(value) = prefs.edit().putBoolean("has_prompted_biometric_on_start", value).apply()
+
+    var disableScreenshots: Boolean
+        get() = prefs.getBoolean("disable_screenshots", false)
+        set(value) = prefs.edit().putBoolean("disable_screenshots", value).apply()
+
+    var enableServiceTimer: Boolean
+        get() = prefs.getBoolean("enable_service_timer", false)
+        set(value) = prefs.edit().putBoolean("enable_service_timer", value).apply()
+
+    var timerStartHour: Int
+        get() = prefs.getInt("timer_start_hour", 7)
+        set(value) = prefs.edit().putInt("timer_start_hour", value).apply()
+
+    var timerStartMinute: Int
+        get() = prefs.getInt("timer_start_minute", 0)
+        set(value) = prefs.edit().putInt("timer_start_minute", value).apply()
+
+    var timerStopHour: Int
+        get() = prefs.getInt("timer_stop_hour", 23)
+        set(value) = prefs.edit().putInt("timer_stop_hour", value).apply()
+
+    var timerStopMinute: Int
+        get() = prefs.getInt("timer_stop_minute", 0)
+        set(value) = prefs.edit().putInt("timer_stop_minute", value).apply()
+
     fun incrementAuthCount() {
         authCount++
     }
@@ -66,6 +98,28 @@ class AppPrefs(context: Context) {
         }
         prefs.registerOnSharedPreferenceChangeListener(listener)
         trySend(prefs.getBoolean("github_clicked", false))
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    fun getRequireBiometricOnStartFlow(): kotlinx.coroutines.flow.Flow<Boolean> = kotlinx.coroutines.flow.callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if (key == "require_biometric_on_start") {
+                trySend(sharedPreferences.getBoolean("require_biometric_on_start", false))
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        trySend(prefs.getBoolean("require_biometric_on_start", false))
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    fun getDisableScreenshotsFlow(): kotlinx.coroutines.flow.Flow<Boolean> = kotlinx.coroutines.flow.callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if (key == "disable_screenshots") {
+                trySend(sharedPreferences.getBoolean("disable_screenshots", false))
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        trySend(prefs.getBoolean("disable_screenshots", false))
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 }

@@ -106,6 +106,12 @@ class BiometricAuthActivity : AppCompatActivity() {
                 )
             }
         }
+        
+        val prefs = ovh.dep.pam.data.AppPrefs(this)
+        if (prefs.disableScreenshots) {
+            window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        }
+
         // Auto-trigger biometric prompt
         showBiometricPrompt()
     }

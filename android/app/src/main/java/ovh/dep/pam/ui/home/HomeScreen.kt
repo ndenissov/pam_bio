@@ -319,6 +319,38 @@ fun HomeScreen(
             }
         )
     }
+
+    // First launch biometric prompt
+    var showBiometricPromptDialog by remember { mutableStateOf(!prefs.hasPromptedBiometricOnStart) }
+    if (showBiometricPromptDialog) {
+        AlertDialog(
+            onDismissRequest = { 
+                prefs.hasPromptedBiometricOnStart = true
+                showBiometricPromptDialog = false 
+            },
+            title = { Text(stringResource(R.string.first_launch_bio_title)) },
+            text = { Text(stringResource(R.string.first_launch_bio_text)) },
+            confirmButton = {
+                Button(onClick = {
+                    prefs.requireBiometricOnStart = true
+                    prefs.hasPromptedBiometricOnStart = true
+                    showBiometricPromptDialog = false
+                    // We must notify the user to restart or handle state. Actually, it will be handled on next start.
+                }) {
+                    Text(stringResource(R.string.first_launch_bio_yes))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    prefs.requireBiometricOnStart = false
+                    prefs.hasPromptedBiometricOnStart = true
+                    showBiometricPromptDialog = false
+                }) {
+                    Text(stringResource(R.string.first_launch_bio_no))
+                }
+            }
+        )
+    }
 }
 
 @Composable

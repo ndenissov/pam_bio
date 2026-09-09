@@ -182,12 +182,31 @@ class MainActivity : AppCompatActivity() {
         setContent {
             LinuxBiopamTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    var isAuthenticated by remember { mutableStateOf(!requireAuth) }
+                    val prefs = remember { AppPrefs(this@MainActivity) }
+                    val requireBiometric by prefs.getRequireBiometricOnStartFlow().collectAsState(initial = prefs.requireBiometricOnStart)
+                    val disableScreenshots by prefs.getDisableScreenshotsFlow().collectAsState(initial = prefs.disableScreenshots)
                     
-                    if (isAuthenticated) {
-                        PamBioNavigation()
+                    LaunchedEffect(disableScreenshots) {
+                        if (disableScreenshots) {
+                            window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+                        } else {
+                            window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+                        }
+                    }
+
+                    val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                    val canAuthResult = BiometricManager.from(this@MainActivity).canAuthenticate(authenticators)
+                    
+                    if (canAuthResult != BiometricManager.BIOMETRIC_SUCCESS) {
+                        SecurityRequiredScreen()
                     } else {
-                        UnlockScreen(onUnlockSuccess = { isAuthenticated = true })
+                        var isAuthenticated by remember { mutableStateOf(!requireAuth || !requireBiometric) }
+                        
+                        if (isAuthenticated) {
+                            PamBioNavigation()
+                        } else {
+                            UnlockScreen(onUnlockSuccess = { isAuthenticated = true })
+                        }
                     }
                 }
             }
@@ -359,32 +378,32 @@ private fun PostAuthPermissionChecks() {
 }
 
 @Composable
+private fun SecurityRequiredScreen() {
+    val context = LocalContext.current
+    Box(modifier = Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(Icons.Filled.Warning, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.error)
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(stringResource(R.string.security_required_title), style = MaterialTheme.typography.titleLarge)
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(stringResource(R.string.security_required_desc), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.height(32.dp))
+            Button(onClick = {
+                context.startActivity(android.content.Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS))
+            }) {
+                Text(stringResource(R.string.open_security_settings))
+            }
+        }
+    }
+}
+
+@Composable
 private fun UnlockScreen(onUnlockSuccess: () -> Unit) {
     val context = LocalContext.current
     val titleStr = stringResource(R.string.unlock_pambio)
     val subtitleStr = stringResource(R.string.unlock_subtitle)
     
     val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
-    val canAuthResult = BiometricManager.from(context).canAuthenticate(authenticators)
-    
-    if (canAuthResult != BiometricManager.BIOMETRIC_SUCCESS) {
-        Box(modifier = Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Filled.Warning, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.error)
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(stringResource(R.string.security_required_title), style = MaterialTheme.typography.titleLarge)
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(stringResource(R.string.security_required_desc), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
-                Spacer(modifier = Modifier.height(32.dp))
-                Button(onClick = {
-                    context.startActivity(android.content.Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS))
-                }) {
-                    Text(stringResource(R.string.open_security_settings))
-                }
-            }
-        }
-        return
-    }
 
     val showAuth = {
         val activity = context.findActivity() as? MainActivity

@@ -68,6 +68,11 @@
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
 
+        <!-- Receiver for scheduling service start/stop -->
+        <receiver
+            android:name=".service.ScheduleReceiver"
+            android:exported="false" />
+
     </application>
 
 </manifest>
