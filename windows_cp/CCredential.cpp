@@ -131,6 +131,7 @@ HRESULT CCredential::PackAuthenticationBuffer(CREDENTIAL_PROVIDER_CREDENTIAL_SER
 IFACEMETHODIMP CCredential::Advise(ICredentialProviderCredentialEvents *pcpce) { return S_OK; }
 IFACEMETHODIMP CCredential::UnAdvise() { return S_OK; }
 IFACEMETHODIMP CCredential::SetSelected(BOOL *pbAutoLogon) { *pbAutoLogon = FALSE; return S_OK; }
+IFACEMETHODIMP CCredential::SetDeselected() { return S_OK; }
 IFACEMETHODIMP CCredential::SetDeserializedAuthenticationState(DWORD dwState) { return S_OK; }
 IFACEMETHODIMP CCredential::GetBitmapValue(DWORD dwIndex, HBITMAP *phbmp) { return E_NOTIMPL; }
 IFACEMETHODIMP CCredential::GetCheckboxValue(DWORD dwIndex, BOOL *pbChecked, LPWSTR *ppszLabel) { return E_NOTIMPL; }

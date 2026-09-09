@@ -14,6 +14,7 @@ public:
     IFACEMETHODIMP Advise(ICredentialProviderCredentialEvents *pcpce);
     IFACEMETHODIMP UnAdvise();
     IFACEMETHODIMP SetSelected(BOOL *pbAutoLogon);
+    IFACEMETHODIMP SetDeselected();
     IFACEMETHODIMP SetDeserializedAuthenticationState(DWORD dwState);
     IFACEMETHODIMP GetFieldState(DWORD dwIndex, CREDENTIAL_PROVIDER_FIELD_STATE *pcpfs, CREDENTIAL_PROVIDER_FIELD_INTERACTIVE_STATE *pcpfis);
     IFACEMETHODIMP GetStringValue(DWORD dwIndex, LPWSTR *ppsz);

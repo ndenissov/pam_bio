@@ -1,7 +1,8 @@
 #include "common.h"
+#include <winsock2.h>
 #include <windows.h>
+#include <cstdint>
 #include <string>
-#include <winsock2.h> // for htonl/ntohl
 
 #pragma comment(lib, "ws2_32.lib")
 

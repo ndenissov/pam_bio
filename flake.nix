@@ -83,6 +83,18 @@
             echo "PamBio dev shell — Go $(go version | cut -d' ' -f3), GCC $(gcc -dumpversion)"
           '';
         };
+
+        devShells.windows = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            go
+            pkgsCross.mingwW64.stdenv.cc
+            cmake
+          ];
+          shellHook = ''
+            echo "PamBio Windows Cross-Compilation Shell"
+            echo "C++ compiler: x86_64-w64-mingw32-g++"
+          '';
+        };
       }
     )
     //

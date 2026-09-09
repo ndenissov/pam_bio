@@ -158,19 +158,21 @@ func (s *PairedDevicesStore) save() error {
 	return os.WriteFile(s.path, data, 0600)
 }
 
-// AddDevice registers a new paired device. Returns an error if the public key
-// is already registered.
+// AddDevice registers a new paired device. It removes any existing device
+// with the same public key OR the same device name to prevent duplicates.
 func (s *PairedDevicesStore) AddDevice(name, pubKey string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	for i, d := range s.Devices {
-		if d.PublicKey == pubKey {
-			s.Devices[i].PairedAt = time.Now().Unix()
-			s.Devices[i].DeviceName = name
-			return s.save()
+	// Filter out any existing devices with the same name or pubkey
+	filtered := []PairedDevice{}
+	for _, d := range s.Devices {
+		if d.PublicKey != pubKey && d.DeviceName != name {
+			filtered = append(filtered, d)
 		}
 	}
+	s.Devices = filtered
+
 	s.Devices = append(s.Devices, PairedDevice{
 		DeviceName: name,
 		PublicKey:  pubKey,

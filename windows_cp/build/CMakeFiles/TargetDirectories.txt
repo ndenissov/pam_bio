@@ -1,0 +1,3 @@
+/home/nikita/StudioProjects/pam_bio/windows_cp/build/CMakeFiles/pambio_cp.dir
+/home/nikita/StudioProjects/pam_bio/windows_cp/build/CMakeFiles/edit_cache.dir
+/home/nikita/StudioProjects/pam_bio/windows_cp/build/CMakeFiles/rebuild_cache.dir

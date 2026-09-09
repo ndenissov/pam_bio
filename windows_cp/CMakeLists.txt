@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 project(PamBioCP)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /DEF:${CMAKE_CURRENT_SOURCE_DIR}/pam_bio_cp.def")
 
 add_library(pambio_cp SHARED
     dll.cpp
@@ -11,7 +10,14 @@ add_library(pambio_cp SHARED
     CCredential.cpp
     LsaSecret.cpp
     IpcClient.cpp
+    pam_bio_cp.def
 )
+
+set_target_properties(pambio_cp PROPERTIES PREFIX "")
+
+if (MSVC)
+    set_target_properties(pambio_cp PROPERTIES LINK_FLAGS "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/pam_bio_cp.def")
+endif()
 
 target_link_libraries(pambio_cp
     secur32
@@ -20,4 +26,5 @@ target_link_libraries(pambio_cp
     advapi32
     ole32
     user32
+    ws2_32
 )

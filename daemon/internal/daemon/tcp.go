@@ -345,7 +345,17 @@ func (d *Daemon) handleAuthResponse(phone *PhoneConnection, resp *protocol.AuthR
 func (d *Daemon) sendAuthRequest(user, service string) AuthResult {
 	phones := d.getConnectedPhones()
 	if len(phones) == 0 {
-		return AuthResult{Success: false, Reason: "no phones connected"}
+		log.Printf("No phones connected, waiting up to 3s for reconnection...")
+		for i := 0; i < 15; i++ {
+			time.Sleep(200 * time.Millisecond)
+			phones = d.getConnectedPhones()
+			if len(phones) > 0 {
+				break
+			}
+		}
+		if len(phones) == 0 {
+			return AuthResult{Success: false, Reason: "no phones connected"}
+		}
 	}
 
 	nonce := crypto.GenerateNonce()

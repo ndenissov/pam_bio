@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <credentialprovider.h>
 #include <ntsecapi.h>
+#include "guid.h"
 #include <string>
 
 extern long g_cRef;
