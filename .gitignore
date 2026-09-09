@@ -19,3 +19,9 @@ android/local.properties
 
 # OS
 .DS_Store
+
+# Windows build
+windows_cp/build/
+daemon/pambiod.exe
+daemon/pambiod_linux
+

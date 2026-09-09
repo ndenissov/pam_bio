@@ -1,3 +1,0 @@
-/nix/store/908kvhj55s5z7laavf4pddxrxl62rrgl-cmake-4.3.4/bin/cmake -E rm -f CMakeFiles/pambio_cp.dir/objects.a
-/nix/store/1sgsv9jdhk2xjbwi520xw7vpw9njfh1p-x86_64-w64-mingw32-gcc-wrapper-15.3.0/bin/x86_64-w64-mingw32-ar qc CMakeFiles/pambio_cp.dir/objects.a @CMakeFiles/pambio_cp.dir/objects1.rsp
-/nix/store/1sgsv9jdhk2xjbwi520xw7vpw9njfh1p-x86_64-w64-mingw32-gcc-wrapper-15.3.0/bin/x86_64-w64-mingw32-g++ -shared /home/nikita/StudioProjects/pam_bio/windows_cp/pam_bio_cp.def -o pambio_cp.dll -Wl,--out-implib,libpambio_cp.dll.a -Wl,--major-image-version,0,--minor-image-version,0 -Wl,--whole-archive CMakeFiles/pambio_cp.dir/objects.a -Wl,--no-whole-archive @CMakeFiles/pambio_cp.dir/linkLibs.rsp
