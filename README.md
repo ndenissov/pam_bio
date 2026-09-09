@@ -116,7 +116,24 @@ You can install PamBio via the official APT repository:
    ```
    *Note: The `pam-bio` package automatically configures PAM via `pam-auth-update`.*
 
-### 3. Manual Installation (Other Linux Distributions)
+### 3. Windows (Scoop)
+
+PamBio fully supports Windows by integrating as a native Credential Provider, allowing you to unlock your LogonUI screen seamlessly.
+
+1. Add the PamBio scoop bucket:
+   ```powershell
+   scoop bucket add pambio https://github.com/ndenissov/pam_bio
+   ```
+2. Install the daemon and credential provider:
+   ```powershell
+   scoop install pambio
+   ```
+3. Run the pairing command from an Administrator terminal (requires your Windows password to securely store it in LSA Secrets):
+   ```powershell
+   pambiod pair
+   ```
+
+### 4. Manual Installation (Other Linux Distributions)
 
 #### Prerequisites
 *   Go 1.22+
