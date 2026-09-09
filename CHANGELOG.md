@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.0]
+* feat: make biometric auth on app start optional (default off) and add first-launch prompt
+* feat: add setting to disable screenshots for improved privacy
+* feat: add scheduled service restart (timer) using AlarmManager to prevent Android from killing the background service
+* docs: rewrite README.md for SEO and populist tone, add Table of Contents
+
 ## [0.31.8]
 * fix: handle missing lock screen gracefully with new fallback UI
 * fix: avoid InvalidAlgorithmParameterException by removing strict biometric enrollment requirement
