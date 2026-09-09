@@ -115,7 +115,7 @@
     <string name="settings_screenshots_title">Запретить скриншоты</string>
     <string name="settings_screenshots_desc">Запретить создание снимков экрана в приложении (повышает приватность)</string>
     <string name="settings_timer_title">Перезапуск по расписанию</string>
-    <string name="settings_timer_desc">Автоматически отключать сервис на ночь (по умолчанию с 23:00 до 07:00), чтобы Android не "убивал" его.</string>
+    <string name="settings_timer_desc">Автоматически отключать сервис на ночь (по умолчанию с 23:00 до 06:00), чтобы Android не "убивал" его.</string>
     <string name="settings_timer_start">Выключение</string>
     <string name="settings_timer_stop">Включение</string>
 </resources>

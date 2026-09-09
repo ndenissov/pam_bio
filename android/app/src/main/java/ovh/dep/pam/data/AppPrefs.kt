@@ -56,7 +56,7 @@ class AppPrefs(context: Context) {
         set(value) = prefs.edit().putInt("timer_start_minute", value).apply()
 
     var timerStopHour: Int
-        get() = prefs.getInt("timer_stop_hour", 23)
+        get() = prefs.getInt("timer_stop_hour", 6)
         set(value) = prefs.edit().putInt("timer_stop_hour", value).apply()
 
     var timerStopMinute: Int

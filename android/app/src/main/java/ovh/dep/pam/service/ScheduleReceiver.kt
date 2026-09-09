@@ -18,17 +18,18 @@ class ScheduleReceiver : BroadcastReceiver() {
 
         when (intent.action) {
             ACTION_ALARM_START -> {
+                prefs.serviceEnabled = false
+                val serviceIntent = Intent(context, PamBioForegroundService::class.java).apply {
+                    action = PamBioForegroundService.ACTION_STOP
+                }
+                context.startService(serviceIntent)
+            }
+            ACTION_ALARM_STOP -> {
                 prefs.serviceEnabled = true
                 val serviceIntent = Intent(context, PamBioForegroundService::class.java).apply {
                     action = PamBioForegroundService.ACTION_START
                 }
                 ContextCompat.startForegroundService(context, serviceIntent)
-            }
-            ACTION_ALARM_STOP -> {
-                val serviceIntent = Intent(context, PamBioForegroundService::class.java).apply {
-                    action = PamBioForegroundService.ACTION_STOP
-                }
-                context.startService(serviceIntent)
             }
         }
         

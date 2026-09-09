@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.1]
+* fix(android): correct reversed timer logic where start and stop actions were swapped
+
 ## [0.32.0]
 * feat: make biometric auth on app start optional (default off) and add first-launch prompt
 * feat: add setting to disable screenshots for improved privacy

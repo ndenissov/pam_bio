@@ -206,7 +206,7 @@ private fun TimePickerButton(label: String, hour: Int, minute: Int, onTimeSelect
             true // 24-hour format
         ).show()
     }) {
-        Text("$label: ${String.format("%02d:%02d", hour, minute)}")
+        Text("$label: ~${String.format("%02d:%02d", hour, minute)}")
     }
 }
 
