@@ -13,6 +13,8 @@
 // limitations under the License.
 
 
+//go:build !windows
+
 package daemon
 
 import (
@@ -22,17 +24,43 @@ import (
 	"net"
 	"fmt"
 
+	"os"
 	"golang.org/x/sys/unix"
 	"pambio/internal/protocol"
 )
+
+const ipcSocketPath = "/var/run/pambio.sock"
+
+// DialIPC connects to the daemon IPC socket.
+func DialIPC() (net.Conn, error) {
+	return net.Dial("unix", ipcSocketPath)
+}
+
+func (d *Daemon) startIPC() error {
+	_ = os.Remove(ipcSocketPath)
+	unixLn, err := net.Listen("unix", ipcSocketPath)
+	if err != nil {
+		return err
+	}
+	d.ipcListener = unixLn
+	if err := os.Chmod(ipcSocketPath, 0666); err != nil {
+		log.Printf("warning: chmod %s: %v", ipcSocketPath, err)
+	}
+	log.Printf("Unix socket: %s", ipcSocketPath)
+	return nil
+}
+
+func (d *Daemon) cleanupIPC() {
+	_ = os.Remove(ipcSocketPath)
+}
 
 // ──────────────────────────────────────────────
 // Unix socket accept loop
 // ──────────────────────────────────────────────
 
-func (d *Daemon) acceptUnix() {
+func (d *Daemon) acceptIPC() {
 	for {
-		conn, err := d.unixListener.Accept()
+		conn, err := d.ipcListener.Accept()
 		if err != nil {
 			select {
 			case <-d.ctx.Done():
@@ -42,7 +70,7 @@ func (d *Daemon) acceptUnix() {
 				continue
 			}
 		}
-		go d.handleUnixConnection(conn)
+		go d.handleIPCConnection(conn)
 	}
 }
 
@@ -74,7 +102,7 @@ func getUid(conn net.Conn) (uint32, error) {
 	return uid, nil
 }
 
-func (d *Daemon) handleUnixConnection(conn net.Conn) {
+func (d *Daemon) handleIPCConnection(conn net.Conn) {
 	defer func() { _ = conn.Close() }()
 
 	// Trigger a status check to all connected devices on any IPC interaction
@@ -86,7 +114,7 @@ func (d *Daemon) handleUnixConnection(conn net.Conn) {
 		return
 	}
 
-	var req protocol.UnixRequest
+	var req protocol.IPCRequest
 	if err := json.Unmarshal(data, &req); err != nil {
 		log.Printf("unix parse: %v", err)
 		return
@@ -99,7 +127,7 @@ func (d *Daemon) handleUnixConnection(conn net.Conn) {
 		uid, err := getUid(conn)
 		if err != nil || uid != 0 {
 			log.Printf("start_pairing denied: require root (uid=0), got uid=%d (err: %v)", uid, err)
-			_ = protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: "root privileges required"})
+			_ = protocol.WriteJSON(conn, protocol.IPCResponse{Status: "error", Reason: "root privileges required"})
 			return
 		}
 		d.handleStartPairing(conn)
@@ -107,7 +135,7 @@ func (d *Daemon) handleUnixConnection(conn net.Conn) {
 		uid, err := getUid(conn)
 		if err != nil || uid != 0 {
 			log.Printf("unpair denied: require root (uid=0), got uid=%d (err: %v)", uid, err)
-			_ = protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: "root privileges required"})
+			_ = protocol.WriteJSON(conn, protocol.IPCResponse{Status: "error", Reason: "root privileges required"})
 			return
 		}
 		d.handleUnpair(conn, &req)
@@ -115,7 +143,7 @@ func (d *Daemon) handleUnixConnection(conn net.Conn) {
 		d.handleStatus(conn)
 	default:
 		log.Printf("unknown unix action: %s", req.Action)
-		_ = protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: "unknown action"})
+		_ = protocol.WriteJSON(conn, protocol.IPCResponse{Status: "error", Reason: "unknown action"})
 	}
 }
 
@@ -123,12 +151,12 @@ func (d *Daemon) handleUnixConnection(conn net.Conn) {
 // PAM auth request
 // ──────────────────────────────────────────────
 
-func (d *Daemon) handlePAMAuth(conn net.Conn, req *protocol.UnixRequest) {
+func (d *Daemon) handlePAMAuth(conn net.Conn, req *protocol.IPCRequest) {
 	log.Printf("PAM auth: user=%s service=%s", req.User, req.Service)
 
 	result := d.sendAuthRequest(req.User, req.Service)
 
-	resp := protocol.UnixResponse{}
+	resp := protocol.IPCResponse{}
 	if result.Success {
 		resp.Status = "success"
 		if d.cfg.ShowWatermark {
@@ -166,7 +194,7 @@ func (d *Daemon) handleStartPairing(conn net.Conn) {
 	pairingCh := d.startPairing()
 
 	// Send QR data to CLI so it can display it
-	if err := protocol.WriteJSON(conn, protocol.UnixResponse{
+	if err := protocol.WriteJSON(conn, protocol.IPCResponse{
 		Status: "ready",
 		QRData: qrData,
 	}); err != nil {
@@ -178,7 +206,7 @@ func (d *Daemon) handleStartPairing(conn net.Conn) {
 	result := <-pairingCh
 
 	if result.Success {
-		_ = protocol.WriteJSON(conn, protocol.UnixResponse{
+		_ = protocol.WriteJSON(conn, protocol.IPCResponse{
 			Status:     "paired",
 			DeviceName: result.DeviceName,
 		})
@@ -187,7 +215,7 @@ func (d *Daemon) handleStartPairing(conn net.Conn) {
 		if result.Error != nil {
 			errMsg = result.Error.Error()
 		}
-		_ = protocol.WriteJSON(conn, protocol.UnixResponse{
+		_ = protocol.WriteJSON(conn, protocol.IPCResponse{
 			Status: "error",
 			Reason: errMsg,
 		})
@@ -198,13 +226,13 @@ func (d *Daemon) handleStartPairing(conn net.Conn) {
 // Unpair
 // ──────────────────────────────────────────────
 
-func (d *Daemon) handleUnpair(conn net.Conn, req *protocol.UnixRequest) {
+func (d *Daemon) handleUnpair(conn net.Conn, req *protocol.IPCRequest) {
 	if err := d.devices.RemoveDevice(req.Device); err != nil {
-		_ = protocol.WriteJSON(conn, protocol.UnixResponse{Status: "error", Reason: err.Error()})
+		_ = protocol.WriteJSON(conn, protocol.IPCResponse{Status: "error", Reason: err.Error()})
 		return
 	}
 	log.Printf("Device unpaired: %s", req.Device)
-	_ = protocol.WriteJSON(conn, protocol.UnixResponse{Status: "success"})
+	_ = protocol.WriteJSON(conn, protocol.IPCResponse{Status: "success"})
 }
 
 // ──────────────────────────────────────────────
@@ -231,7 +259,7 @@ func (d *Daemon) handleStatus(conn net.Conn) {
 		}
 	}
 
-	_ = protocol.WriteJSON(conn, protocol.UnixResponse{
+	_ = protocol.WriteJSON(conn, protocol.IPCResponse{
 		Status:        "ok",
 		PairedDevices: infos,
 	})

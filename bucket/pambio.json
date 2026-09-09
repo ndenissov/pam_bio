@@ -1,0 +1,33 @@
+{
+    "version": "1.1.0",
+    "description": "PamBio: Biometric authentication for Windows using your Android phone",
+    "homepage": "https://github.com/ndenissov/pam_bio",
+    "license": "Apache-2.0",
+    "architecture": {
+        "64bit": {
+            "url": [
+                "https://github.com/ndenissov/pam_bio/releases/download/v1.1.0/pambiod.exe",
+                "https://github.com/ndenissov/pam_bio/releases/download/v1.1.0/pambio_cp.dll"
+            ]
+        }
+    },
+    "installer": {
+        "script": [
+            "Write-Host 'Registering PamBio Service...'",
+            "New-Service -Name 'pambiod' -DisplayName 'PamBio Daemon' -BinaryPathName \"$dir\\pambiod.exe serve\" -StartupType Automatic | Out-Null",
+            "Start-Service -Name 'pambiod'",
+            "Write-Host 'Registering Credential Provider...'",
+            "regsvr32.exe /s \"$dir\\pambio_cp.dll\""
+        ]
+    },
+    "uninstaller": {
+        "script": [
+            "Write-Host 'Unregistering Credential Provider...'",
+            "regsvr32.exe /s /u \"$dir\\pambio_cp.dll\"",
+            "Write-Host 'Stopping and removing PamBio Service...'",
+            "Stop-Service -Name 'pambiod' -ErrorAction SilentlyContinue",
+            "sc.exe delete pambiod | Out-Null"
+        ]
+    },
+    "bin": "pambiod.exe"
+}

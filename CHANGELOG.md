@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.0]
+* feat(windows): add full support for Windows OS via Custom Credential Provider
+* feat(windows): add Windows Service integration for the `pambiod` daemon
+* feat(windows): implement secure LSA Secrets storage for passwordless LogonUI unlocking
+* feat(windows): add Named Pipes IPC with strict ACLs for local communication
+* feat(windows): create Scoop manifest for easy installation and distribution
+* refactor(daemon): separate Unix socket IPC and Windows Named Pipes IPC for better cross-platform support
+
 ## [0.32.3]
 * chore(android): improve timer UI description for clarity on Android battery optimization
 * fix(android): fix layout of timer buttons in Settings to prevent text wrapping issues

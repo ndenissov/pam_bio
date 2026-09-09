@@ -36,8 +36,6 @@ import (
 )
 
 const (
-	// UnixSocketPath is the well-known IPC path used by the PAM module and CLI.
-	UnixSocketPath = "/var/run/pambio.sock"
 
 	// PairingTimeout limits how long the daemon waits for a phone to pair.
 	PairingTimeout = 5 * time.Minute
@@ -77,8 +75,8 @@ type Daemon struct {
 	privKey   ed25519.PrivateKey
 	pubKey    ed25519.PublicKey
 
-	tcpListener  net.Listener
-	unixListener net.Listener
+	tcpListener net.Listener
+	ipcListener net.Listener
 	tcpPort      int
 
 	// Connected phones keyed by base64 public key
@@ -173,22 +171,15 @@ func (d *Daemon) Start() error {
 	}
 	log.Printf("mDNS: %s._pambio._tcp (port %d)", d.cfg.ServiceName, d.tcpPort)
 
-	// Unix socket
-	_ = os.Remove(UnixSocketPath) // clean up stale socket
-	unixLn, err := net.Listen("unix", UnixSocketPath)
-	if err != nil {
+	// IPC socket/pipe
+	if err := d.startIPC(); err != nil {
 		_ = tcpLn.Close()
 		d.stopMDNS()
-		return fmt.Errorf("unix listen: %w", err)
+		return fmt.Errorf("ipc listen: %w", err)
 	}
-	d.unixListener = unixLn
-	if err := os.Chmod(UnixSocketPath, 0666); err != nil {
-		log.Printf("warning: chmod %s: %v", UnixSocketPath, err)
-	}
-	log.Printf("Unix socket: %s", UnixSocketPath)
 
 	go d.acceptTCP()
-	go d.acceptUnix()
+	go d.acceptIPC()
 
 	return nil
 }
@@ -228,11 +219,11 @@ func (d *Daemon) Stop() {
 	if d.tcpListener != nil {
 		_ = d.tcpListener.Close()
 	}
-	if d.unixListener != nil {
-		_ = d.unixListener.Close()
+	if d.ipcListener != nil {
+		_ = d.ipcListener.Close()
 	}
 	d.stopMDNS()
-	_ = os.Remove(UnixSocketPath)
+	d.cleanupIPC()
 
 	d.phonesMu.Lock()
 	for _, p := range d.phones {

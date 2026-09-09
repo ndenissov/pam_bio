@@ -1,0 +1,6 @@
+LIBRARY "pambio_cp"
+EXPORTS
+    DllCanUnloadNow         PRIVATE
+    DllGetClassObject       PRIVATE
+    DllRegisterServer       PRIVATE
+    DllUnregisterServer     PRIVATE

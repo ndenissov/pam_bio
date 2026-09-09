@@ -134,19 +134,19 @@ type PongMessage struct {
 }
 
 // ──────────────────────────────────────────────
-// Unix socket messages (PAM / CLI ↔ Daemon)
+// IPC messages (PAM / CP / CLI ↔ Daemon)
 // ──────────────────────────────────────────────
 
-// UnixRequest is sent by the PAM module or CLI tool over the Unix socket.
-type UnixRequest struct {
+// IPCRequest is sent by the PAM module, Windows CP, or CLI tool over the IPC socket.
+type IPCRequest struct {
 	Action  string `json:"action"`            // "auth_request", "start_pairing", "unpair", "status"
 	User    string `json:"user,omitempty"`     // for auth_request
 	Service string `json:"service,omitempty"`  // for auth_request
 	Device  string `json:"device,omitempty"`   // for unpair
 }
 
-// UnixResponse is sent by the daemon back over the Unix socket.
-type UnixResponse struct {
+// IPCResponse is sent by the daemon back over the IPC socket.
+type IPCResponse struct {
 	Status         string       `json:"status"`
 	Reason         string       `json:"reason,omitempty"`
 	Watermark      string       `json:"watermark,omitempty"`        // "yes" if PAM module should print watermark

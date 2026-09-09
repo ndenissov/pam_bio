@@ -96,27 +96,17 @@ Copyright:  2026 Nikita Denissov
 `)
 }
 
-// ──────────────────────────────────────────────
-// serve
-// ──────────────────────────────────────────────
 
-func cmdServe(configDir string) {
-	d, err := daemon.New(configDir)
-	if err != nil {
-		log.Fatalf("init: %v", err)
-	}
-	if err := d.Start(); err != nil {
-		log.Fatalf("start: %v", err)
-	}
-	log.Println("pambiod is running. Press Ctrl+C to stop.")
-	d.Wait()
-}
 
 // ──────────────────────────────────────────────
 // pair
 // ──────────────────────────────────────────────
 
 func cmdPair() {
+	if err := platformPrePairing(); err != nil {
+		fmt.Fprintf(os.Stderr, "Pre-pairing setup failed: %v\n", err)
+		os.Exit(1)
+	}
 
 	conn, err := connectDaemon()
 	if err != nil {
@@ -126,13 +116,11 @@ func cmdPair() {
 	}
 	defer func() { _ = conn.Close() }()
 
-	// Request pairing mode
-	if err := protocol.WriteJSON(conn, protocol.UnixRequest{Action: "start_pairing"}); err != nil {
+	if err := protocol.WriteJSON(conn, protocol.IPCRequest{Action: "start_pairing"}); err != nil {
 		log.Fatalf("send: %v", err)
 	}
 
-	// First response: QR data
-	var resp protocol.UnixResponse
+	var resp protocol.IPCResponse
 	if err := protocol.ReadJSON(conn, &resp); err != nil {
 		log.Fatalf("read: %v", err)
 	}
@@ -162,8 +150,7 @@ func cmdPair() {
 	// Generate compact QR code with raw binary payload
 	qrterminal.GenerateHalfBlock(string(rawPayload), qrterminal.L, os.Stdout)
 
-	// Second response: pairing result
-	var result protocol.UnixResponse
+	var result protocol.IPCResponse
 	if err := protocol.ReadJSON(conn, &result); err != nil {
 		log.Fatalf("read result: %v", err)
 	}
@@ -188,9 +175,9 @@ func cmdUnpair(deviceName string) {
 	}
 	defer func() { _ = conn.Close() }()
 
-	_ = protocol.WriteJSON(conn, protocol.UnixRequest{Action: "unpair", Device: deviceName})
+	_ = protocol.WriteJSON(conn, protocol.IPCRequest{Action: "unpair", Device: deviceName})
 
-	var resp protocol.UnixResponse
+	var resp protocol.IPCResponse
 	_ = protocol.ReadJSON(conn, &resp)
 
 	if resp.Status == "success" {
@@ -213,9 +200,9 @@ func cmdStatus() {
 	}
 	defer func() { _ = conn.Close() }()
 
-	_ = protocol.WriteJSON(conn, protocol.UnixRequest{Action: "status"})
+	_ = protocol.WriteJSON(conn, protocol.IPCRequest{Action: "status"})
 
-	var resp protocol.UnixResponse
+	var resp protocol.IPCResponse
 	_ = protocol.ReadJSON(conn, &resp)
 
 	fmt.Println("PamBio Daemon Status")
@@ -238,7 +225,7 @@ func cmdStatus() {
 	}
 }
 
-// connectDaemon dials the pambiod Unix socket.
+// connectDaemon dials the pambiod IPC socket.
 func connectDaemon() (net.Conn, error) {
-	return net.Dial("unix", daemon.UnixSocketPath)
+	return daemon.DialIPC()
 }
