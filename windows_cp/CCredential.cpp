@@ -96,19 +96,19 @@ HRESULT CCredential::PackAuthenticationBuffer(CREDENTIAL_PROVIDER_CREDENTIAL_SER
     // Copy Domain (empty for local)
     pKIL->LogonDomainName.Length = 0;
     pKIL->LogonDomainName.MaximumLength = 0;
-    pKIL->LogonDomainName.Buffer = (PWSTR)pStringData;
+    pKIL->LogonDomainName.Buffer = (PWSTR)((BYTE*)pStringData - pBuffer);
     
     // Copy Username
     pKIL->UserName.Length = username.length() * sizeof(WCHAR);
     pKIL->UserName.MaximumLength = pKIL->UserName.Length;
-    pKIL->UserName.Buffer = (PWSTR)pStringData;
+    pKIL->UserName.Buffer = (PWSTR)((BYTE*)pStringData - pBuffer);
     memcpy(pStringData, username.c_str(), pKIL->UserName.Length);
     pStringData += pKIL->UserName.Length;
     
     // Copy Password
     pKIL->Password.Length = password.length() * sizeof(WCHAR);
     pKIL->Password.MaximumLength = pKIL->Password.Length;
-    pKIL->Password.Buffer = (PWSTR)pStringData;
+    pKIL->Password.Buffer = (PWSTR)((BYTE*)pStringData - pBuffer);
     memcpy(pStringData, password.c_str(), pKIL->Password.Length);
     
     pcpcs->rgbSerialization = pBuffer;
