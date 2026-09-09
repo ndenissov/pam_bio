@@ -25,7 +25,8 @@ If you've ever wanted to **log in to Linux with your phone fingerprint** or use 
 - [Installation & Setup](#installation--setup)
   - [NixOS (Recommended)](#1-nixos-recommended)
   - [Debian / Ubuntu (APT)](#2-debian--ubuntu-apt)
-  - [Manual Installation](#3-manual-installation-other-linux-distributions)
+  - [Windows (Scoop)](#3-windows-scoop)
+  - [Manual Installation](#4-manual-installation-other-linux-distributions)
 - [Pairing Your Device](#pairing-your-device)
 - [Managing Devices](#managing-devices)
 
