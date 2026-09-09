@@ -6,25 +6,41 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/ndenissov/pam_bio?style=social)](https://github.com/ndenissov/pam_bio/stargazers)
 
-**PamBio** is a biometric authentication bridge that allows you to unlock your Linux PC or authenticate `sudo` requests using your Android smartphone's biometric sensors (fingerprint/face unlock) over your local network.
+**PamBio** turns your Android smartphone into a biometric hardware security module for your Linux PC. Unlock your desktop, authenticate `sudo` requests, and log in securely using your phone's fingerprint or face unlock—no YubiKey or extra hardware required.
 
-## Architecture
+If you've ever wanted to **log in to Linux with your phone fingerprint** or use your **Android phone as a security key**, PamBio is exactly what you need.
 
-This repository is structured as a monorepo containing three tightly integrated components:
+## Table of Contents
+- [Why PamBio? (Features)](#why-pambio-features)
+- [Architecture & Security](#architecture--security)
+- [Download Android App](#download-android-app)
+- [Installation & Setup](#installation--setup)
+  - [NixOS (Recommended)](#1-nixos-recommended)
+  - [Debian / Ubuntu (APT)](#2-debian--ubuntu-apt)
+  - [Manual Installation](#3-manual-installation-other-linux-distributions)
+- [Pairing Your Device](#pairing-your-device)
+- [Managing Devices](#managing-devices)
 
-*   **`daemon/` (Go):** The `pambiod` service. It runs on your PC, announces itself on the local network via mDNS, manages secure TCP connections with your phone, and listens for authentication requests from the local system.
-*   **`pam/` (C):** A lightweight PAM (Pluggable Authentication Module) written in pure C. It communicates with `pambiod` over a Unix domain socket to intercept and fulfill authentication requests (like `sudo` or `sddm`).
-*   **`android/` (Kotlin/Compose):** The Android application. It discovers the PC on the network, maintains an encrypted connection, and displays full-screen biometric prompts when the PC requests authentication.
-*   **`protocol/`**: Documentation of the JSON-based communication protocol shared across all components.
+## Why PamBio? (Features)
+- **Convenience:** Stop typing long passwords for `sudo` or lock screens. Use the biometric sensor already in your pocket.
+- **Cost-Effective:** Achieve hardware-level 2FA security without buying an expensive security key.
+- **Local Network Only:** No cloud servers, no accounts. Everything works over your local Wi-Fi.
+- **Secure Cryptography:** Uses state-of-the-art X25519 ECDH, Ed25519, and AES-256-GCM to prevent interception and replay attacks.
 
-## Security
+## Architecture & Security
 
-PamBio is designed with a strong focus on security:
-*   **Local Network Only:** Communication happens strictly over the local network via mDNS discovery and direct TCP connections. No external servers or cloud services are involved.
-*   **Perfect Forward Secrecy:** Every TCP connection begins with an X25519 ECDH key exchange to generate a unique session key.
-*   **AES-256-GCM:** All communication after the handshake is encrypted and authenticated using AES-256-GCM.
-*   **Ed25519 Identity:** Devices are paired using Ed25519 public keys. The Android device signs a cryptographic nonce during every authentication request to prove identity, preventing replay attacks.
-*   **Minimal Attack Surface:** The PAM module (`pam_bio.so`) is written in pure C without external dependencies to guarantee stability and prevent garbage-collection pauses in critical system auth paths.
+PamBio consists of three tightly integrated components:
+
+*   **`daemon/` (Go):** The `pambiod` service. Runs on your PC, announces via mDNS, manages secure TCP connections with your phone, and listens for auth requests.
+*   **`pam/` (C):** A lightweight PAM (Pluggable Authentication Module) written in pure C. It communicates with `pambiod` to intercept and fulfill auth requests (like `sudo` or `sddm`).
+*   **`android/` (Kotlin/Compose):** The Android application. Maintains an encrypted connection and displays full-screen biometric prompts when requested.
+*   **`protocol/`**: Documentation of the JSON-based communication protocol.
+
+### Security Guarantees
+*   **Perfect Forward Secrecy:** Every connection begins with an X25519 ECDH key exchange.
+*   **AES-256-GCM:** All communication is encrypted and authenticated.
+*   **Ed25519 Identity:** The Android device signs a cryptographic nonce during every auth request to prove identity, preventing replay attacks.
+*   **Minimal Attack Surface:** The PAM module (`pam_bio.so`) is written in pure C without external dependencies to guarantee stability in critical system auth paths.
 
 ---
 
