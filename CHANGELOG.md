@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.3]
+* chore(android): improve timer UI description for clarity on Android battery optimization
+* fix(android): fix layout of timer buttons in Settings to prevent text wrapping issues
+* chore(android): add missing translations for EN and ZH locales
+
 ## [0.32.1]
 * fix(android): correct reversed timer logic where start and stop actions were swapped
 

@@ -105,5 +105,16 @@
     <string name="allow">Allow</string>
     <string name="security_required_title">Screen Lock Required</string>
     <string name="security_required_desc">PamBio requires your device to have a secure screen lock (PIN, Password, or Biometrics) to safely store authentication keys.</string>
-    <string name="open_security_settings">Open Security Settings</string>
+    <string name="first_launch_bio_title">Protect app with biometrics?</string>
+    <string name="first_launch_bio_text">By default, opening the app does not require biometrics because it doesn\'t grant access to your PC. However, an unauthorized person could see the request history or delete paired PCs. Do you want to require biometrics every time you open the app?</string>
+    <string name="first_launch_bio_yes">Yes, protect it</string>
+    <string name="first_launch_bio_no">No, leave it as is</string>
+    <string name="settings_bio_title">Biometric Login</string>
+    <string name="settings_bio_desc">Require biometrics when opening the app</string>
+    <string name="settings_screenshots_title">Prevent Screenshots</string>
+    <string name="settings_screenshots_desc">Block screenshots inside the app (improves privacy)</string>
+    <string name="settings_timer_title">Scheduled Restart</string>
+    <string name="settings_timer_desc">Automatically pause the service at night (default 23:00 to 06:00). Android will choose the optimal time to save battery, but the service is 100% guaranteed to start as soon as you pick up your phone in the morning.</string>
+    <string name="settings_timer_start">Turn Off</string>
+    <string name="settings_timer_stop">Turn On</string>
 </resources>

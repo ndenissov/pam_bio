@@ -113,9 +113,9 @@
     <string name="settings_bio_title">Вход по биометрии</string>
     <string name="settings_bio_desc">Требовать биометрию при открытии приложения</string>
     <string name="settings_screenshots_title">Запретить скриншоты</string>
-    <string name="settings_screenshots_desc">Запретить создание снимков экрана в приложении (повышает приватность)</string>
+    <string name="settings_screenshots_desc">Запретить скриншоты в приложении (повышает приватность)</string>
     <string name="settings_timer_title">Перезапуск по расписанию</string>
-    <string name="settings_timer_desc">Автоматически отключать сервис на ночь (по умолчанию с 23:00 до 06:00), чтобы Android не "убивал" его.</string>
+    <string name="settings_timer_desc">Автоматически отключать сервис на ночь (по умолчанию с 23:00 до 06:00). Android сам выберет оптимальное время для экономии батареи, но сервис 100% запустится как только вы возьмете телефон в руки утром.</string>
     <string name="settings_timer_start">Выключение</string>
     <string name="settings_timer_stop">Включение</string>
 </resources>

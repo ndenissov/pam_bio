@@ -106,5 +106,16 @@
     <string name="update_skip_btn">跳过</string>
     <string name="security_required_title">需要屏幕锁定</string>
     <string name="security_required_desc">PamBio 需要您的设备设置安全的屏幕锁定（PIN、密码或生物识别）以安全地存储身份验证密钥。</string>
-    <string name="open_security_settings">打开安全设置</string>
+    <string name="first_launch_bio_title">启用生物识别保护？</string>
+    <string name="first_launch_bio_text">默认情况下，打开应用不需要生物识别，因为这不会授予对您电脑的访问权限。然而，未经授权的人可能会看到请求历史记录或删除已配对的电脑。您希望每次打开应用时都要求生物识别吗？</string>
+    <string name="first_launch_bio_yes">是的，开启保护</string>
+    <string name="first_launch_bio_no">不，保持原样</string>
+    <string name="settings_bio_title">生物识别登录</string>
+    <string name="settings_bio_desc">打开应用时需要生物识别</string>
+    <string name="settings_screenshots_title">禁止屏幕截图</string>
+    <string name="settings_screenshots_desc">阻止在应用内进行屏幕截图（提高隐私性）</string>
+    <string name="settings_timer_title">定时重启</string>
+    <string name="settings_timer_desc">在夜间自动暂停服务（默认 23:00 至 06:00）。Android 将选择最佳时间以节省电池，但当您在早晨拿起手机时，服务 100% 保证会启动。</string>
+    <string name="settings_timer_start">关闭时间</string>
+    <string name="settings_timer_stop">开启时间</string>
 </resources>

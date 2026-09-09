@@ -101,8 +101,9 @@ fun SettingsScreen(
             )
 
             if (enableTimer) {
-                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
                     TimePickerButton(
+                        modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
                         label = stringResource(R.string.settings_timer_start),
                         hour = startHour,
                         minute = startMinute,
@@ -115,6 +116,7 @@ fun SettingsScreen(
                         }
                     )
                     TimePickerButton(
+                        modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
                         label = stringResource(R.string.settings_timer_stop),
                         hour = stopHour,
                         minute = stopMinute,
@@ -195,18 +197,24 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun TimePickerButton(label: String, hour: Int, minute: Int, onTimeSelected: (Int, Int) -> Unit) {
+private fun TimePickerButton(modifier: Modifier = Modifier, label: String, hour: Int, minute: Int, onTimeSelected: (Int, Int) -> Unit) {
     val context = LocalContext.current
-    OutlinedButton(onClick = {
-        android.app.TimePickerDialog(
-            context,
-            { _, h, m -> onTimeSelected(h, m) },
-            hour,
-            minute,
-            true // 24-hour format
-        ).show()
-    }) {
-        Text("$label: ~${String.format("%02d:%02d", hour, minute)}")
+    OutlinedButton(
+        modifier = modifier,
+        onClick = {
+            android.app.TimePickerDialog(
+                context,
+                { _, h, m -> onTimeSelected(h, m) },
+                hour,
+                minute,
+                true // 24-hour format
+            ).show()
+        }
+    ) {
+        Text(
+            text = "$label:\n~${String.format("%02d:%02d", hour, minute)}",
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
     }
 }
 
