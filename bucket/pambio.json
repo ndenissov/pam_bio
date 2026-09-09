@@ -8,6 +8,10 @@
             "url": [
                 "https://github.com/ndenissov/pam_bio/releases/download/v0.33.1/pambiod.exe",
                 "https://github.com/ndenissov/pam_bio/releases/download/v0.33.1/pambio_cp.dll"
+            ],
+            "hash": [
+                "dbb0a077ac62ca81916c6145b0bb22327ccc664e764c1d45c6b1877ac2f3fc48",
+                "a3b0140b33511ee16073606d147bc19d576a95db8a6476c7677f6c3c8d1fc6c3"
             ]
         }
     },
