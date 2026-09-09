@@ -33,9 +33,9 @@
         packages = rec {
           pambiod = pkgs.buildGoModule {
             pname = "pambiod";
-            version = "0.28.0";
+            version = "0.33.1";
             src = ./daemon;
-            vendorHash = "sha256-eARV70icujfRhxKmorKg5jz1f81fL9pUk/RPGp1/yeQ=";
+            vendorHash = "sha256-aHTUcUyqMdUF+pliOt+j0BzMLriLIYopPRIWRzJ2/7Q=";
             subPackages = [ "cmd/pambiod" ];
             meta = {
               description = "PamBio daemon — biometric auth relay";
@@ -46,7 +46,7 @@
 
           pam_bio = pkgs.stdenv.mkDerivation {
             pname = "pam-bio";
-            version = "0.28.0";
+            version = "0.33.1";
             src = ./pam;
 
             buildInputs = [ pkgs.pam ];
