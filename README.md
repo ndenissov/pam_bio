@@ -10,6 +10,14 @@
 
 If you've ever wanted to **log in to Linux with your phone fingerprint** or use your **Android phone as a security key**, PamBio is exactly what you need.
 
+<p align="center">
+  <img src="screenshots/en_home.jpg" width="19%" />
+  <img src="screenshots/en_request.jpg" width="19%" />
+  <img src="screenshots/en_pairing.jpg" width="19%" />
+  <img src="screenshots/en_history.jpg" width="19%" />
+  <img src="screenshots/en_settings.jpg" width="19%" />
+</p>
+
 ## Table of Contents
 - [Why PamBio? (Features)](#why-pambio-features)
 - [Architecture & Security](#architecture--security)
@@ -26,6 +34,7 @@ If you've ever wanted to **log in to Linux with your phone fingerprint** or use 
 - **Cost-Effective:** Achieve hardware-level 2FA security without buying an expensive security key.
 - **Local Network Only:** No cloud servers, no accounts. Everything works over your local Wi-Fi.
 - **Secure Cryptography:** Uses state-of-the-art X25519 ECDH, Ed25519, and AES-256-GCM to prevent interception and replay attacks.
+- **Multilingual:** The Android app natively supports English, Russian (Русский), and Chinese (中文) interfaces.
 
 ## Architecture & Security
 
