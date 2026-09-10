@@ -1,4 +1,4 @@
-# PamBio
+# PAM Bio
 
 [![Go](https://img.shields.io/badge/Go-1.22-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![C](https://img.shields.io/badge/C-PAM%20Module-A8B9CC?logo=c&logoColor=white)](https://en.wikipedia.org/wiki/C_(programming_language))
@@ -6,9 +6,9 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/ndenissov/pam_bio?style=social)](https://github.com/ndenissov/pam_bio/stargazers)
 
-**PamBio** turns your Android smartphone into a biometric hardware security module for your Linux or Windows PC. Unlock your desktop, authenticate `sudo` requests, or bypass the Windows lock screen using your phone's fingerprint or face unlock—no YubiKey or extra hardware required.
+**PAM Bio** turns your Android smartphone into a biometric hardware security module for your Linux or Windows PC. Unlock your desktop, authenticate `sudo` requests, or bypass the Windows lock screen using your phone's fingerprint or face unlock—no YubiKey or extra hardware required.
 
-If you've ever wanted to **log in to Windows or Linux with your phone fingerprint**, use your **Android phone as a Windows Hello alternative**, or treat your **Android device as a security key**, PamBio is exactly what you need.
+If you've ever wanted to **log in to Windows or Linux with your phone fingerprint**, use your **Android phone as a Windows Hello alternative**, or treat your **Android device as a security key**, PAM Bio is exactly what you need.
 
 <p align="center">
   <img src="screenshots/en_home.jpg" width="19%" />
@@ -19,7 +19,7 @@ If you've ever wanted to **log in to Windows or Linux with your phone fingerprin
 </p>
 
 ## Table of Contents
-- [Why PamBio? (Features)](#why-pambio-features)
+- [Why PAM Bio? (Features)](#why-pambio-features)
 - [Architecture & Security](#architecture--security)
 - [Download Android App](#download-android-app)
 - [Installation & Setup](#installation--setup)
@@ -30,7 +30,7 @@ If you've ever wanted to **log in to Windows or Linux with your phone fingerprin
 - [Pairing Your Device](#pairing-your-device)
 - [Managing Devices](#managing-devices)
 
-## Why PamBio? (Features)
+## Why PAM Bio? (Features)
 - **Convenience:** Stop typing long passwords for `sudo` or lock screens. Use the biometric sensor already in your pocket.
 - **Cost-Effective:** Achieve hardware-level 2FA security without buying an expensive security key.
 - **Local Network Only:** No cloud servers, no accounts. Everything works over your local Wi-Fi.
@@ -39,7 +39,7 @@ If you've ever wanted to **log in to Windows or Linux with your phone fingerprin
 
 ## Architecture & Security
 
-PamBio consists of three tightly integrated components:
+PAM Bio consists of three tightly integrated components:
 
 *   **`daemon/` (Go):** The `pambiod` service. Runs on your PC, announces via mDNS, manages secure TCP connections with your phone, and listens for auth requests.
 *   **`pam/` (C):** A lightweight PAM (Pluggable Authentication Module) written in pure C. It communicates with `pambiod` to intercept and fulfill auth requests (like `sudo`, `gdm`, or `sddm`).
@@ -72,9 +72,9 @@ To minimize app size and improve performance, the release APKs are obfuscated an
 
 ### 1. NixOS (Recommended)
 
-PamBio comes with a Nix Flake that makes installation on NixOS trivial.
+PAM Bio comes with a Nix Flake that makes installation on NixOS trivial.
 
-1.  Add PamBio to your `flake.nix` inputs:
+1.  Add PAM Bio to your `flake.nix` inputs:
     ```nix
     inputs.pambio.url = "github:ndenissov/pam_bio";
     ```
@@ -96,7 +96,7 @@ PamBio comes with a Nix Flake that makes installation on NixOS trivial.
 
 ### 2. Debian / Ubuntu (APT)
 
-You can install PamBio via the official APT repository:
+You can install PAM Bio via the official APT repository:
 
 1. Add the repository to your sources list:
    ```bash
@@ -119,9 +119,9 @@ You can install PamBio via the official APT repository:
 
 ### 3. Windows (Scoop)
 
-PamBio fully supports Windows by integrating as a native Credential Provider, allowing you to unlock your LogonUI screen seamlessly.
+PAM Bio fully supports Windows by integrating as a native Credential Provider, allowing you to unlock your LogonUI screen seamlessly.
 
-1. Add the PamBio scoop bucket:
+1. Add the PAM Bio scoop bucket:
    ```powershell
    scoop bucket add pambio https://github.com/ndenissov/pam_bio
    ```
@@ -131,7 +131,7 @@ PamBio fully supports Windows by integrating as a native Credential Provider, al
    ```
 3. **Firewall:** Windows Defender Firewall often blocks mDNS discovery out-of-the-box. You MUST allow inbound UDP traffic on port 5353 globally (not just for the process) so your phone can discover the PC on the local network. Run this as Administrator:
    ```powershell
-   New-NetFirewallRule -DisplayName "PamBio mDNS" -Direction Inbound -Protocol UDP -LocalPort 5353 -Action Allow
+   New-NetFirewallRule -DisplayName "PAM Bio mDNS" -Direction Inbound -Protocol UDP -LocalPort 5353 -Action Allow
    ```
 4. Run the pairing command from an Administrator terminal (requires your Windows password to securely store it in LSA Secrets):
    ```powershell
@@ -180,7 +180,7 @@ auth sufficient pam_bio.so
     pambiod pair
     ```
     This will display a QR code in your terminal.
-2.  **On your Android device**, open the PamBio app and tap **"Добавить ПК"** (Add PC).
+2.  **On your Android device**, open the PAM Bio app and tap **"Добавить ПК"** (Add PC).
 3.  Scan the QR code displayed on your PC screen.
 4.  Once paired, ensure the service switch in the Android app is turned on.
 
