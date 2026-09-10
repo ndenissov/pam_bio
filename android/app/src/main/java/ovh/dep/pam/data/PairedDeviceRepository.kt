@@ -24,6 +24,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -82,11 +83,8 @@ class PairedDeviceRepository(private val context: Context) {
 
     /** Returns a snapshot of all devices (suspend variant). */
     suspend fun getAll(): List<PairedDevice> {
-        var result = emptyList<PairedDevice>()
-        context.dataStore.edit { prefs ->
-            result = getDeviceList(prefs)
-        }
-        return result
+        val prefs = context.dataStore.data.first()
+        return getDeviceList(prefs)
     }
 
     private fun getDeviceList(prefs: Preferences): List<PairedDevice> {

@@ -25,7 +25,7 @@ android {
         applicationId = "ovh.dep.pam"
         minSdk = 26
         targetSdk = 36
-        versionCode = 45
+        versionCode = 47
         versionName = "0.33.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -56,9 +56,10 @@ android {
         }
     }
     
+    val isBuildingBundle = gradle.startParameter.taskNames.any { it.contains("bundle", ignoreCase = true) || it.contains("Bundle") }
     splits {
         abi {
-            isEnable = true
+            isEnable = !isBuildingBundle
             reset()
             include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
             isUniversalApk = true
