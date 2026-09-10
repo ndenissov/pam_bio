@@ -129,7 +129,11 @@ PamBio fully supports Windows by integrating as a native Credential Provider, al
    ```powershell
    scoop install pambio
    ```
-3. Run the pairing command from an Administrator terminal (requires your Windows password to securely store it in LSA Secrets):
+3. **Firewall:** Windows Defender Firewall often blocks mDNS discovery out-of-the-box. You MUST allow inbound UDP traffic on port 5353 globally (not just for the process) so your phone can discover the PC on the local network. Run this as Administrator:
+   ```powershell
+   New-NetFirewallRule -DisplayName "PamBio mDNS" -Direction Inbound -Protocol UDP -LocalPort 5353 -Action Allow
+   ```
+4. Run the pairing command from an Administrator terminal (requires your Windows password to securely store it in LSA Secrets):
    ```powershell
    pambiod pair
    ```
