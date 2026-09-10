@@ -8,6 +8,8 @@
 extern bool SendIpcAuthRequest();
 extern std::wstring GetLsaSecret(LPCWSTR secretName);
 extern std::wstring GetTargetUsername();
+extern std::wstring GetTargetDomain();
+extern void LogDebug(const std::wstring& msg);
 
 CCredential::CCredential() : _cRef(1) { DllAddRef(); }
 CCredential::~CCredential() { DllRelease(); }
@@ -71,8 +73,16 @@ IFACEMETHODIMP CCredential::GetSerialization(CREDENTIAL_PROVIDER_GET_SERIALIZATI
 HRESULT CCredential::PackAuthenticationBuffer(CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION *pcpcs) {
     std::wstring password = GetLsaSecret(L"PamBioPassword");
     std::wstring username = GetTargetUsername();
+    std::wstring domain = GetTargetDomain();
     
-    if (password.empty() || username.empty()) return E_FAIL;
+    LogDebug(L"PackAuthenticationBuffer called.");
+    LogDebug(L"Username retrieved: '" + username + L"'");
+    LogDebug(L"Domain retrieved: '" + domain + L"'");
+    
+    if (password.empty() || username.empty()) {
+        LogDebug(L"FAIL: password or username is empty.");
+        return E_FAIL;
+    }
 
     // We must serialize it into KERB_INTERACTIVE_LOGON format
     ULONG ulAuthPackage = 0;
@@ -80,8 +90,9 @@ HRESULT CCredential::PackAuthenticationBuffer(CREDENTIAL_PROVIDER_CREDENTIAL_SER
     
     // Compute total size: sizeof(KERB_INTERACTIVE_LOGON) + strings
     ulSize = sizeof(KERB_INTERACTIVE_LOGON) + 
-             (username.length() * sizeof(WCHAR)) + 
-             (password.length() * sizeof(WCHAR));
+             ((domain.length() + 1) * sizeof(WCHAR)) + 
+             ((username.length() + 1) * sizeof(WCHAR)) + 
+             ((password.length() + 1) * sizeof(WCHAR));
              
     BYTE* pBuffer = (BYTE*)CoTaskMemAlloc(ulSize);
     if (!pBuffer) return E_OUTOFMEMORY;
@@ -93,21 +104,23 @@ HRESULT CCredential::PackAuthenticationBuffer(CREDENTIAL_PROVIDER_CREDENTIAL_SER
     
     BYTE* pStringData = pBuffer + sizeof(KERB_INTERACTIVE_LOGON);
     
-    // Copy Domain (empty for local)
-    pKIL->LogonDomainName.Length = 0;
-    pKIL->LogonDomainName.MaximumLength = 0;
+    // Copy Domain
+    pKIL->LogonDomainName.Length = domain.length() * sizeof(WCHAR);
+    pKIL->LogonDomainName.MaximumLength = pKIL->LogonDomainName.Length + sizeof(WCHAR);
     pKIL->LogonDomainName.Buffer = (PWSTR)((BYTE*)pStringData - pBuffer);
+    memcpy(pStringData, domain.c_str(), pKIL->LogonDomainName.Length);
+    pStringData += pKIL->LogonDomainName.MaximumLength;
     
     // Copy Username
     pKIL->UserName.Length = username.length() * sizeof(WCHAR);
-    pKIL->UserName.MaximumLength = pKIL->UserName.Length;
+    pKIL->UserName.MaximumLength = pKIL->UserName.Length + sizeof(WCHAR);
     pKIL->UserName.Buffer = (PWSTR)((BYTE*)pStringData - pBuffer);
     memcpy(pStringData, username.c_str(), pKIL->UserName.Length);
-    pStringData += pKIL->UserName.Length;
+    pStringData += pKIL->UserName.MaximumLength;
     
     // Copy Password
     pKIL->Password.Length = password.length() * sizeof(WCHAR);
-    pKIL->Password.MaximumLength = pKIL->Password.Length;
+    pKIL->Password.MaximumLength = pKIL->Password.Length + sizeof(WCHAR);
     pKIL->Password.Buffer = (PWSTR)((BYTE*)pStringData - pBuffer);
     memcpy(pStringData, password.c_str(), pKIL->Password.Length);
     

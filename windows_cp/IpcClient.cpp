@@ -10,9 +10,18 @@ bool SendIpcAuthRequest() {
     HANDLE hPipe = CreateFileW(L"\\\\.\\pipe\\pambio", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
     if (hPipe == INVALID_HANDLE_VALUE) return false;
     
-    // Determine user via GetUserName or similar, for now hardcode or pass empty to let daemon figure it out?
-    // LogonUI doesn't have an active user context always, but we can pass generic user string
-    std::string reqJson = "{\"action\":\"auth_request\",\"user\":\"WindowsUser\",\"service\":\"logonui\"}";
+    // Get target username
+    extern std::wstring GetTargetUsername();
+    std::wstring wuser = GetTargetUsername();
+    std::string user = "WindowsUser";
+    if (!wuser.empty()) {
+        int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wuser[0], (int)wuser.size(), NULL, 0, NULL, NULL);
+        std::string strTo(size_needed, 0);
+        WideCharToMultiByte(CP_UTF8, 0, &wuser[0], (int)wuser.size(), &strTo[0], size_needed, NULL, NULL);
+        user = strTo;
+    }
+    
+    std::string reqJson = "{\"action\":\"auth_request\",\"user\":\"" + user + "\",\"service\":\"Windows Logon\"}";
     
     uint32_t len = htonl((uint32_t)reqJson.length());
     DWORD written;
