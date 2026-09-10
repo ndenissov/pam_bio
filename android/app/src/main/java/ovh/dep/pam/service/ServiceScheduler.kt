@@ -14,9 +14,11 @@ object ServiceScheduler {
 
         val startIntent = Intent(context, ScheduleReceiver::class.java).apply {
             action = ScheduleReceiver.ACTION_ALARM_START
+            setPackage(context.packageName)
         }
         val stopIntent = Intent(context, ScheduleReceiver::class.java).apply {
             action = ScheduleReceiver.ACTION_ALARM_STOP
+            setPackage(context.packageName)
         }
 
         val startPendingIntent = PendingIntent.getBroadcast(
