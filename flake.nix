@@ -121,7 +121,7 @@
               description = "Add pam_bio to sudo PAM stack.";
             };
 
-            enableSddmAuth = lib.mkOption {
+            enableLockScreenAuth = lib.mkOption {
               type = lib.types.bool;
               default = false;
               description = "Add pam_bio to SDDM PAM stack.";
@@ -204,8 +204,8 @@
                   modulePath = "${pambioPkgs.pam_bio}/lib/security/pam_bio.so";
                 };
               })
-              (lib.mkIf cfg.enableSddmAuth {
-                sddm.rules.auth.pambio = {
+              (lib.mkIf cfg.enableLockScreenAuth {
+                lockScreen.rules.auth.pambio = {
                   order = 100;
                   control = "sufficient";
                   modulePath = "${pambioPkgs.pam_bio}/lib/security/pam_bio.so";
