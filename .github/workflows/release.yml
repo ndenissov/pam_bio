@@ -86,12 +86,10 @@ jobs:
         run: |
           if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
             echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
-            cat <<EOF > android/app/keystore.properties
-            storeFile=release.keystore
-            storePassword=$ANDROID_KEYSTORE_PASSWORD
-            keyAlias=$ANDROID_KEY_ALIAS
-            keyPassword=$ANDROID_KEY_PASSWORD
-            EOF
+            echo "storeFile=release.keystore" > android/app/keystore.properties
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD" >> android/app/keystore.properties
+            echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/app/keystore.properties
+            echo "keyPassword=$ANDROID_KEY_PASSWORD" >> android/app/keystore.properties
           else
             echo "No Android Keystore secrets found. Building unsigned APK."
           fi
