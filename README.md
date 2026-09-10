@@ -6,9 +6,9 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/ndenissov/pam_bio?style=social)](https://github.com/ndenissov/pam_bio/stargazers)
 
-**PamBio** turns your Android smartphone into a biometric hardware security module for your Linux PC. Unlock your desktop, authenticate `sudo` requests, and log in securely using your phone's fingerprint or face unlock—no YubiKey or extra hardware required.
+**PamBio** turns your Android smartphone into a biometric hardware security module for your Linux or Windows PC. Unlock your desktop, authenticate `sudo` requests, or bypass the Windows lock screen using your phone's fingerprint or face unlock—no YubiKey or extra hardware required.
 
-If you've ever wanted to **log in to Linux with your phone fingerprint** or use your **Android phone as a security key**, PamBio is exactly what you need.
+If you've ever wanted to **log in to Windows or Linux with your phone fingerprint**, use your **Android phone as a Windows Hello alternative**, or treat your **Android device as a security key**, PamBio is exactly what you need.
 
 <p align="center">
   <img src="screenshots/en_home.jpg" width="19%" />
@@ -42,7 +42,7 @@ If you've ever wanted to **log in to Linux with your phone fingerprint** or use 
 PamBio consists of three tightly integrated components:
 
 *   **`daemon/` (Go):** The `pambiod` service. Runs on your PC, announces via mDNS, manages secure TCP connections with your phone, and listens for auth requests.
-*   **`pam/` (C):** A lightweight PAM (Pluggable Authentication Module) written in pure C. It communicates with `pambiod` to intercept and fulfill auth requests (like `sudo` or `sddm`).
+*   **`pam/` (C):** A lightweight PAM (Pluggable Authentication Module) written in pure C. It communicates with `pambiod` to intercept and fulfill auth requests (like `sudo`, `gdm`, or `sddm`).
 *   **`android/` (Kotlin/Compose):** The Android application. Maintains an encrypted connection and displays full-screen biometric prompts when requested.
 *   **`protocol/`**: Documentation of the JSON-based communication protocol.
 
@@ -86,7 +86,7 @@ PamBio comes with a Nix Flake that makes installation on NixOS trivial.
       services.pambio = {
         enable = true;
         enableSudoAuth = true; # Use biometrics for sudo
-        enableSddmAuth = true; # Use biometrics for SDDM login
+        enableLockScreenAuth = true; # Use biometrics for login / lock screen
         # port = 34907;        # Set static port (default is 34907)
         # openFirewall = true; # Open port in firewall automatically
       };
