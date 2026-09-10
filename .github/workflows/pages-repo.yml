@@ -1,0 +1,111 @@
+name: Update APT and F-Droid Repositories
+on:
+  workflow_run:
+    workflows: ["Build and Release"]
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-repos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y reprepro fdroidserver jq
+
+      - name: Download Latest Release Artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p artifacts
+          cd artifacts
+          TAG=$(curl -sH "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r .tag_name)
+          echo "Downloading artifacts for release $TAG"
+          gh release download "$TAG" --repo "${{ github.repository }}" || echo "Failed to download some artifacts, or none present"
+
+      - name: Build APT Repository
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          mkdir -p public/apt/conf
+          cat <<EOF > public/apt/conf/distributions
+          Origin: PAM Bio
+          Label: PAM Bio APT Repository
+          Codename: stable
+          Architectures: amd64 arm64
+          Components: main
+          Description: Official PAM Bio Debian Repository
+          SignWith: yes
+          EOF
+          
+          # Import GPG key
+          echo "$GPG_PRIVATE_KEY" | gpg --import
+          # Export public key for users
+          gpg --armor --export > public/apt/public.key
+          
+          # Add all deb files to the repository
+          cd public/apt
+          for deb in ../../artifacts/*.deb; do
+            if [ -f "$deb" ]; then
+              reprepro includedeb stable "$deb"
+            fi
+          done
+          rm -rf conf db
+
+      - name: Build F-Droid Repository
+        env:
+          FDROID_KEYSTORE_BASE64: ${{ secrets.FDROID_KEYSTORE_BASE64 }}
+          FDROID_KEYSTORE_PASSWORD: ${{ secrets.FDROID_KEYSTORE_PASSWORD }}
+        run: |
+          mkdir -p public/fdroid/repo
+          
+          # Decode keystore
+          echo "$FDROID_KEYSTORE_BASE64" | base64 -d > public/fdroid/keystore.p12
+          
+          # Configure F-Droid config.yml
+          cat <<EOF > public/fdroid/config.yml
+          repo_url: "https://${{ github.repository_owner }}.github.io/pam_bio/fdroid/repo"
+          repo_name: "PAM Bio Official Repository"
+          repo_icon: ""
+          repo_description: "Biometric authentication via Android"
+          keystore: "keystore.p12"
+          keystorepass: "$FDROID_KEYSTORE_PASSWORD"
+          keypass: "$FDROID_KEYSTORE_PASSWORD"
+          keydname: "CN=pam_bio, OU=F-Droid, O=PAM Bio, L=Internet, C=US"
+          EOF
+          
+          # Copy APKs
+          cp artifacts/*.apk public/fdroid/repo/ 2>/dev/null || true
+          
+          # Generate F-Droid index
+          cd public/fdroid
+          fdroid update -c
+          
+          # Clean up keystore and config so they are not served
+          rm keystore.p12 config.yml
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './public'
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

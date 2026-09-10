@@ -1,3 +1,6 @@
 /build
 keystore.properties
 *.keystore
+*.zip
+*.pem
+*.jar

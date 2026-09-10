@@ -3,6 +3,7 @@
 [![Go](https://img.shields.io/badge/Go-1.22-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![C](https://img.shields.io/badge/C-PAM%20Module-A8B9CC?logo=c&logoColor=white)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Android](https://img.shields.io/badge/Android-Compose-3DDC84?logo=android&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![IzzyOnDroid](https://img.shields.io/badge/F--Droid-IzzyOnDroid-34C759?logo=fdroid&logoColor=white)](https://apt.izzysoft.de/fdroid/index/apk/ovh.dep.pam)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/ndenissov/pam_bio?style=social)](https://github.com/ndenissov/pam_bio/stargazers)
 
@@ -56,10 +57,19 @@ PAM Bio consists of three tightly integrated components:
 
 ## Download Android App
 
-The Android app is currently in preparation for a **Google Play Store** release!
+<a href="https://apt.izzysoft.de/fdroid/index/apk/ovh.dep.pam">
+  <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="60">
+</a>
+
+The Android app can be downloaded via F-Droid using the [IzzyOnDroid](https://apt.izzysoft.de/fdroid/) repository. Once you add the IzzyOnDroid repo to your F-Droid client, you can search for "PAM Bio" and install it, allowing for automatic updates.
+
+Alternatively, you can add our official **PAM Bio F-Droid Repository** directly to your F-Droid client to get updates directly from our releases:
+`https://ndenissov.github.io/pam_bio/fdroid/repo`
+
+It is also currently in preparation for a **Google Play Store** release!
 While it is not yet available, you can follow my [Google Play Developer Page](https://play.google.com/store/apps/dev?id=7887460610476705873) for updates. I am also looking for volunteers to participate in the closed beta test on Google Play — if you're interested, please open an issue or reach out.
 
-In the meantime, you can download the pre-compiled **Split APKs** from the GitHub Releases page. 
+In the meantime, you can also download the pre-compiled **Split APKs** directly from the GitHub Releases page. 
 To minimize app size and improve performance, the release APKs are obfuscated and split by CPU architecture:
 *   **`arm64-v8a`**: This is the architecture for **almost all modern smartphones**. If you are unsure, download this one.
 *   **`armeabi-v7a`**: For older 32-bit devices.
@@ -96,13 +106,17 @@ PAM Bio comes with a Nix Flake that makes installation on NixOS trivial.
 
 ### 2. Debian / Ubuntu (APT)
 
-You can install PAM Bio via the official APT repository:
+You can install PAM Bio via the official APT repository hosted on GitHub Pages:
 
-1. Add the repository to your sources list:
+1. Import the repository GPG key:
    ```bash
-   echo "deb [trusted=yes] https://apt.dep.ovh/ /" | sudo tee /etc/apt/sources.list.d/pambio.list
+   curl -fsSL https://ndenissov.github.io/pam_bio/apt/public.key | sudo gpg --dearmor -o /usr/share/keyrings/pambio-archive-keyring.gpg
    ```
-2. Update and install:
+2. Add the repository to your sources list:
+   ```bash
+   echo "deb [signed-by=/usr/share/keyrings/pambio-archive-keyring.gpg] https://ndenissov.github.io/pam_bio/apt stable main" | sudo tee /etc/apt/sources.list.d/pambio.list
+   ```
+3. Update and install:
    ```bash
    sudo apt update
    sudo apt install pam-bio

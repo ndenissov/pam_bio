@@ -6,10 +6,11 @@ docker run --rm -it --network host --name pambio-test ubuntu:latest /bin/bash -c
 echo '>>> Updating and installing prerequisites...'
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq >/dev/null
-apt-get install -y -qq sudo curl >/dev/null 2>&1
+apt-get install -y -qq sudo curl gpg ca-certificates >/dev/null 2>&1
 
-echo '>>> Adding apt.dep.ovh repository...'
-echo 'deb [trusted=yes] https://apt.dep.ovh/ /' > /etc/apt/sources.list.d/pambio.list
+echo '>>> Adding GitHub Pages APT repository...'
+curl -fsSL https://ndenissov.github.io/pam_bio/apt/public.key | gpg --dearmor -o /usr/share/keyrings/pambio-archive-keyring.gpg
+echo 'deb [signed-by=/usr/share/keyrings/pambio-archive-keyring.gpg] https://ndenissov.github.io/pam_bio/apt stable main' > /etc/apt/sources.list.d/pambio.list
 apt-get update -qq >/dev/null
 
 echo '>>> Installing pam-bio...'
