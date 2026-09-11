@@ -61,22 +61,38 @@ PAM Bio consists of three tightly integrated components:
   <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="60">
 </a>
 
-The Android app can be downloaded via F-Droid using the [IzzyOnDroid](https://apt.izzysoft.de/fdroid/) repository. Once you add the IzzyOnDroid repo to your F-Droid client, you can search for "PAM Bio" and install it, allowing for automatic updates.
+### 1. Official PAM Bio F-Droid Repository (GitHub Pages)
 
-Alternatively, you can add our official **PAM Bio F-Droid Repository** directly to your F-Droid client to get updates directly from our releases:
-`https://ndenissov.github.io/pam_bio/fdroid/repo`
+You can add our self-hosted **F-Droid Repository** directly to your F-Droid client (or alternative clients like Neo Store or Droid-ify) for instant updates directly from our release pipeline:
 
-It is also currently in preparation for a **Google Play Store** release!
-While it is not yet available, you can follow my [Google Play Developer Page](https://play.google.com/store/apps/dev?id=7887460610476705873) for updates. I am also looking for volunteers to participate in the closed beta test on Google Play — if you're interested, please open an issue or reach out.
+* **Repository URL:** `https://ndenissov.github.io/pam_bio/fdroid/repo`
 
-In the meantime, you can also download the pre-compiled **Split APKs** directly from the GitHub Releases page. 
-To minimize app size and improve performance, the release APKs are obfuscated and split by CPU architecture:
-*   **`arm64-v8a`**: This is the architecture for **almost all modern smartphones**. If you are unsure, download this one.
-*   **`armeabi-v7a`**: For older 32-bit devices.
-*   **`x86` / `x86_64`**: Mostly used for Android emulators.
-*(You can check your exact architecture using apps like AIDA64, or simply try installing `arm64-v8a` first.)*
+#### How to add in F-Droid:
+1. Open the **F-Droid** app on your Android device.
+2. Go to **Settings** $\rightarrow$ **Repositories** (or My Apps $\rightarrow$ Repositories).
+3. Tap the **+** (Add Repository) button in the top right.
+4. Enter the Repository Address: `https://ndenissov.github.io/pam_bio/fdroid/repo`
+5. Tap **Add**. F-Droid will fetch the index and verify the signing certificate automatically.
+6. Search for **PAM Bio** and install it!
 
 ---
+
+### 2. IzzyOnDroid Catalog
+
+The Android app is also available in the [IzzyOnDroid](https://apt.izzysoft.de/fdroid/) repository. If you already have IzzyOnDroid enabled in your F-Droid client, simply search for **PAM Bio**.
+
+---
+
+### 3. Direct APK Download
+
+You can also download signed **Split APKs** directly from [GitHub Releases](https://github.com/ndenissov/pam_bio/releases).
+To minimize app size and improve performance, the release APKs are split by CPU architecture:
+* **`arm64-v8a`**: Architecture for **almost all modern smartphones**. Recommended.
+* **`armeabi-v7a`**: For older 32-bit devices.
+* **`x86` / `x86_64`**: Primarily for Android emulators.
+
+---
+
 
 ## Installation & Setup
 

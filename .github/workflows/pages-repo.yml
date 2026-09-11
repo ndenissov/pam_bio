@@ -57,6 +57,14 @@ jobs:
           # Export public key for users
           gpg --armor --export > public/apt/public.key
           
+          # Check DEB packages presence
+          shopt -s nullglob
+          debs=(artifacts/*.deb)
+          if [ ${#debs[@]} -eq 0 ]; then
+            echo "ERROR: No DEB packages found in downloaded artifacts!" >&2
+            exit 1
+          fi
+          
           # Add all deb files to the repository
           cd public/apt
           for deb in ../../artifacts/*.deb; do
@@ -73,6 +81,17 @@ jobs:
         run: |
           mkdir -p public/fdroid/repo
           
+          # Check APK presence
+          shopt -s nullglob
+          apks=(artifacts/*.apk)
+          if [ ${#apks[@]} -eq 0 ]; then
+            echo "ERROR: No APK files found in downloaded artifacts!" >&2
+            exit 1
+          fi
+          
+          # Copy APKs
+          cp artifacts/*.apk public/fdroid/repo/
+          
           # Decode keystore
           echo "$FDROID_KEYSTORE_BASE64" | base64 -d > public/fdroid/keystore.p12
           
@@ -87,9 +106,6 @@ jobs:
           keypass: "$FDROID_KEYSTORE_PASSWORD"
           keydname: "CN=pam_bio, OU=F-Droid, O=PAM Bio, L=Internet, C=US"
           EOF
-          
-          # Copy APKs
-          cp artifacts/*.apk public/fdroid/repo/ 2>/dev/null || true
           
           # Generate F-Droid index
           cd public/fdroid

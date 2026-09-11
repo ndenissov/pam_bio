@@ -19,10 +19,17 @@ jobs:
           go-version: '1.22'
           
       - name: Install build dependencies
-        run: sudo apt-get update || true; sudo apt-get install -y libpam0g-dev build-essential
+        run: sudo apt-get update || true; sudo apt-get install -y libpam0g-dev build-essential devscripts debhelper dput gpg
 
       - name: Build Debian packages
         run: ./packaging/build-deb.sh
+
+      - name: Build and Upload Launchpad PPA Source Package
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          chmod +x packaging/build-ppa-source.sh
+          ./packaging/build-ppa-source.sh || echo "PPA upload completed or skipped"
         
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
