@@ -25,7 +25,8 @@ jobs:
       - name: Setup Tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y reprepro fdroidserver jq
+          sudo apt-get install -y reprepro jq python3-pip python3-setuptools
+          python3 -m pip install --upgrade --break-system-packages fdroidserver androguard || python3 -m pip install --upgrade fdroidserver androguard
 
       - name: Download Latest Release Artifacts
         env:

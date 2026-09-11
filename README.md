@@ -55,12 +55,6 @@ PAM Bio consists of three tightly integrated components:
 
 ---
 
-## Download Android App
-
-<a href="https://apt.izzysoft.de/fdroid/index/apk/ovh.dep.pam">
-  <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height="60">
-</a>
-
 ### 1. Official PAM Bio F-Droid Repository (GitHub Pages)
 
 You can add our self-hosted **F-Droid Repository** directly to your F-Droid client (or alternative clients like Neo Store or Droid-ify) for instant updates directly from our release pipeline:
@@ -77,9 +71,9 @@ You can add our self-hosted **F-Droid Repository** directly to your F-Droid clie
 
 ---
 
-### 2. IzzyOnDroid Catalog
+### 2. IzzyOnDroid Catalog (Inclusion Pending)
 
-The Android app is also available in the [IzzyOnDroid](https://apt.izzysoft.de/fdroid/) repository. If you already have IzzyOnDroid enabled in your F-Droid client, simply search for **PAM Bio**.
+An official inclusion request has been submitted to the [IzzyOnDroid Repository](https://codeberg.org/IzzyOnDroid/repodata/issues/570). Once reviewed by the maintainers, PAM Bio will also be indexed directly in the IzzyOnDroid catalog.
 
 ---
 
