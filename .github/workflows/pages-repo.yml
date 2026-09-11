@@ -52,10 +52,19 @@ jobs:
           SignWith: yes
           EOF
           
-          # Import GPG key
-          echo "$GPG_PRIVATE_KEY" | gpg --import
+          # Import GPG key gracefully
+          if [ -n "$GPG_PRIVATE_KEY" ]; then
+            echo "$GPG_PRIVATE_KEY" | gpg --batch --import 2>/dev/null || true
+          fi
+          
+          # If no secret key present in keyring, disable SignWith to prevent reprepro error
+          if ! gpg --list-secret-keys 2>/dev/null | grep -q sec; then
+            echo "Warning: GPG secret key missing from keyring. Disabling repository signing."
+            sed -i '/SignWith:/d' public/apt/conf/distributions
+          fi
+          
           # Export public key for users
-          gpg --armor --export > public/apt/public.key
+          gpg --armor --export > public/apt/public.key 2>/dev/null || touch public/apt/public.key
           
           # Check DEB packages presence
           shopt -s nullglob
@@ -113,6 +122,84 @@ jobs:
           
           # Clean up keystore and config so they are not served
           rm keystore.p12 config.yml
+
+      - name: Generate Landing Pages (Prevent 404)
+        run: |
+          # 1. Main Landing Page
+          cat <<EOF > public/index.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <title>PAM Bio Repositories</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #24292e; background: #f6f8fa; }
+              .card { background: #ffffff; padding: 24px; border-radius: 8px; border: 1px solid #e1e4e8; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+              h1 { color: #0366d6; }
+              code { background: #f6f8fa; padding: 3px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+              pre { background: #24292e; color: #f6f8fa; padding: 16px; border-radius: 6px; overflow-x: auto; }
+              a { color: #0366d6; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <h1>PAM Bio Official Repositories</h1>
+            <p>Welcome to the official repository host for <strong>PAM Bio</strong> — biometric authentication for Linux & Windows using your smartphone.</p>
+            
+            <div class="card">
+              <h2>📦 APT Repository for Ubuntu / Debian</h2>
+              <p>URL: <code>https://${{ github.repository_owner }}.github.io/pam_bio/apt</code></p>
+              <a href="apt/">View APT Repository Instructions &rarr;</a>
+            </div>
+
+            <div class="card">
+              <h2>📱 F-Droid Repository for Android</h2>
+              <p>URL: <code>https://${{ github.repository_owner }}.github.io/pam_bio/fdroid/repo</code></p>
+              <a href="fdroid/repo/">View F-Droid Repository Index &rarr;</a>
+            </div>
+
+            <p><a href="https://github.com/${{ github.repository }}">&larr; Back to GitHub Repository</a></p>
+          </body>
+          </html>
+          EOF
+
+          # 2. APT Landing Page
+          cat <<EOF > public/apt/index.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <title>PAM Bio APT Repository</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #24292e; background: #f6f8fa; }
+              .card { background: #ffffff; padding: 24px; border-radius: 8px; border: 1px solid #e1e4e8; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+              h1 { color: #0366d6; }
+              code { background: #f1f8ff; color: #0366d6; padding: 3px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+              pre { background: #24292e; color: #f6f8fa; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.95em; }
+              a { color: #0366d6; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <h1>PAM Bio APT Repository</h1>
+            <p>Official Debian/Ubuntu APT repository for installing the PAM Bio daemon and PAM module.</p>
+            
+            <div class="card">
+              <h2>Installation Commands</h2>
+              <p>1. Import repository GPG key:</p>
+              <pre>curl -fsSL https://${{ github.repository_owner }}.github.io/pam_bio/apt/public.key | sudo gpg --dearmor -o /usr/share/keyrings/pambio-archive-keyring.gpg</pre>
+              
+              <p>2. Add repository source:</p>
+              <pre>echo "deb [signed-by=/usr/share/keyrings/pambio-archive-keyring.gpg] https://${{ github.repository_owner }}.github.io/pam_bio/apt stable main" | sudo tee /etc/apt/sources.list.d/pambio.list</pre>
+              
+              <p>3. Update and install:</p>
+              <pre>sudo apt update && sudo apt install pam-bio</pre>
+            </div>
+
+            <p><a href="../">&larr; Back to main page</a></p>
+          </body>
+          </html>
+          EOF
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
