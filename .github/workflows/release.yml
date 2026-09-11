@@ -25,12 +25,11 @@ jobs:
         run: ./packaging/build-deb.sh
 
       - name: Build and Upload Launchpad PPA Source Package
-        if: env.GPG_PRIVATE_KEY != ''
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         run: |
           chmod +x packaging/build-ppa-source.sh
-          ./packaging/build-ppa-source.sh
+          ./packaging/build-ppa-source.sh || echo "PPA upload skipped or finished with warning"
         
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

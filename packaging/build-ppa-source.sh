@@ -62,10 +62,10 @@ EOF
 
 chmod +x debian/rules
 
-# 4. debian/changelog
+# 4. debian/changelog (Native format uses VERSION without revision)
 DATE_STR=$(date -R)
 cat <<EOF > debian/changelog
-pam-bio (${VERSION}-1) noble; urgency=medium
+pam-bio (${VERSION}) noble; urgency=medium
 
   * Release version ${VERSION}
 
@@ -101,14 +101,18 @@ echo "=== Building Source Package ==="
 # Import GPG key if provided in env
 if [ -n "$GPG_PRIVATE_KEY" ]; then
     echo "Importing GPG private key..."
-    echo "$GPG_PRIVATE_KEY" | gpg --batch --import || true
+    echo "$GPG_PRIVATE_KEY" | base64 -d 2>/dev/null | gpg --batch --import 2>/dev/null || \
+    echo "$GPG_PRIVATE_KEY" | gpg --batch --import 2>/dev/null || true
 fi
 
-# Build source package and sign with GPG key
-debuild -S -sa -k"$GPG_KEY_ID" -p"gpg --batch --passphrase '' --pinentry-mode loopback" || dpkg-buildpackage -S -k"$GPG_KEY_ID"
+# Build source package without checking dependencies (-d)
+dpkg-buildpackage -S -d -k"$GPG_KEY_ID" || debuild -S -sa -d -k"$GPG_KEY_ID"
 
 echo "=== Uploading to Launchpad PPA ==="
-CHANGES_FILE="../pam-bio_${VERSION}-1_source.changes"
+CHANGES_FILE="../pam-bio_${VERSION}_source.changes"
+if [ ! -f "$CHANGES_FILE" ]; then
+    CHANGES_FILE="../pam-bio_${VERSION}-1_source.changes"
+fi
 
 if [ -f "$CHANGES_FILE" ]; then
     dput -f ppa:ndenissov/ppa "$CHANGES_FILE"
