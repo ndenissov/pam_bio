@@ -1,0 +1,15 @@
+Tired of typing your long password every time you invoke "sudo" in Linux or unlock your screen in Windows? PAM Bio solves this by allowing you to use your smartphone's biometrics for instant, secure PC authentication.
+
+If you use Linux, you've probably asked yourself: "My phone already has a fingerprint sensor and Face ID. Why should I buy a dedicated USB token like a YubiKey for system prompts? Hasn't the open-source community built a solution for this yet?"
+If you use Windows, you've likely looked at your PC thinking: "I want this too. I want to unlock my PC with my phone fingerprint instead of typing a PIN every single time."
+
+PAM Bio turns your Android smartphone into a full-featured wireless hardware security key. Unlock your desktop (LogonUI on Windows, SDDM/GDM on Linux), authenticate sudo requests, and log in using your phone's fingerprint, face recognition, or PIN. It's the ultimate free alternative to hardware security tokens!
+
+Why choose PAM Bio?
+- Smartphone as a Security Key: No need to buy expensive hardware tokens. Use the biometric sensor already in your pocket.
+- Instant PC Unlock: Approve Windows logins and Linux sudo prompts with a single tap on your mobile screen.
+- 100% Local & Private: No cloud servers, no accounts, no subscriptions. Operates strictly within your local Wi-Fi network.
+- Advanced Cryptography: Enterprise-grade protection using X25519 ECDH key exchange, Ed25519 digital signatures per request, and AES-256-GCM encryption to prevent replay attacks.
+- Multilingual: Native support for English, Russian, and Chinese languages.
+
+Upgrade your authentication workflow today and forget about manual password entry!
