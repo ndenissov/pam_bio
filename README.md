@@ -3,7 +3,6 @@
 [![Go](https://img.shields.io/badge/Go-1.22-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![C](https://img.shields.io/badge/C-PAM%20Module-A8B9CC?logo=c&logoColor=white)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Android](https://img.shields.io/badge/Android-Compose-3DDC84?logo=android&logoColor=white)](https://developer.android.com/jetpack/compose)
-[![IzzyOnDroid](https://img.shields.io/badge/F--Droid-IzzyOnDroid-34C759?logo=fdroid&logoColor=white)](https://apt.izzysoft.de/fdroid/index/apk/ovh.dep.pam)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/ndenissov/pam_bio?style=social)](https://github.com/ndenissov/pam_bio/stargazers)
 
@@ -71,13 +70,7 @@ You can add our self-hosted **F-Droid Repository** directly to your F-Droid clie
 
 ---
 
-### 2. IzzyOnDroid Catalog (Inclusion Pending)
-
-An official inclusion request has been submitted to the [IzzyOnDroid Repository](https://codeberg.org/IzzyOnDroid/repodata/issues/570). Once reviewed by the maintainers, PAM Bio will also be indexed directly in the IzzyOnDroid catalog.
-
----
-
-### 3. Direct APK Download
+### 2. Direct APK Download
 
 You can also download signed **Split APKs** directly from [GitHub Releases](https://github.com/ndenissov/pam_bio/releases).
 To minimize app size and improve performance, the release APKs are split by CPU architecture:

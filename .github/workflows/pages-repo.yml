@@ -43,6 +43,8 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         run: |
           mkdir -p public/apt/conf
+          touch public/.nojekyll
+          
           cat <<EOF > public/apt/conf/distributions
           Origin: PAM Bio
           Label: PAM Bio APT Repository
@@ -82,7 +84,7 @@ jobs:
               reprepro includedeb stable "$deb"
             fi
           done
-          rm -rf conf db
+          rm -rf db conf
 
       - name: Build F-Droid Repository
         env:
@@ -114,12 +116,13 @@ jobs:
           keystore: "keystore.p12"
           keystorepass: "$FDROID_KEYSTORE_PASSWORD"
           keypass: "$FDROID_KEYSTORE_PASSWORD"
+          repo_keyalias: "pam_bio"
           keydname: "CN=pam_bio, OU=F-Droid, O=PAM Bio, L=Internet, C=US"
           EOF
           
           # Generate F-Droid index
           cd public/fdroid
-          fdroid update -c
+          fdroid update --create-key
           
           # Clean up keystore and config so they are not served
           rm keystore.p12 config.yml

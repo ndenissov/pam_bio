@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * ci: automate Windows and Android builds in GitHub Actions release pipeline
 * ci: add F-Droid and APT repository generation on GitHub Pages
 * chore: migrate APT repository from apt.dep.ovh to GitHub Pages
-* docs: update README with F-Droid, IzzyOnDroid, and new APT instructions
+* docs: update README with F-Droid and new APT instructions
 
 ## [0.33.1]
 * fix(daemon): filter duplicate devices with the same name during pairing
