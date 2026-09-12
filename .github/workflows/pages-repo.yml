@@ -122,7 +122,7 @@ jobs:
           
           # Generate F-Droid index
           cd public/fdroid
-          fdroid update --create-key
+          fdroid update
           
           # Clean up keystore and config so they are not served
           rm keystore.p12 config.yml
