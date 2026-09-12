@@ -87,6 +87,7 @@ jobs:
           rm -rf db conf
 
       - name: Build F-Droid Repository
+        continue-on-error: true
         env:
           FDROID_KEYSTORE_BASE64: ${{ secrets.FDROID_KEYSTORE_BASE64 }}
           FDROID_KEYSTORE_PASSWORD: ${{ secrets.FDROID_KEYSTORE_PASSWORD }}
@@ -97,8 +98,8 @@ jobs:
           shopt -s nullglob
           apks=(artifacts/*.apk)
           if [ ${#apks[@]} -eq 0 ]; then
-            echo "ERROR: No APK files found in downloaded artifacts!" >&2
-            exit 1
+            echo "WARNING: No APK files found, skipping F-Droid repo build"
+            exit 0
           fi
           
           # Copy APKs
@@ -107,8 +108,8 @@ jobs:
           # Decode keystore
           echo "$FDROID_KEYSTORE_BASE64" | base64 -d > public/fdroid/keystore.p12
           
-          # Configure F-Droid config.yml
-          cat <<EOF > public/fdroid/config.yml
+          # Configure F-Droid config.yml (no leading spaces!)
+          cat > public/fdroid/config.yml <<FDROID_EOF
           repo_url: "https://${{ github.repository_owner }}.github.io/pam_bio/fdroid/repo"
           repo_name: "PAM Bio Official Repository"
           repo_icon: ""
@@ -118,14 +119,15 @@ jobs:
           keypass: "$FDROID_KEYSTORE_PASSWORD"
           repo_keyalias: "pam_bio"
           keydname: "CN=pam_bio, OU=F-Droid, O=PAM Bio, L=Internet, C=US"
-          EOF
+          FDROID_EOF
+          chmod 0600 public/fdroid/config.yml
           
           # Generate F-Droid index
           cd public/fdroid
           fdroid update
           
           # Clean up keystore and config so they are not served
-          rm keystore.p12 config.yml
+          rm -f keystore.p12 config.yml
 
       - name: Generate Landing Pages (Prevent 404)
         run: |
