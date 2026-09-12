@@ -91,6 +91,7 @@ jobs:
         env:
           FDROID_KEYSTORE_BASE64: ${{ secrets.FDROID_KEYSTORE_BASE64 }}
           FDROID_KEYSTORE_PASSWORD: ${{ secrets.FDROID_KEYSTORE_PASSWORD }}
+          FDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           mkdir -p public/fdroid/repo
           
@@ -108,6 +109,11 @@ jobs:
           # Decode keystore
           echo "$FDROID_KEYSTORE_BASE64" | base64 -d > public/fdroid/keystore.p12
           
+          # Debug: list aliases in the keystore
+          echo "=== Keystore aliases ==="
+          keytool -list -keystore public/fdroid/keystore.p12 -storetype PKCS12 -storepass "$FDROID_KEYSTORE_PASSWORD" 2>&1 || echo "Could not list keystore"
+          echo "=== Using alias: $FDROID_KEY_ALIAS ==="
+          
           # Configure F-Droid config.yml (no leading spaces!)
           cat > public/fdroid/config.yml <<FDROID_EOF
           repo_url: "https://${{ github.repository_owner }}.github.io/pam_bio/fdroid/repo"
@@ -117,7 +123,7 @@ jobs:
           keystore: "keystore.p12"
           keystorepass: "$FDROID_KEYSTORE_PASSWORD"
           keypass: "$FDROID_KEYSTORE_PASSWORD"
-          repo_keyalias: "pam_bio"
+          repo_keyalias: "$FDROID_KEY_ALIAS"
           keydname: "CN=pam_bio, OU=F-Droid, O=PAM Bio, L=Internet, C=US"
           FDROID_EOF
           chmod 0600 public/fdroid/config.yml
