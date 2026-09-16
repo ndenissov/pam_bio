@@ -3,6 +3,9 @@
 [![Go](https://img.shields.io/badge/Go-1.22-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![C](https://img.shields.io/badge/C-PAM%20Module-A8B9CC?logo=c&logoColor=white)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Android](https://img.shields.io/badge/Android-Compose-3DDC84?logo=android&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![RuStore](https://img.shields.io/badge/RuStore-ovh.dep.pam-0077FF?logo=android&logoColor=white)](https://www.rustore.ru/catalog/app/ovh.dep.pam)
+[![Google Play](https://img.shields.io/badge/Google%20Play-Testing-414141?logo=googleplay&logoColor=white)](https://play.google.com/apps/testing/ovh.dep.pam)
+[![Kazpatent](https://img.shields.io/badge/Kazpatent-%E2%84%9678433-00529B)](https://copyright.kazpatent.kz/?!.iD=brCrZ)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/ndenissov/pam_bio?style=social)](https://github.com/ndenissov/pam_bio/stargazers)
 
@@ -22,6 +25,10 @@ If you've ever wanted to **log in to Windows or Linux with your phone fingerprin
 - [Why PAM Bio? (Features)](#why-pambio-features)
 - [Architecture & Security](#architecture--security)
 - [Download Android App](#download-android-app)
+  - [RuStore](#1-rustore)
+  - [Google Play (Closed Testing)](#2-google-play-closed-testing--testers-wanted-)
+  - [F-Droid Repository](#3-official-pam-bio-f-droid-repository-github-pages)
+  - [Direct APK Download](#4-direct-apk-download)
 - [Installation & Setup](#installation--setup)
   - [NixOS (Recommended)](#1-nixos-recommended)
   - [Debian / Ubuntu (APT)](#2-debian--ubuntu-apt)
@@ -29,6 +36,9 @@ If you've ever wanted to **log in to Windows or Linux with your phone fingerprin
   - [Manual Installation](#4-manual-installation-other-linux-distributions)
 - [Pairing Your Device](#pairing-your-device)
 - [Managing Devices](#managing-devices)
+- [Legal & Copyright](#legal--copyright)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Why PAM Bio? (Features)
 - **Convenience:** Stop typing long passwords for `sudo` or lock screens. Use the biometric sensor already in your pocket.
@@ -54,7 +64,36 @@ PAM Bio consists of three tightly integrated components:
 
 ---
 
-### 1. Official PAM Bio F-Droid Repository (GitHub Pages)
+## Download Android App
+
+You can install the PAM Bio Android companion app using any of the following methods:
+
+### 1. RuStore
+
+PAM Bio is officially published and available in **RuStore**:
+
+[![Download on RuStore](https://img.shields.io/badge/RuStore-Get%20it%20on%20RuStore-0077FF?style=for-the-badge&logo=android&logoColor=white)](https://www.rustore.ru/catalog/app/ovh.dep.pam)
+
+* **RuStore Catalog:** [https://www.rustore.ru/catalog/app/ovh.dep.pam](https://www.rustore.ru/catalog/app/ovh.dep.pam)
+
+---
+
+### 2. Google Play (Closed Testing — Testers Wanted! 🚀)
+
+> [!IMPORTANT]
+> **Help us launch on Google Play!**
+> PAM Bio is currently in the mandatory closed testing period required by Google before public store listing. If you have an Android device, we warmly invite you to join our closed testing program! The more active testers join, the faster PAM Bio will complete Google's verification and become publicly available to everyone on Google Play.
+
+**How to join in 3 steps:**
+1. **Join the Google Group:** Open [https://groups.google.com/g/pam-bio](https://groups.google.com/g/pam-bio) and click **Join group** (required by Google to grant your account access to the closed test).
+2. **Accept the invite on Google Play:** Open the opt-in link at [https://play.google.com/apps/testing/ovh.dep.pam](https://play.google.com/apps/testing/ovh.dep.pam) and click **Become a Tester**.
+3. **Install from Play Market:** Once accepted, you can download and update the app directly through Google Play.
+
+*(Для пользователей Android открыт свободный набор на закрытое тестирование: вступите в Google-группу [pam-bio](https://groups.google.com/g/pam-bio), перейдите по [ссылке тестирования](https://play.google.com/apps/testing/ovh.dep.pam) и примите приглашение. После этого приложение и его обновления будут доступны вам в Play Market! Чем быстрее наберутся тестировщики, тем скорее этот этап завершится и приложение будет опубликовано для всех.)*
+
+---
+
+### 3. Official PAM Bio F-Droid Repository (GitHub Pages)
 
 You can add our self-hosted **F-Droid Repository** directly to your F-Droid client (or alternative clients like Neo Store or Droid-ify) for instant updates directly from our release pipeline:
 
@@ -70,7 +109,7 @@ You can add our self-hosted **F-Droid Repository** directly to your F-Droid clie
 
 ---
 
-### 2. Direct APK Download
+### 4. Direct APK Download
 
 You can also download signed **Split APKs** directly from [GitHub Releases](https://github.com/ndenissov/pam_bio/releases).
 To minimize app size and improve performance, the release APKs are split by CPU architecture:
@@ -258,6 +297,21 @@ A big thank you to everyone who supports this project! ⭐
 
 This project is in active development. Bugs are expected and any feedback is genuinely appreciated.
 Please [open an issue](https://github.com/ndenissov/pam_bio/issues/new) for bug reports or feature requests.
+
+## Legal & Copyright
+
+The rights to the software package **«PAM Bio»** are officially registered in the State Register of Rights to Objects Protected by Copyright of the Republic of Kazakhstan (National Institute of Intellectual Property of the Ministry of Justice of the Republic of Kazakhstan / Kazpatent):
+
+[![Kazpatent Certificate](https://img.shields.io/badge/Kazpatent-%E2%84%9678433-00529B?style=for-the-badge)](https://copyright.kazpatent.kz/?!.iD=brCrZ)
+
+* **Certificate Number:** № 78433 (issued September 14, 2026)
+* **Author & Copyright Holder:** Денисов Никита Сергеевич (Denissov Nikita Sergeyevich)
+* **Object Name:** Программный комплекс «PAM Bio»
+* **Date of Creation:** September 06, 2026
+* **Official Registry Verification:** [https://copyright.kazpatent.kz/?!.iD=brCrZ](https://copyright.kazpatent.kz/?!.iD=brCrZ)
+* **Official Certificate Document (PDF):** [`legal/Copyright_Certificate_No_78433.pdf`](legal/Copyright_Certificate_No_78433.pdf)
+
+---
 
 ## License
 
