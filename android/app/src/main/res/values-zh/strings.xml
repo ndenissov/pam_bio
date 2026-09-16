@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PAM Bio</string>
+    <string name="app_name">PAM Bio：指纹解锁电脑</string>
     <string name="add_pc">添加电脑</string>
     <string name="scan">扫描</string>
     <string name="paired_devices">已配对设备</string>
