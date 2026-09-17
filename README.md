@@ -285,10 +285,10 @@ A big thank you to everyone who supports this project! ⭐
 
 <!-- HOF:START -->
 <p align="center">
-<a href="https://github.com/ndenissov"><img src="https://avatars.githubusercontent.com/u/70575593?v=4" width="48" height="48" alt="@ndenissov" title="@ndenissov" style="border-radius:50%"></a> <a href="https://github.com/WHYCRASH"><img src="https://avatars.githubusercontent.com/u/6760226?v=4" width="48" height="48" alt="@WHYCRASH" title="@WHYCRASH" style="border-radius:50%"></a>
+<a href="https://github.com/ndenissov"><img src="https://avatars.githubusercontent.com/u/70575593?v=4" width="48" height="48" alt="@ndenissov" title="@ndenissov" style="border-radius:50%"></a> <a href="https://github.com/WHYCRASH"><img src="https://avatars.githubusercontent.com/u/6760226?v=4" width="48" height="48" alt="@WHYCRASH" title="@WHYCRASH" style="border-radius:50%"></a> <a href="https://github.com/r1sh73"><img src="https://avatars.githubusercontent.com/u/103499219?v=4" width="48" height="48" alt="@r1sh73" title="@r1sh73" style="border-radius:50%"></a>
 </p>
 
-*2 amazing people — thank you!*
+*3 amazing people — thank you!*
 <!-- HOF:END -->
 
 ---
