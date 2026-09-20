@@ -3,6 +3,7 @@
 [![Go](https://img.shields.io/badge/Go-1.22-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![C](https://img.shields.io/badge/C-PAM%20Module-A8B9CC?logo=c&logoColor=white)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![Android](https://img.shields.io/badge/Android-Compose-3DDC84?logo=android&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![Huawei AppGallery](https://img.shields.io/badge/Huawei-AppGallery-C7000B?logo=huawei&logoColor=white)](https://appgallery.huawei.com/app/C118930945)
 [![RuStore](https://img.shields.io/badge/RuStore-ovh.dep.pam-0077FF?logo=android&logoColor=white)](https://www.rustore.ru/catalog/app/ovh.dep.pam)
 [![Google Play](https://img.shields.io/badge/Google%20Play-Testing-414141?logo=googleplay&logoColor=white)](https://play.google.com/apps/testing/ovh.dep.pam)
 [![Kazpatent](https://img.shields.io/badge/Kazpatent-%E2%84%9678433-00529B)](https://copyright.kazpatent.kz/?!.iD=brCrZ)
@@ -25,10 +26,11 @@ If you've ever wanted to **log in to Windows or Linux with your phone fingerprin
 - [Why PAM Bio? (Features)](#why-pambio-features)
 - [Architecture & Security](#architecture--security)
 - [Download Android App](#download-android-app)
-  - [RuStore](#1-rustore)
-  - [Google Play (Closed Testing)](#2-google-play-closed-testing--testers-wanted-)
-  - [F-Droid Repository](#3-official-pam-bio-f-droid-repository-github-pages)
-  - [Direct APK Download](#4-direct-apk-download)
+  - [Huawei AppGallery](#1-huawei-appgallery)
+  - [RuStore](#2-rustore)
+  - [Google Play (Closed Testing)](#3-google-play-closed-testing--testers-wanted-)
+  - [F-Droid Repository](#4-official-pam-bio-f-droid-repository-github-pages)
+  - [Direct APK Download](#5-direct-apk-download)
 - [Installation & Setup](#installation--setup)
   - [NixOS (Recommended)](#1-nixos-recommended)
   - [Debian / Ubuntu (APT)](#2-debian--ubuntu-apt)
@@ -68,7 +70,17 @@ PAM Bio consists of three tightly integrated components:
 
 You can install the PAM Bio Android companion app using any of the following methods:
 
-### 1. RuStore
+### 1. Huawei AppGallery
+
+PAM Bio is officially published and available in **Huawei AppGallery**:
+
+[![Explore it on AppGallery](https://img.shields.io/badge/Huawei%20AppGallery-Explore%20it%20on%20AppGallery-C7000B?style=for-the-badge&logo=huawei&logoColor=white)](https://appgallery.huawei.com/app/C118930945)
+
+* **Huawei AppGallery:** [https://appgallery.huawei.com/app/C118930945](https://appgallery.huawei.com/app/C118930945)
+
+---
+
+### 2. RuStore
 
 PAM Bio is officially published and available in **RuStore**:
 
@@ -78,7 +90,7 @@ PAM Bio is officially published and available in **RuStore**:
 
 ---
 
-### 2. Google Play (Closed Testing — Testers Wanted! 🚀)
+### 3. Google Play (Closed Testing — Testers Wanted! 🚀)
 
 > [!IMPORTANT]
 > **Help us launch on Google Play!**
@@ -93,7 +105,7 @@ PAM Bio is officially published and available in **RuStore**:
 
 ---
 
-### 3. Official PAM Bio F-Droid Repository (GitHub Pages)
+### 4. Official PAM Bio F-Droid Repository (GitHub Pages)
 
 You can add our self-hosted **F-Droid Repository** directly to your F-Droid client (or alternative clients like Neo Store or Droid-ify) for instant updates directly from our release pipeline:
 
@@ -109,7 +121,7 @@ You can add our self-hosted **F-Droid Repository** directly to your F-Droid clie
 
 ---
 
-### 4. Direct APK Download
+### 5. Direct APK Download
 
 You can also download signed **Split APKs** directly from [GitHub Releases](https://github.com/ndenissov/pam_bio/releases).
 To minimize app size and improve performance, the release APKs are split by CPU architecture:

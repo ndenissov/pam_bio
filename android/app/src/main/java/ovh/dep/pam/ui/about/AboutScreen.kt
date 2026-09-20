@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.content.pm.PackageManager
 import ovh.dep.pam.R
+import ovh.dep.pam.ui.PrivacyUtils
 
 data class OssLibrary(
     val name: String,
@@ -148,6 +149,14 @@ fun AboutScreen(
                         }
                     ) {
                         Text(stringResource(R.string.github_repo))
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = {
+                            PrivacyUtils.openPrivacyPolicy(context)
+                        }
+                    ) {
+                        Text(stringResource(R.string.privacy_policy_btn))
                     }
                 }
                 

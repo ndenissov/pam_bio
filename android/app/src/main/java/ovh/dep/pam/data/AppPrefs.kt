@@ -39,6 +39,10 @@ class AppPrefs(context: Context) {
         get() = prefs.getBoolean("has_prompted_biometric_on_start", false)
         set(value) = prefs.edit().putBoolean("has_prompted_biometric_on_start", value).apply()
 
+    var hasAcceptedPrivacyPolicy: Boolean
+        get() = prefs.getBoolean("has_accepted_privacy_policy", false)
+        set(value) = prefs.edit().putBoolean("has_accepted_privacy_policy", value).apply()
+
     var disableScreenshots: Boolean
         get() = prefs.getBoolean("disable_screenshots", false)
         set(value) = prefs.edit().putBoolean("disable_screenshots", value).apply()

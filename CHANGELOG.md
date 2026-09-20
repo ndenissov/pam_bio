@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.4]
+* feat(android): add first-launch Privacy Policy prompt dialog compliant with AppGallery and Google Play regulations
+* feat(android): add Chinese privacy policy translation and locale-aware policy viewing
+* docs: add Chinese privacy policy (`PRIVACY_ZH.md`) and state developer name (Nikita Denissov)
+* docs: add Huawei AppGallery badge and download links to README.md
+
 ## [0.33.3]
 * ci: automate Windows and Android builds in GitHub Actions release pipeline
 * ci: add F-Droid and APT repository generation on GitHub Pages

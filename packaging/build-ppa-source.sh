@@ -2,7 +2,7 @@
 set -e
 
 VERSION="${1:-${GITHUB_REF_NAME#v}}"
-VERSION="${VERSION:-0.33.3}"
+VERSION="${VERSION:-0.33.4}"
 GPG_KEY_ID="4D1D6F0A172CFDF7873816F325C9B7D23C38E819"
 
 echo "=== Preparing Debian package structure for PPA ($VERSION) ==="

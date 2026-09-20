@@ -115,7 +115,12 @@
     <string name="settings_screenshots_title">Запретить скриншоты</string>
     <string name="settings_screenshots_desc">Запретить скриншоты в приложении (повышает приватность)</string>
     <string name="settings_timer_title">Перезапуск по расписанию</string>
-    <string name="settings_timer_desc">Автоматически отключать сервис на ночь (по умолчанию с 23:00 до 06:00). Android сам выберет оптимальное время для экономии батареи, но сервис 100% запустится как только вы возьмете телефон в руки утром.</string>
+    <string name="settings_timer_desc" formatted="false">Автоматически отключать сервис на ночь (по умолчанию с 23:00 до 06:00). Android сам выберет оптимальное время для экономии батареи, но сервис 100% запустится как только вы возьмете телефон в руки утром.</string>
     <string name="settings_timer_start">Выключение</string>
     <string name="settings_timer_stop">Включение</string>
+    <string name="privacy_policy_title">Политика конфиденциальности</string>
+    <string name="privacy_policy_dialog_desc">Добро пожаловать в PAM Bio!\n\nДля защиты вашей конфиденциальности и прозрачности, пожалуйста, ознакомьтесь с Политикой конфиденциальности. PAM Bio не собирает, не хранит и не передает ваши персональные или биометрические данные — вся работа происходит строго локально на вашем устройстве и в локальной сети.</string>
+    <string name="privacy_policy_read_btn">Прочитать политику</string>
+    <string name="privacy_policy_agree_btn">Принять и продолжить</string>
+    <string name="privacy_policy_btn">Политика конфиденциальности</string>
 </resources>

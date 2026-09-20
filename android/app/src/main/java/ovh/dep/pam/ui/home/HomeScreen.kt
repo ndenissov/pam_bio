@@ -47,6 +47,7 @@ import ovh.dep.pam.R
 import ovh.dep.pam.data.AppPrefs
 import ovh.dep.pam.network.GithubRelease
 import ovh.dep.pam.network.UpdateChecker
+import ovh.dep.pam.ui.PrivacyUtils
 
 /**
  * Home screen — list of paired PCs, service toggle, and "add device" FAB.
@@ -320,9 +321,34 @@ fun HomeScreen(
         )
     }
 
+    // First launch privacy policy prompt
+    var showPrivacyPolicyDialog by remember { mutableStateOf(!prefs.hasAcceptedPrivacyPolicy) }
+    if (showPrivacyPolicyDialog) {
+        AlertDialog(
+            onDismissRequest = { /* Require explicit confirmation or viewing */ },
+            title = { Text(stringResource(R.string.privacy_policy_title)) },
+            text = { Text(stringResource(R.string.privacy_policy_dialog_desc)) },
+            confirmButton = {
+                Button(onClick = {
+                    prefs.hasAcceptedPrivacyPolicy = true
+                    showPrivacyPolicyDialog = false
+                }) {
+                    Text(stringResource(R.string.privacy_policy_agree_btn))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    PrivacyUtils.openPrivacyPolicy(context)
+                }) {
+                    Text(stringResource(R.string.privacy_policy_read_btn))
+                }
+            }
+        )
+    }
+
     // First launch biometric prompt
     var showBiometricPromptDialog by remember { mutableStateOf(!prefs.hasPromptedBiometricOnStart) }
-    if (showBiometricPromptDialog) {
+    if (!showPrivacyPolicyDialog && showBiometricPromptDialog) {
         AlertDialog(
             onDismissRequest = { 
                 prefs.hasPromptedBiometricOnStart = true
