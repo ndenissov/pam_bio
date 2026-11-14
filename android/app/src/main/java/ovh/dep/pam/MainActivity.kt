@@ -146,11 +146,27 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         val prefs = AppPrefs(this)
-        if (prefs.serviceEnabled && !PamBioForegroundService.isRunning.value) {
+        if (!prefs.serviceEnabled) return
+        if (PamBioForegroundService.isRunning.value) {
             val intent = Intent(this, PamBioForegroundService::class.java).apply {
-                action = PamBioForegroundService.ACTION_START
+                action = PamBioForegroundService.ACTION_NUDGE
+                setPackage(packageName)
             }
-            startForegroundService(intent)
+            try {
+                startService(intent)
+            } catch (_: Exception) {
+            }
+        } else {
+            lifecycleScope.launch {
+                val pairedDevices = PairedDeviceRepository(this@MainActivity).getAll()
+                if (pairedDevices.isNotEmpty() && prefs.serviceEnabled && !PamBioForegroundService.isRunning.value) {
+                    val intent = Intent(this@MainActivity, PamBioForegroundService::class.java).apply {
+                        action = PamBioForegroundService.ACTION_START
+                        setPackage(packageName)
+                    }
+                    ContextCompat.startForegroundService(this@MainActivity, intent)
+                }
+            }
         }
     }
 
@@ -169,8 +185,17 @@ class MainActivity : AppCompatActivity() {
 
             val pairedDevices = PairedDeviceRepository(this@MainActivity).getAll()
             if (pairedDevices.isNotEmpty()) {
-                val serviceIntent = android.content.Intent(this@MainActivity, PamBioForegroundService::class.java)
-                ContextCompat.startForegroundService(this@MainActivity, serviceIntent)
+                if (prefs.serviceEnabled) {
+                    val serviceIntent = android.content.Intent(this@MainActivity, PamBioForegroundService::class.java).apply {
+                        action = if (PamBioForegroundService.isRunning.value) {
+                            PamBioForegroundService.ACTION_NUDGE
+                        } else {
+                            PamBioForegroundService.ACTION_START
+                        }
+                        setPackage(packageName)
+                    }
+                    ContextCompat.startForegroundService(this@MainActivity, serviceIntent)
+                }
                 setAppContent(requireAuth = true)
             } else {
                 setAppContent(requireAuth = false)

@@ -17,17 +17,24 @@
 
 package ovh.dep.pam.network
 
-import android.util.Log
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import ovh.dep.pam.crypto.KeyManager
+import ovh.dep.pam.crypto.IdentitySigner
 import ovh.dep.pam.crypto.SessionCrypto
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.Base64
+
+enum class IdentifyResult {
+    ACCEPTED,
+    REJECTED_BY_VERIFIED_SERVER,
+    REJECTED_UNVERIFIED
+}
 
 /**
  * TCP client that connects to the PamBio daemon on a PC.
@@ -36,15 +43,18 @@ import java.net.Socket
  * requests. All network I/O runs on [Dispatchers.IO].
  */
 class TcpClient(
-    private val keyManager: KeyManager,
-    private val json: Json = Json { 
+    private val keyManager: IdentitySigner,
+    private val connectTimeoutMs: Int = DEFAULT_CONNECT_TIMEOUT_MS,
+    private val readTimeoutMs: Int = DEFAULT_READ_TIMEOUT_MS,
+    private val json: Json = Json {
         ignoreUnknownKeys = true
-        encodeDefaults = true 
+        encodeDefaults = true
     }
 ) {
     companion object {
         private const val TAG = "TcpClient"
-        private const val CONNECT_TIMEOUT_MS = 10_000
+        const val DEFAULT_CONNECT_TIMEOUT_MS = 3_000
+        const val DEFAULT_READ_TIMEOUT_MS = 18_000 // daemon pings every 5s
         private const val MAX_MSG_SIZE = 1 shl 20 // 1 MB
     }
 
@@ -57,7 +67,7 @@ class TcpClient(
 
     /** Callback for incoming auth requests. */
     var onAuthRequest: ((AuthRequestMessage) -> Unit)? = null
-    
+
     /** Callback to check if device is still paired. */
     var isStillPaired: (suspend () -> Boolean)? = null
 
@@ -70,15 +80,17 @@ class TcpClient(
     suspend fun connect(host: String, port: Int) = withContext(Dispatchers.IO) {
         try {
             val sock = Socket()
-            sock.connect(InetSocketAddress(host, port), CONNECT_TIMEOUT_MS)
-            sock.soTimeout = 40000 // 40 seconds read timeout (daemon pings every 15s)
+            sock.tcpNoDelay = true
+            sock.keepAlive = true
+            sock.connect(InetSocketAddress(host, port), connectTimeoutMs)
+            sock.soTimeout = readTimeoutMs
             socket = sock
             output = DataOutputStream(sock.getOutputStream())
             input = DataInputStream(sock.getInputStream())
 
             performHandshake()
         } catch (e: Exception) {
-            Log.e(TAG, "Connect to $host:$port failed", e)
+            NetLog.e(TAG, "Connect to $host:$port failed", e)
             disconnect()
             throw e
         }
@@ -112,7 +124,7 @@ class TcpClient(
         crypto.deriveSessionKey(ack.ecdhPub)
         sessionCrypto = crypto
 
-        Log.i(TAG, "ECDH handshake completed")
+        NetLog.i(TAG, "ECDH handshake completed")
     }
 
     // ── Pairing ────────────────────────────────────────────
@@ -126,7 +138,7 @@ class TcpClient(
     suspend fun sendPairRequest(pcPubKey: String, deviceName: String): Boolean =
         withContext(Dispatchers.IO) {
             val pubKey = keyManager.publicKeyBase64 ?: keyManager.generateKeyPair()
-            val proof = keyManager.sign(android.util.Base64.decode(pcPubKey, android.util.Base64.NO_WRAP))
+            val proof = keyManager.sign(Base64.getDecoder().decode(pcPubKey.trim()))
                 ?: return@withContext false
 
             val req = PairRequestMessage(
@@ -138,22 +150,25 @@ class TcpClient(
 
             val respJson = readEncrypted()
             val resp = json.decodeFromString<PairResponseMessage>(respJson)
-            Log.i(TAG, "Pair response: ${resp.status}")
+            NetLog.i(TAG, "Pair response: ${resp.status}")
             resp.status == "accepted"
         }
 
     // ── Identify (reconnection) ────────────────────────────
 
     /**
-     * Sends an identify message to prove we are a known paired device.
-     * @return true if identification was accepted
+     * Sends an identify message to prove we are a known paired device and
+     * verifies the server's cryptographic proof when provided.
      */
-    suspend fun sendIdentify(): Boolean = withContext(Dispatchers.IO) {
+    suspend fun sendIdentifyVerified(
+        expectedPcPubKey: String? = null,
+        trustUnverifiedReject: Boolean = false
+    ): IdentifyResult = withContext(Dispatchers.IO) {
         val crypto = sessionCrypto ?: error("No session")
         val pubKey = keyManager.publicKeyBase64 ?: error("No keypair")
         val sessionId = crypto.sessionId ?: error("No session ID")
 
-        val signature = keyManager.sign(sessionId) ?: return@withContext false
+        val signature = keyManager.sign(sessionId) ?: return@withContext IdentifyResult.REJECTED_UNVERIFIED
         val msg = IdentifyMessage(
             devicePubKey = pubKey,
             signature = signature
@@ -162,9 +177,34 @@ class TcpClient(
 
         val ackJson = readEncrypted()
         val ack = json.decodeFromString<IdentifyAckMessage>(ackJson)
-        Log.i(TAG, "Identify response: ${ack.status}")
-        ack.status == "accepted"
+        NetLog.i(TAG, "Identify response: ${ack.status}")
+
+        val serverSig = ack.serverSig
+        if (!expectedPcPubKey.isNullOrBlank() && !serverSig.isNullOrBlank()) {
+            val expectedPayload = SessionCrypto.SERVER_IDENTIFY_CONTEXT.toByteArray(Charsets.UTF_8) + sessionId
+            val sigValid = SessionCrypto.verifyEd25519(expectedPcPubKey, expectedPayload, serverSig)
+            if (!sigValid) {
+                NetLog.w(TAG, "Server identity signature mismatch! Ignoring response.")
+                return@withContext IdentifyResult.REJECTED_UNVERIFIED
+            }
+            return@withContext if (ack.status == "accepted") {
+                IdentifyResult.ACCEPTED
+            } else {
+                IdentifyResult.REJECTED_BY_VERIFIED_SERVER
+            }
+        }
+
+        if (ack.status == "accepted") {
+            IdentifyResult.ACCEPTED
+        } else if (trustUnverifiedReject) {
+            IdentifyResult.REJECTED_BY_VERIFIED_SERVER
+        } else {
+            IdentifyResult.REJECTED_UNVERIFIED
+        }
     }
+
+    /** Backwards-compatible wrapper for simple callers. */
+    suspend fun sendIdentify(): Boolean = sendIdentifyVerified() == IdentifyResult.ACCEPTED
 
     // ── Auth response ──────────────────────────────────────
 
@@ -198,7 +238,7 @@ class TcpClient(
                 when (base.type) {
                     "auth_request" -> {
                         val authReq = json.decodeFromString<AuthRequestMessage>(msgJson)
-                        Log.i(TAG, "Auth request: user=${authReq.user} service=${authReq.service}")
+                        NetLog.i(TAG, "Auth request: user=${authReq.user} service=${authReq.service}")
                         onAuthRequest?.invoke(authReq)
                     }
                     "ping" -> {
@@ -207,13 +247,13 @@ class TcpClient(
                         val pong = PongMessage(status = status)
                         writeEncrypted(json.encodeToString(pong))
                     }
-                    else -> Log.w(TAG, "Unknown message type: ${base.type}")
+                    else -> NetLog.w(TAG, "Unknown message type: ${base.type}")
                 }
             }
         } catch (e: IOException) {
-            Log.i(TAG, "Connection closed: ${e.message}")
+            NetLog.i(TAG, "Connection closed: ${e.message}")
         } catch (e: Exception) {
-            Log.e(TAG, "Listen error", e)
+            NetLog.e(TAG, "Listen error", e)
         }
     }
 
@@ -232,7 +272,7 @@ class TcpClient(
     private fun readPlaintext(): String {
         val inp = input ?: error("Not connected")
         val length = inp.readInt()
-        if (length > MAX_MSG_SIZE) error("Message too large: $length")
+        if (length !in 1..MAX_MSG_SIZE) error("Invalid message length: $length")
         val bytes = ByteArray(length)
         inp.readFully(bytes)
         return String(bytes)
@@ -254,7 +294,7 @@ class TcpClient(
         val crypto = sessionCrypto ?: error("No session")
         val inp = input ?: error("Not connected")
         val length = inp.readInt()
-        if (length > MAX_MSG_SIZE) error("Message too large: $length")
+        if (length !in 1..MAX_MSG_SIZE) error("Invalid message length: $length")
         val ciphertext = ByteArray(length)
         inp.readFully(ciphertext)
         val plaintext = crypto.decrypt(ciphertext)

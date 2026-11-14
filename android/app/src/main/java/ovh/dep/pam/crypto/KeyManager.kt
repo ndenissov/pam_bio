@@ -33,12 +33,23 @@ import javax.crypto.KeyGenerator
 import javax.crypto.spec.GCMParameterSpec
 
 /**
+ * Abstraction for the device's long-term signing identity so network code can
+ * be unit-tested on the JVM without AndroidKeyStore.
+ */
+interface IdentitySigner {
+    val hasKeyPair: Boolean
+    val publicKeyBase64: String?
+    fun generateKeyPair(): String
+    fun sign(data: ByteArray): String?
+}
+
+/**
  * Manages the device's Ed25519 identity keypair.
  *
  * The Ed25519 private key is generated via BouncyCastle (for broad API-level
  * compatibility) and stored encrypted with an AES key from Android KeyStore.
  */
-class KeyManager(context: Context) {
+class KeyManager(context: Context) : IdentitySigner {
 
     companion object {
         private const val KEYSTORE_ALIAS = "pambio_key_enc"
@@ -51,10 +62,10 @@ class KeyManager(context: Context) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     /** Whether an identity keypair has already been generated. */
-    val hasKeyPair: Boolean get() = prefs.contains(PREF_PUB)
+    override val hasKeyPair: Boolean get() = prefs.contains(PREF_PUB)
 
     /** Returns the public key (base64) or null if not generated. */
-    val publicKeyBase64: String? get() = prefs.getString(PREF_PUB, null)
+    override val publicKeyBase64: String? get() = prefs.getString(PREF_PUB, null)
 
     /**
      * Generates a new Ed25519 keypair, encrypts the private key with Android
@@ -62,7 +73,7 @@ class KeyManager(context: Context) {
      *
      * @return base64-encoded public key
      */
-    fun generateKeyPair(): String {
+    override fun generateKeyPair(): String {
         val generator = Ed25519KeyPairGenerator()
         generator.init(Ed25519KeyGenerationParameters(SecureRandom()))
         val keyPair = generator.generateKeyPair()
@@ -102,7 +113,7 @@ class KeyManager(context: Context) {
      *
      * @return base64-encoded signature
      */
-    fun sign(data: ByteArray): String? {
+    override fun sign(data: ByteArray): String? {
         val privKey = loadPrivateKey() ?: return null
         val signer = Ed25519Signer()
         signer.init(true, privKey)

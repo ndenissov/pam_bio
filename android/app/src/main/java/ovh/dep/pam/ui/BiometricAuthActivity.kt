@@ -66,9 +66,28 @@ class BiometricAuthActivity : AppCompatActivity() {
         const val EXTRA_SERVICE = "service"
         const val EXTRA_TIMESTAMP = "timestamp"
 
-        // Shared reference so the service can set the active TcpClient
+        // Shared references so the service can map responses by nonce (multi-PC safe)
         @Volatile
         var activeTcpClient: TcpClient? = null
+        private val clientsByNonce = java.util.concurrent.ConcurrentHashMap<String, TcpClient>()
+
+        fun registerClient(nonce: String, client: TcpClient) {
+            activeTcpClient = client
+            if (nonce.isNotBlank()) {
+                clientsByNonce[nonce] = client
+            }
+        }
+
+        fun unregisterClient(client: TcpClient) {
+            if (activeTcpClient === client) {
+                activeTcpClient = null
+            }
+            clientsByNonce.entries.removeIf { it.value === client }
+        }
+
+        fun resolveClient(nonce: String): TcpClient? {
+            return clientsByNonce.remove(nonce) ?: activeTcpClient
+        }
     }
 
     private var nonce: String = ""
@@ -121,6 +140,7 @@ class BiometricAuthActivity : AppCompatActivity() {
         // Tell the service to clear the pending request from its notification
         val intent = Intent(this, ovh.dep.pam.service.PamBioForegroundService::class.java).apply {
             action = ovh.dep.pam.service.PamBioForegroundService.ACTION_CLEAR_AUTH
+            setPackage(packageName)
         }
         try {
             startService(intent)
@@ -197,7 +217,7 @@ class BiometricAuthActivity : AppCompatActivity() {
             prefs.incrementAuthCount()
         }
 
-        val client = activeTcpClient
+        val client = resolveClient(nonce)
         if (client != null) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {

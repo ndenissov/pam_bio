@@ -130,8 +130,9 @@ fun HomeScreen(
                     onRestart = {
                         val intent = Intent(context, PamBioForegroundService::class.java).apply {
                             action = PamBioForegroundService.ACTION_RESTART
+                            setPackage(context.packageName)
                         }
-                        context.startService(intent)
+                        androidx.core.content.ContextCompat.startForegroundService(context, intent)
                     }
                 )
             }
@@ -541,10 +542,12 @@ private fun EmptyState() {
 }
 
 private fun toggleService(context: Context, enable: Boolean) {
-    val intent = Intent(context, PamBioForegroundService::class.java)
+    val intent = Intent(context, PamBioForegroundService::class.java).apply {
+        setPackage(context.packageName)
+    }
     if (enable) {
         intent.action = PamBioForegroundService.ACTION_START
-        context.startForegroundService(intent)
+        androidx.core.content.ContextCompat.startForegroundService(context, intent)
     } else {
         intent.action = PamBioForegroundService.ACTION_STOP
         context.startService(intent)

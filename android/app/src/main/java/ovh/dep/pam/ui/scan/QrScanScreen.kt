@@ -57,11 +57,16 @@ import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import ovh.dep.pam.crypto.KeyManager
+import ovh.dep.pam.data.AppPrefs
 import ovh.dep.pam.data.PairedDevice
 import ovh.dep.pam.data.PairedDeviceRepository
+import ovh.dep.pam.network.EndpointSelector
 import ovh.dep.pam.network.NsdDiscoveryManager
 import ovh.dep.pam.network.QrPairingPayload
+import ovh.dep.pam.network.QrPayloadParser
 import ovh.dep.pam.network.TcpClient
+import ovh.dep.pam.network.UdpDiscoveryManager
+import ovh.dep.pam.service.PamBioForegroundService
 import java.util.concurrent.Executors
 
 /**
@@ -368,32 +373,20 @@ fun QrScanScreen(
 // ── QR decoding ────────────────────────────────────────────
 
 private fun handleQrCodeBytes(bytes: ByteArray, json: Json, onPayload: (QrPairingPayload) -> Unit) {
-    try {
-        if (bytes.isNotEmpty() && bytes[0].toInt() in 1..bytes.size - 33) {
-            val nameLen = bytes[0].toInt()
-            val serviceName = String(bytes, 1, nameLen, Charsets.UTF_8)
-            val pubKeyBytes = bytes.copyOfRange(1 + nameLen, 1 + nameLen + 32)
-            val pubKeyBase64 = android.util.Base64.encodeToString(pubKeyBytes, android.util.Base64.NO_WRAP)
-            onPayload(QrPairingPayload(serviceName, pubKeyBase64))
-        } else {
-            // fallback to parsing json directly if it was just json bytes
-            val str = String(bytes, Charsets.UTF_8)
-            val payload = json.decodeFromString<QrPairingPayload>(str)
-            if (payload.serviceName.isNotBlank() && payload.pcPubKey.isNotBlank()) {
-                onPayload(payload)
-            }
-        }
-    } catch (e: Exception) {
-        Log.w("QrScan", "Invalid QR data bytes: ${e.message}")
+    val payload = QrPayloadParser.parseBytes(bytes, json)
+    if (payload != null) {
+        onPayload(payload)
+    } else {
+        Log.w("QrScan", "Invalid QR data bytes")
     }
 }
 
 private fun handleQrCodeText(text: String, json: Json, onPayload: (QrPairingPayload) -> Unit) {
-    try {
-        val decoded = android.util.Base64.decode(text, android.util.Base64.DEFAULT)
-        handleQrCodeBytes(decoded, json, onPayload)
-    } catch (e: Exception) {
-        Log.w("QrScan", "Invalid QR data text: ${e.message}")
+    val payload = QrPayloadParser.parseBase64Text(text, json)
+    if (payload != null) {
+        onPayload(payload)
+    } else {
+        Log.w("QrScan", "Invalid QR data text")
     }
 }
 
@@ -409,6 +402,7 @@ private suspend fun doPairing(
     onComplete: (String) -> Unit,
     onError: (String) -> Unit
 ) {
+    val udpDiscovery = UdpDiscoveryManager(listenPort = 0)
     try {
         // Ensure we have a keypair
         if (!keyManager.hasKeyPair) {
@@ -416,32 +410,50 @@ private suspend fun doPairing(
             keyManager.generateKeyPair()
         }
 
-        // Discover the service via mDNS
+        // Discover the service via UDP broadcast + mDNS in parallel
         onStatus(context.getString(R.string.searching_network, payload.serviceName))
         nsdManager.startDiscovery()
+        udpDiscovery.start()
 
         // Wait for the service to appear (up to 30 seconds)
-        var resolved: ovh.dep.pam.network.ResolvedService? = null
+        var candidates = emptyList<ovh.dep.pam.network.EndpointCandidate>()
         val startTime = System.currentTimeMillis()
+        var lastProbeMs = 0L
         while (System.currentTimeMillis() - startTime < 30_000) {
-            resolved = nsdManager.services.value[payload.serviceName]
-            if (resolved != null) break
-            kotlinx.coroutines.delay(500)
+            val now = System.currentTimeMillis()
+            if (now - lastProbeMs >= 1_000L) {
+                lastProbeMs = now
+                udpDiscovery.sendDiscover()
+            }
+            val udpMatch = udpDiscovery.findMatch(payload.serviceName, payload.pcPubKey)
+            val nsdMatch = nsdManager.services.value[payload.serviceName]
+            candidates = EndpointSelector.buildCandidates(udpMatch, nsdMatch, "", 0)
+            if (candidates.isNotEmpty()) break
+            kotlinx.coroutines.delay(200)
         }
 
-        if (resolved == null) {
+        if (candidates.isEmpty()) {
             onError(context.getString(R.string.not_found_network, payload.serviceName))
             return
         }
 
-        onStatus(context.getString(R.string.connecting_to, resolved.host, resolved.port.toString()))
-
-        // TCP connect + handshake
         val tcpClient = TcpClient(keyManager)
-        try {
-            tcpClient.connect(resolved.host, resolved.port)
-        } catch (e: Exception) {
-            onError("${context.getString(R.string.failed_connect)} (${resolved.host}:${resolved.port} - ${e.message})")
+        var connectedEndpoint: ovh.dep.pam.network.EndpointCandidate? = null
+        var lastError: Exception? = null
+        for (candidate in candidates) {
+            onStatus(context.getString(R.string.connecting_to, candidate.host, candidate.port.toString()))
+            try {
+                tcpClient.connect(candidate.host, candidate.port)
+                connectedEndpoint = candidate
+                break
+            } catch (e: Exception) {
+                lastError = e
+            }
+        }
+
+        if (connectedEndpoint == null) {
+            val first = candidates.first()
+            onError("${context.getString(R.string.failed_connect)} (${first.host}:${first.port} - ${lastError?.message})")
             return
         }
 
@@ -453,14 +465,26 @@ private suspend fun doPairing(
         tcpClient.disconnect()
 
         if (success) {
-            // Save paired device
+            // Save paired device along with last reachable host/port for instant future connections
             deviceRepo.addDevice(
                 PairedDevice(
                     serviceName = payload.serviceName,
                     pcPubKey = payload.pcPubKey,
-                    deviceName = payload.serviceName
+                    deviceName = payload.serviceName,
+                    lastHost = connectedEndpoint.host,
+                    lastPort = connectedEndpoint.port
                 )
             )
+            AppPrefs(context).serviceEnabled = true
+            val serviceIntent = android.content.Intent(context, PamBioForegroundService::class.java).apply {
+                action = PamBioForegroundService.ACTION_START
+                setPackage(context.packageName)
+            }
+            try {
+                ContextCompat.startForegroundService(context, serviceIntent)
+            } catch (e: Exception) {
+                Log.w("QrScan", "Failed to start foreground service after pairing", e)
+            }
             onComplete(payload.serviceName)
         } else {
             onError(context.getString(R.string.pairing_rejected))
@@ -468,5 +492,7 @@ private suspend fun doPairing(
     } catch (e: Exception) {
         Log.e("QrScan", "Pairing failed", e)
         onError(context.getString(R.string.error_prefix, e.message ?: "Unknown"))
+    } finally {
+        udpDiscovery.stop()
     }
 }

@@ -17,19 +17,20 @@
 
 package ovh.dep.pam.crypto
 
-import android.util.Base64
 import org.bouncycastle.crypto.agreement.X25519Agreement
 import org.bouncycastle.crypto.generators.X25519KeyPairGenerator
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters
 import org.bouncycastle.crypto.params.X25519KeyGenerationParameters
 import org.bouncycastle.crypto.params.X25519PrivateKeyParameters
 import org.bouncycastle.crypto.params.X25519PublicKeyParameters
+import org.bouncycastle.crypto.signers.Ed25519Signer
+import java.security.MessageDigest
 import java.security.SecureRandom
+import java.util.Base64
 import javax.crypto.Cipher
+import javax.crypto.Mac
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
-import java.security.MessageDigest
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec as HmacKeySpec
 
 /**
  * Handles ECDH (X25519) key exchange and AES-256-GCM session encryption.
@@ -41,9 +42,26 @@ class SessionCrypto {
         private val HKDF_SALT = "pambio-session-v1".toByteArray()
         private val HKDF_INFO = "aes-256-gcm-key".toByteArray()
         private val SID_INFO = "pambio-session-id".toByteArray()
+        const val SERVER_IDENTIFY_CONTEXT = "pambio-server-identify-v1"
         private const val AES_KEY_SIZE = 32
         private const val GCM_NONCE_SIZE = 12
         private const val GCM_TAG_BITS = 128
+
+        /** Verifies an Ed25519 signature made by a base64-encoded 32-byte public key. */
+        fun verifyEd25519(publicKeyBase64: String, message: ByteArray, signatureBase64: String): Boolean {
+            return try {
+                val pubBytes = Base64.getDecoder().decode(publicKeyBase64.trim())
+                val sigBytes = Base64.getDecoder().decode(signatureBase64.trim())
+                if (pubBytes.size != 32 || sigBytes.size != 64) return false
+                val pubParams = Ed25519PublicKeyParameters(pubBytes, 0)
+                val verifier = Ed25519Signer()
+                verifier.init(false, pubParams)
+                verifier.update(message, 0, message.size)
+                verifier.verifySignature(sigBytes)
+            } catch (_: Exception) {
+                false
+            }
+        }
     }
 
     private var privateKey: X25519PrivateKeyParameters? = null
@@ -65,7 +83,7 @@ class SessionCrypto {
     /** Returns our ephemeral public key as base64. */
     fun getPublicKeyBase64(): String {
         val pub = publicKey ?: error("Call generateEphemeralKeypair() first")
-        return Base64.encodeToString(pub.encoded, Base64.NO_WRAP)
+        return Base64.getEncoder().encodeToString(pub.encoded)
     }
 
     /**
@@ -74,7 +92,7 @@ class SessionCrypto {
      */
     fun deriveSessionKey(remotePublicKeyBase64: String) {
         val priv = privateKey ?: error("Call generateEphemeralKeypair() first")
-        val remotePubBytes = Base64.decode(remotePublicKeyBase64, Base64.NO_WRAP)
+        val remotePubBytes = Base64.getDecoder().decode(remotePublicKeyBase64.trim())
         val remotePub = X25519PublicKeyParameters(remotePubBytes, 0)
 
         // X25519 DH
@@ -83,7 +101,7 @@ class SessionCrypto {
         val sharedSecret = ByteArray(agreement.agreementSize)
         agreement.calculateAgreement(remotePub, sharedSecret, 0)
 
-        // HKDF-SHA256 → AES key
+        // HKDF-SHA256 -> AES key
         sessionKey = hkdfSha256(sharedSecret, HKDF_SALT, HKDF_INFO, AES_KEY_SIZE)
 
         // Session ID
@@ -136,7 +154,7 @@ class SessionCrypto {
 
     private fun hmacSha256(key: ByteArray, data: ByteArray): ByteArray {
         val mac = Mac.getInstance("HmacSHA256")
-        mac.init(HmacKeySpec(key, "HmacSHA256"))
+        mac.init(SecretKeySpec(key, "HmacSHA256"))
         return mac.doFinal(data)
     }
 }

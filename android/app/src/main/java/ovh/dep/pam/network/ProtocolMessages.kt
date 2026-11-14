@@ -48,7 +48,8 @@ data class IdentifyMessage(
 @Serializable
 data class IdentifyAckMessage(
     val type: String,
-    val status: String
+    val status: String,
+    @SerialName("server_sig") val serverSig: String? = null
 )
 
 @Serializable
@@ -91,6 +92,17 @@ data class PingMessage(
 data class PongMessage(
     val type: String = "pong",
     val status: String
+)
+
+// ── UDP discovery messages ─────────────────────────────────
+
+@Serializable
+data class DiscoveryMessage(
+    val type: String,
+    val v: Int = 1,
+    @SerialName("service_name") val serviceName: String = "",
+    val port: Int = 0,
+    val pk: String = ""
 )
 
 // ── QR pairing payload ────────────────────────────────────

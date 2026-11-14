@@ -37,7 +37,9 @@ data class PairedDevice(
     val serviceName: String,
     val pcPubKey: String,
     val deviceName: String = "",
-    val pairedAt: Long = System.currentTimeMillis()
+    val pairedAt: Long = System.currentTimeMillis(),
+    val lastHost: String = "",
+    val lastPort: Int = 34907
 )
 
 /**
@@ -52,13 +54,7 @@ class PairedDeviceRepository(private val context: Context) {
 
     /** Flow of all paired devices, emitted on every change. */
     val devicesFlow: Flow<List<PairedDevice>> = context.dataStore.data.map { prefs ->
-        val raw = prefs[KEY_DEVICES] ?: return@map emptyList()
-        try {
-            val list = json.decodeFromString<List<PairedDevice>>(raw)
-            list.map { it.copy(serviceName = it.serviceName.removePrefix("pambio_")) }
-        } catch (_: Exception) {
-            emptyList()
-        }
+        getDeviceList(prefs)
     }
 
     /** Adds a new paired device. */
@@ -69,6 +65,26 @@ class PairedDeviceRepository(private val context: Context) {
             current.removeAll { it.serviceName == device.serviceName }
             current.add(device)
             prefs[KEY_DEVICES] = json.encodeToString(current)
+        }
+    }
+
+    /** Remembers the latest reachable TCP endpoint for [serviceName] if changed. */
+    suspend fun updateEndpoint(serviceName: String, host: String, port: Int) {
+        if (host.isBlank() || port !in 1..65535) return
+        context.dataStore.edit { prefs ->
+            val current = getDeviceList(prefs)
+            var changed = false
+            val updated = current.map { dev ->
+                if (dev.serviceName == serviceName && (dev.lastHost != host || dev.lastPort != port)) {
+                    changed = true
+                    dev.copy(lastHost = host, lastPort = port)
+                } else {
+                    dev
+                }
+            }
+            if (changed) {
+                prefs[KEY_DEVICES] = json.encodeToString(updated)
+            }
         }
     }
 
