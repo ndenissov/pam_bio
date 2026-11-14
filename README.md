@@ -151,8 +151,9 @@ PAM Bio comes with a Nix Flake that makes installation on NixOS trivial.
         enable = true;
         enableSudoAuth = true; # Use biometrics for sudo
         enableLockScreenAuth = true; # Use biometrics for login / lock screen
-        # port = 34907;        # Set static port (default is 34907)
-        # openFirewall = true; # Open port in firewall automatically
+        # port = 34907;          # Static TCP port (default is 34907)
+        # discoveryPort = 34907; # UDP LAN discovery / knock port (default is 34907, 0 disables)
+        # openFirewall = true;   # Automatically open TCP + UDP ports in firewall (default is true)
       };
     }
     ```
@@ -175,10 +176,12 @@ You can install PAM Bio via the official APT repository hosted on GitHub Pages:
    sudo apt update
    sudo apt install pam-bio
    ```
-4. **Firewall:** Ensure the default TCP port `34907` is open on your firewall (e.g., UFW).
+4. **Firewall:** Ensure the default TCP and UDP discovery ports (`34907`) are open on your firewall (e.g., UFW).
    ```bash
    sudo ufw allow 34907/tcp
+   sudo ufw allow 34907/udp
    ```
+   *(If you run a strict outbound/multicast firewall, also allow `5353/udp` for mDNS fallback.)*
 5. Enable and start the daemon:
    ```bash
    sudo systemctl enable --now pambiod
@@ -197,8 +200,10 @@ PAM Bio fully supports Windows by integrating as a native Credential Provider, a
    ```powershell
    scoop install pambio
    ```
-3. **Firewall:** Windows Defender Firewall often blocks mDNS discovery out-of-the-box. You MUST allow inbound UDP traffic on port 5353 globally (not just for the process) so your phone can discover the PC on the local network. Run this as Administrator:
+3. **Firewall:** Windows Defender Firewall often blocks LAN discovery out-of-the-box. Allow inbound TCP `34907` (encrypted auth session) plus UDP `34907` (instant KDE-Connect-style UDP discovery & wakeup knock) and UDP `5353` (mDNS fallback) so your phone discovers and unlocks your Windows Hello alternative LogonUI screen instantaneously when you log in to Windows. Run as Administrator:
    ```powershell
+   New-NetFirewallRule -DisplayName "PAM Bio TCP" -Direction Inbound -Protocol TCP -LocalPort 34907 -Action Allow
+   New-NetFirewallRule -DisplayName "PAM Bio UDP Discovery" -Direction Inbound -Protocol UDP -LocalPort 34907 -Action Allow
    New-NetFirewallRule -DisplayName "PAM Bio mDNS" -Direction Inbound -Protocol UDP -LocalPort 5353 -Action Allow
    ```
 4. Run the pairing command from an Administrator terminal (requires your Windows password to securely store it in LSA Secrets):
@@ -231,7 +236,7 @@ sudo make install
 ```
 
 #### Configure Firewall
-By default, `pambiod` listens on TCP port `34907`. You must allow this port through your system's firewall. If you wish to use a dynamic port (by setting `port: 0` in `/etc/pambio/config.json`), you will need to allow local subnet traffic entirely.
+By default, `pambiod` listens on TCP port `34907` (control channel) and UDP port `34907` (instant LAN discovery and wakeup knock), and announces itself via mDNS (`5353/udp`). Allow `34907/tcp` and `34907/udp` (plus `5353/udp` for mDNS) through your firewall for sub-second reconnection across Linux and Windows. If you configure a dynamic port (`port: 0`), allow local subnet traffic accordingly.
 
 #### Configure PAM
 Edit your PAM configuration files (e.g., `/etc/pam.d/sudo`) and add the following line **at the top** of the `auth` section:
@@ -250,7 +255,7 @@ auth sufficient pam_bio.so
     This will display a QR code in your terminal.
 2.  **On your Android device**, open the PAM Bio app and tap **"Добавить ПК"** (Add PC).
 3.  Scan the QR code displayed on your PC screen.
-4.  Once paired, ensure the service switch in the Android app is turned on.
+4.  Once paired, the Android service starts automatically and connects within seconds (autostart on boot is enabled by default; adjust in Settings under **Start on Boot** and **Background & Battery** if your device OEM restricts background services).
 
 You can now test the integration by running a command that requires authentication, such as `sudo ls`. You should receive a biometric prompt on your phone.
 

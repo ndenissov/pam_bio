@@ -133,10 +133,16 @@
               description = "TCP port for pambiod to listen on. Set to 0 to allow the OS to assign a random port (useful for multiple instances, but requires manual firewall configuration).";
             };
 
+            discoveryPort = lib.mkOption {
+              type = lib.types.port;
+              default = 34907;
+              description = "UDP port used for fast LAN discovery and wakeup knocks (must match the Android app's discovery port 34907). Set to 0 to disable UDP discovery.";
+            };
+
             openFirewall = lib.mkOption {
               type = lib.types.bool;
               default = true;
-              description = "Whether to open the configured port in the firewall (only if port is not 0).";
+              description = "Whether to automatically open the configured TCP port and UDP discovery port in the firewall (when non-zero). Enabled by default so LAN discovery and reconnection work out of the box.";
             };
 
             showWatermark = lib.mkOption {
@@ -150,14 +156,15 @@
             # Install pambiod + pam_bio.so
             environment.systemPackages = [ pambioPkgs.pambiod ];
 
-            # Open firewall port if static port is chosen and openFirewall is true
-            networking.firewall.allowedTCPPorts = lib.mkIf (cfg.port != 0 && cfg.openFirewall) [ cfg.port ];
+            # Open firewall ports (TCP + UDP discovery) automatically when enabled
+            networking.firewall.allowedTCPPorts = lib.mkIf (cfg.openFirewall && cfg.port != 0) [ cfg.port ];
+            networking.firewall.allowedUDPPorts = lib.mkIf (cfg.openFirewall && cfg.discoveryPort != 0) [ cfg.discoveryPort ];
 
             # Systemd service
             systemd.services.pambiod = {
               description = "PamBio Daemon";
-              after = [ "network.target" "avahi-daemon.service" ];
-              wants = [ "avahi-daemon.service" ];
+              after = [ "network-online.target" "avahi-daemon.service" ];
+              wants = [ "network-online.target" "avahi-daemon.service" ];
               wantedBy = [ "multi-user.target" ];
 
               serviceConfig = {
@@ -166,6 +173,7 @@
                 Environment = [
                   "PAMBIO_CONFIG_DIR=${cfg.configDir}"
                   "PAMBIO_PORT=${toString cfg.port}"
+                  "PAMBIO_DISCOVERY_PORT=${toString cfg.discoveryPort}"
                   "PAMBIO_SHOW_WATERMARK=${if cfg.showWatermark then "1" else "0"}"
                 ];
                 Restart = "on-failure";
