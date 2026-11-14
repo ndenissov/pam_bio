@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"log"
 	"net"
+	"os"
 
 	"github.com/Microsoft/go-winio"
 	"pambio/internal/protocol"
@@ -29,22 +30,30 @@ import (
 
 const ipcSocketPath = `\\.\pipe\pambio`
 
+func resolvedIPCSocketPath() string {
+	if p := os.Getenv("PAMBIO_IPC_SOCKET"); p != "" {
+		return p
+	}
+	return ipcSocketPath
+}
+
 // DialIPC connects to the daemon IPC pipe.
 func DialIPC() (net.Conn, error) {
-	return winio.DialPipe(ipcSocketPath, nil)
+	return winio.DialPipe(resolvedIPCSocketPath(), nil)
 }
 
 func (d *Daemon) startIPC() error {
+	pipePath := resolvedIPCSocketPath()
 	// D:(A;;GA;;;BA)(A;;GA;;;SY) -> Generic All to Built-in Admins and SYSTEM.
 	cfg := &winio.PipeConfig{
 		SecurityDescriptor: "D:(A;;GA;;;BA)(A;;GA;;;SY)",
 	}
-	ln, err := winio.ListenPipe(ipcSocketPath, cfg)
+	ln, err := winio.ListenPipe(pipePath, cfg)
 	if err != nil {
 		return err
 	}
 	d.ipcListener = ln
-	log.Printf("Named Pipe: %s", ipcSocketPath)
+	log.Printf("Named Pipe: %s", pipePath)
 	return nil
 }
 
@@ -190,6 +199,7 @@ func (d *Daemon) handleUnpair(conn net.Conn, req *protocol.IPCRequest) {
 		_ = protocol.WriteJSON(conn, protocol.IPCResponse{Status: "error", Reason: err.Error()})
 		return
 	}
+	d.disconnectDeviceByName(req.Device)
 	log.Printf("Device unpaired: %s", req.Device)
 	_ = protocol.WriteJSON(conn, protocol.IPCResponse{Status: "success"})
 }

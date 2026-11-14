@@ -14,8 +14,8 @@
 
 
 // Package daemon implements the core pambiod service: TCP server for phone
-// connections, Unix socket for PAM/CLI requests, mDNS publishing, and
-// orchestration of pairing and auth flows.
+// connections, Unix socket / Named Pipe for PAM/CLI requests, mDNS & UDP
+// discovery, and orchestration of pairing and auth flows.
 package daemon
 
 import (
@@ -61,10 +61,16 @@ type PairingResult struct {
 type PhoneConnection struct {
 	conn       net.Conn
 	sessionKey []byte            // AES-256-GCM key for this session
-	deviceKey  ed25519.PublicKey  // long-term identity key of the device
+	deviceKey  ed25519.PublicKey // long-term identity key of the device
 	deviceName string
-	sessionID  []byte            // SHA-256 of the ECDH shared secret
-	mu         sync.Mutex        // guards writes to conn
+	sessionID  []byte     // SHA-256 of the ECDH shared secret
+	mu         sync.Mutex // guards writes to conn
+}
+
+type pendingAuthEntry struct {
+	ch   chan AuthResult
+	req  protocol.AuthRequestMessage
+	sent map[*PhoneConnection]struct{}
 }
 
 // Daemon is the main pambiod service.
@@ -75,16 +81,23 @@ type Daemon struct {
 	privKey   ed25519.PrivateKey
 	pubKey    ed25519.PublicKey
 
-	tcpListener net.Listener
-	ipcListener net.Listener
-	tcpPort      int
+	tcpListener   net.Listener
+	ipcListener   net.Listener
+	tcpPort       int
+	discoveryConn *net.UDPConn
+	discoveryMu   sync.Mutex
+	discoveryPort int
+	knockPort     int // UDP target port on paired phones (default 34907; overridable in tests)
+
+	mdns       mdnsPublisher
+	netChanged chan struct{}
 
 	// Connected phones keyed by base64 public key
 	phones   map[string]*PhoneConnection
 	phonesMu sync.RWMutex
 
 	// Pending auth requests keyed by nonce
-	pendingAuth map[string]chan AuthResult
+	pendingAuth map[string]*pendingAuthEntry
 	authMu      sync.Mutex
 
 	// Pairing state
@@ -103,21 +116,25 @@ func New(configDir string) (*Daemon, error) {
 		if !os.IsNotExist(err) {
 			return nil, fmt.Errorf("load config: %w", err)
 		}
-		// First run — generate identity
+		// First run — generate identity with stable default TCP port
 		pub, priv, err := crypto.GenerateEd25519Keypair()
 		if err != nil {
 			return nil, err
 		}
 		hostname, _ := os.Hostname()
 		cfg = &config.ServerConfig{
-			Hostname:    hostname,
-			ServiceName: hostname,
-			Port:        0,
-			PrivateKey:  crypto.EncodePrivateKey(priv),
-			PublicKey:   crypto.EncodePublicKey(pub),
+			Hostname:      hostname,
+			ServiceName:   hostname,
+			Port:          config.DefaultPort,
+			ShowWatermark: true,
+			PrivateKey:    crypto.EncodePrivateKey(priv),
+			PublicKey:     crypto.EncodePublicKey(pub),
 		}
 		if err := config.SaveServerConfig(configDir, cfg); err != nil {
 			return nil, fmt.Errorf("save config: %w", err)
+		}
+		if p, ok := config.PortFromEnv(); ok {
+			cfg.Port = p
 		}
 		log.Printf("Generated new identity for %s", hostname)
 	}
@@ -144,19 +161,19 @@ func New(configDir string) (*Daemon, error) {
 		devices:     devices,
 		privKey:     privKey,
 		pubKey:      pubKey,
+		knockPort:   config.DefaultDiscoveryPort,
+		netChanged:  make(chan struct{}, 1),
 		phones:      make(map[string]*PhoneConnection),
-		pendingAuth: make(map[string]chan AuthResult),
+		pendingAuth: make(map[string]*pendingAuthEntry),
 		ctx:         ctx,
 		cancel:      cancel,
 	}, nil
 }
 
-// Start binds listeners, registers the mDNS service, and begins accepting
+// Start binds listeners, registers mDNS + UDP discovery, and begins accepting
 // connections. Returns once listeners are up.
 func (d *Daemon) Start() error {
-	// TCP: bind to configured port
-	addr := fmt.Sprintf("0.0.0.0:%d", d.cfg.Port)
-	tcpLn, err := net.Listen("tcp", addr)
+	tcpLn, err := d.listenTCP()
 	if err != nil {
 		return fmt.Errorf("tcp listen: %w", err)
 	}
@@ -164,24 +181,75 @@ func (d *Daemon) Start() error {
 	d.tcpPort = tcpLn.Addr().(*net.TCPAddr).Port
 	log.Printf("TCP server on port %d", d.tcpPort)
 
-	// mDNS
-	if err := d.startMDNS(); err != nil {
-		_ = tcpLn.Close()
-		return fmt.Errorf("mdns: %w", err)
+	// mDNS (non-fatal; background watcher keeps refreshing when network changes)
+	d.startMDNS()
+
+	// UDP discovery (fast KDE-Connect-style LAN discovery + knock)
+	if err := d.startDiscovery(); err != nil {
+		log.Printf("UDP discovery disabled: %v", err)
 	}
-	log.Printf("mDNS: %s._pambio._tcp (port %d)", d.cfg.ServiceName, d.tcpPort)
 
 	// IPC socket/pipe
 	if err := d.startIPC(); err != nil {
+		d.cancel()
 		_ = tcpLn.Close()
+		d.stopDiscovery()
 		d.stopMDNS()
 		return fmt.Errorf("ipc listen: %w", err)
 	}
 
 	go d.acceptTCP()
 	go d.acceptIPC()
+	go d.initialKnock()
 
 	return nil
+}
+
+// listenTCP binds the TCP server socket. Existing configs that still have
+// port=0 are migrated to DefaultPort (34907) unless PAMBIO_PORT explicitly
+// requests 0, so restarts keep the same endpoint.
+func (d *Daemon) listenTCP() (net.Listener, error) {
+	_, envForced := config.PortFromEnv()
+	if d.cfg.Port == 0 && !envForced {
+		if ln, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", config.DefaultPort)); err == nil {
+			d.cfg.Port = config.DefaultPort
+			if err := config.PersistPort(d.configDir, config.DefaultPort); err != nil {
+				log.Printf("warning: failed to persist default port: %v", err)
+			}
+			return ln, nil
+		}
+		ln, err := net.Listen("tcp", "0.0.0.0:0")
+		if err != nil {
+			return nil, err
+		}
+		bound := ln.Addr().(*net.TCPAddr).Port
+		d.cfg.Port = bound
+		if err := config.PersistPort(d.configDir, bound); err != nil {
+			log.Printf("warning: failed to persist bound port: %v", err)
+		}
+		return ln, nil
+	}
+
+	return net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", d.cfg.Port))
+}
+
+// TCPPort returns the bound TCP port once Start has succeeded.
+func (d *Daemon) TCPPort() int {
+	return d.tcpPort
+}
+
+// DiscoveryPort returns the bound UDP discovery port (0 if disabled).
+func (d *Daemon) DiscoveryPort() int {
+	return d.discoveryPort
+}
+
+// NotifyNetworkChanged asks the mDNS watcher to re-check network interfaces
+// immediately.
+func (d *Daemon) NotifyNetworkChanged() {
+	select {
+	case d.netChanged <- struct{}{}:
+	default:
+	}
 }
 
 // Wait blocks until SIGINT/SIGTERM or context cancellation, then stops.
@@ -198,16 +266,18 @@ func (d *Daemon) Wait() {
 	d.Stop()
 }
 
-// TriggerPing sends a ping message to all connected phones to verify pairing status.
+// TriggerPing sends a ping message to all connected phones to verify connection
+// and pairing status.
 func (d *Daemon) TriggerPing() {
-	d.phonesMu.RLock()
-	defer d.phonesMu.RUnlock()
-
-	for _, phone := range d.phones {
+	for _, phone := range d.getConnectedPhones() {
 		go func(p *PhoneConnection) {
 			p.mu.Lock()
-			defer p.mu.Unlock()
-			_ = d.writeEncrypted(p.conn, p.sessionKey, protocol.PingMessage{Type: protocol.TypePing})
+			err := d.writeEncrypted(p.conn, p.sessionKey, protocol.PingMessage{Type: protocol.TypePing})
+			p.mu.Unlock()
+			if err != nil {
+				log.Printf("trigger ping to %s failed, dropping connection: %v", p.deviceName, err)
+				_ = p.conn.Close()
+			}
 		}(phone)
 	}
 }
@@ -222,6 +292,7 @@ func (d *Daemon) Stop() {
 	if d.ipcListener != nil {
 		_ = d.ipcListener.Close()
 	}
+	d.stopDiscovery()
 	d.stopMDNS()
 	d.cleanupIPC()
 
@@ -249,12 +320,23 @@ func (d *Daemon) registerPhone(key string, phone *PhoneConnection) {
 	log.Printf("Phone registered: %s", phone.deviceName)
 }
 
-func (d *Daemon) unregisterPhone(key string) {
+func (d *Daemon) unregisterPhone(key string, phone *PhoneConnection) {
 	d.phonesMu.Lock()
 	defer d.phonesMu.Unlock()
-	if p, ok := d.phones[key]; ok {
-		log.Printf("Phone unregistered: %s", p.deviceName)
+	if cur, ok := d.phones[key]; ok && cur == phone {
+		log.Printf("Phone unregistered: %s", cur.deviceName)
 		delete(d.phones, key)
+	}
+}
+
+func (d *Daemon) disconnectDeviceByName(name string) {
+	d.phonesMu.Lock()
+	defer d.phonesMu.Unlock()
+	for key, p := range d.phones {
+		if p.deviceName == name {
+			_ = p.conn.Close()
+			delete(d.phones, key)
+		}
 	}
 }
 

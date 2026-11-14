@@ -31,27 +31,35 @@ import (
 
 const ipcSocketPath = "/var/run/pambio.sock"
 
+func resolvedIPCSocketPath() string {
+	if p := os.Getenv("PAMBIO_IPC_SOCKET"); p != "" {
+		return p
+	}
+	return ipcSocketPath
+}
+
 // DialIPC connects to the daemon IPC socket.
 func DialIPC() (net.Conn, error) {
-	return net.Dial("unix", ipcSocketPath)
+	return net.Dial("unix", resolvedIPCSocketPath())
 }
 
 func (d *Daemon) startIPC() error {
-	_ = os.Remove(ipcSocketPath)
-	unixLn, err := net.Listen("unix", ipcSocketPath)
+	sockPath := resolvedIPCSocketPath()
+	_ = os.Remove(sockPath)
+	unixLn, err := net.Listen("unix", sockPath)
 	if err != nil {
 		return err
 	}
 	d.ipcListener = unixLn
-	if err := os.Chmod(ipcSocketPath, 0666); err != nil {
-		log.Printf("warning: chmod %s: %v", ipcSocketPath, err)
+	if err := os.Chmod(sockPath, 0666); err != nil {
+		log.Printf("warning: chmod %s: %v", sockPath, err)
 	}
-	log.Printf("Unix socket: %s", ipcSocketPath)
+	log.Printf("Unix socket: %s", sockPath)
 	return nil
 }
 
 func (d *Daemon) cleanupIPC() {
-	_ = os.Remove(ipcSocketPath)
+	_ = os.Remove(resolvedIPCSocketPath())
 }
 
 // ──────────────────────────────────────────────
@@ -231,6 +239,7 @@ func (d *Daemon) handleUnpair(conn net.Conn, req *protocol.IPCRequest) {
 		_ = protocol.WriteJSON(conn, protocol.IPCResponse{Status: "error", Reason: err.Error()})
 		return
 	}
+	d.disconnectDeviceByName(req.Device)
 	log.Printf("Device unpaired: %s", req.Device)
 	_ = protocol.WriteJSON(conn, protocol.IPCResponse{Status: "success"})
 }

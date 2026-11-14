@@ -89,6 +89,42 @@ type IdentifyMessage struct {
 type IdentifyAckMessage struct {
 	Type   string `json:"type"`
 	Status string `json:"status"` // "accepted" or "rejected"
+	// ServerSignature is Ed25519 sign(ServerIdentifyContext || session_id)
+	// made with the PC's long-term key. It lets the phone verify it talks to
+	// the PC it paired with (and not an impostor on the LAN). Optional for
+	// backward compatibility with older phones.
+	ServerSignature string `json:"server_sig,omitempty"`
+}
+
+// ServerIdentifyContext is the domain-separation prefix for ServerSignature.
+const ServerIdentifyContext = "pambio-server-identify-v1"
+
+// ──────────────────────────────────────────────
+// UDP discovery (plaintext JSON datagrams, no framing)
+// ──────────────────────────────────────────────
+
+// Discovery message types.
+const (
+	// TypeDiscover is broadcast by a phone looking for paired PCs.
+	TypeDiscover = "discover"
+	// TypeAnnounce is sent by a PC in reply to discover, or unsolicited to
+	// a paired phone's last known address ("knock") to make it reconnect.
+	TypeAnnounce = "announce"
+)
+
+// DiscoveryVersion is the current UDP discovery protocol version.
+const DiscoveryVersion = 1
+
+// MaxDiscoveryDatagram bounds accepted UDP discovery packets.
+const MaxDiscoveryDatagram = 2048
+
+// DiscoveryMessage is exchanged over UDP for fast LAN discovery.
+type DiscoveryMessage struct {
+	Type        string `json:"type"`
+	Version     int    `json:"v"`
+	ServiceName string `json:"service_name,omitempty"` // announce only
+	Port        int    `json:"port,omitempty"`         // announce only: TCP port
+	PublicKey   string `json:"pk,omitempty"`           // announce only: PC Ed25519 public key (base64)
 }
 
 // PairRequestMessage is sent by a new phone to pair with the PC.

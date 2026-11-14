@@ -59,7 +59,9 @@ func (d *Daemon) handleTCPConnection(conn net.Conn) {
 	}
 
 	// Step 2 — first encrypted message reveals intent
+	_ = conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 	data, err := d.readEncrypted(conn, sessionKey)
+	_ = conn.SetReadDeadline(time.Time{})
 	if err != nil {
 		log.Printf("first msg %s: %v", remote, err)
 		return
@@ -168,7 +170,7 @@ func (d *Daemon) handlePairRequest(conn net.Conn, sessionKey, data []byte) {
 		return
 	}
 
-	// Persist the device
+	// Persist the device and remember its LAN IP for fast future knocks
 	if err := d.devices.AddDevice(req.DeviceName, req.DevicePubKey); err != nil {
 		log.Printf("save device: %v", err)
 		// Still try to notify, might be a duplicate
@@ -177,6 +179,7 @@ func (d *Daemon) handlePairRequest(conn net.Conn, sessionKey, data []byte) {
 		})
 		return
 	}
+	d.recordPeerAddr(conn, req.DevicePubKey)
 
 	_ = d.writeEncrypted(conn, sessionKey, protocol.PairResponseMessage{
 		Type: protocol.TypePairResponse, Status: protocol.PairAccepted,
@@ -184,6 +187,32 @@ func (d *Daemon) handlePairRequest(conn net.Conn, sessionKey, data []byte) {
 
 	log.Printf("✓ Device paired: %s", req.DeviceName)
 	d.completePairing(req.DeviceName)
+}
+
+func (d *Daemon) recordPeerAddr(conn net.Conn, pubKey string) {
+	tcpAddr, ok := conn.RemoteAddr().(*net.TCPAddr)
+	if !ok || tcpAddr.IP == nil {
+		return
+	}
+	ip := tcpAddr.IP
+	if ip4 := ip.To4(); ip4 != nil {
+		ip = ip4
+	}
+	// Prefer routable addresses (IPv4 or non-link-local IPv6) so a transient
+	// fe80:: link-local connection never overwrites a working LAN IPv4 address.
+	if ip.To4() == nil && ip.IsLinkLocalUnicast() {
+		return
+	}
+	if err := d.devices.RecordAddr(pubKey, ip.String()); err != nil {
+		log.Printf("record addr: %v", err)
+	}
+}
+
+func (d *Daemon) signServerIdentify(sessionID []byte) string {
+	payload := make([]byte, 0, len(protocol.ServerIdentifyContext)+len(sessionID))
+	payload = append(payload, protocol.ServerIdentifyContext...)
+	payload = append(payload, sessionID...)
+	return crypto.Sign(d.privKey, payload)
 }
 
 // ──────────────────────────────────────────────
@@ -197,11 +226,15 @@ func (d *Daemon) handleIdentify(conn net.Conn, sessionKey, sessionID, data []byt
 		return
 	}
 
+	serverSig := d.signServerIdentify(sessionID)
+
 	device := d.devices.FindByPublicKey(msg.DevicePubKey)
 	if device == nil {
 		log.Printf("unknown device key: %.20s…", msg.DevicePubKey)
 		_ = d.writeEncrypted(conn, sessionKey, protocol.IdentifyAckMessage{
-			Type: protocol.TypeIdentifyAck, Status: "rejected",
+			Type:            protocol.TypeIdentifyAck,
+			Status:          "rejected",
+			ServerSignature: serverSig,
 		})
 		return
 	}
@@ -215,14 +248,20 @@ func (d *Daemon) handleIdentify(conn net.Conn, sessionKey, sessionID, data []byt
 	if !crypto.Verify(devicePub, sessionID, msg.Signature) {
 		log.Printf("invalid identify proof from %s", device.DeviceName)
 		_ = d.writeEncrypted(conn, sessionKey, protocol.IdentifyAckMessage{
-			Type: protocol.TypeIdentifyAck, Status: "rejected",
+			Type:            protocol.TypeIdentifyAck,
+			Status:          "rejected",
+			ServerSignature: serverSig,
 		})
 		return
 	}
 
 	_ = d.writeEncrypted(conn, sessionKey, protocol.IdentifyAckMessage{
-		Type: protocol.TypeIdentifyAck, Status: "accepted",
+		Type:            protocol.TypeIdentifyAck,
+		Status:          "accepted",
+		ServerSignature: serverSig,
 	})
+
+	d.recordPeerAddr(conn, msg.DevicePubKey)
 
 	phone := &PhoneConnection{
 		conn:       conn,
@@ -234,10 +273,36 @@ func (d *Daemon) handleIdentify(conn net.Conn, sessionKey, sessionID, data []byt
 
 	pubKeyStr := crypto.EncodePublicKey(devicePub)
 	d.registerPhone(pubKeyStr, phone)
-	defer d.unregisterPhone(pubKeyStr)
+	defer d.unregisterPhone(pubKeyStr, phone)
+
+	// Re-deliver any in-flight auth requests that arrived during a brief
+	// disconnect/reconnect window.
+	d.deliverPendingAuths(phone)
 
 	// Block here — listen for auth responses until the connection drops
 	d.listenForAuthResponses(phone)
+}
+
+func (d *Daemon) deliverPendingAuths(phone *PhoneConnection) {
+	d.authMu.Lock()
+	var reqs []protocol.AuthRequestMessage
+	for _, entry := range d.pendingAuth {
+		if _, already := entry.sent[phone]; !already {
+			entry.sent[phone] = struct{}{}
+			reqs = append(reqs, entry.req)
+		}
+	}
+	d.authMu.Unlock()
+
+	for _, req := range reqs {
+		phone.mu.Lock()
+		err := d.writeEncrypted(phone.conn, phone.sessionKey, req)
+		phone.mu.Unlock()
+		if err != nil {
+			log.Printf("re-deliver auth to %s: %v", phone.deviceName, err)
+			return
+		}
+	}
 }
 
 // listenForAuthResponses reads messages from the phone until disconnect.
@@ -314,7 +379,7 @@ func (d *Daemon) listenForAuthResponses(phone *PhoneConnection) {
 // biometric signature.
 func (d *Daemon) handleAuthResponse(phone *PhoneConnection, resp *protocol.AuthResponseMessage) {
 	d.authMu.Lock()
-	ch, ok := d.pendingAuth[resp.Nonce]
+	entry, ok := d.pendingAuth[resp.Nonce]
 	if ok {
 		delete(d.pendingAuth, resp.Nonce)
 	}
@@ -326,31 +391,67 @@ func (d *Daemon) handleAuthResponse(phone *PhoneConnection, resp *protocol.AuthR
 	}
 
 	if resp.Status != protocol.StatusApproved {
-		ch <- AuthResult{Success: false, Reason: "denied by user"}
+		entry.ch <- AuthResult{Success: false, Reason: "denied by user"}
 		return
 	}
 
 	// Verify the Ed25519 signature over the nonce
 	if !crypto.Verify(phone.deviceKey, []byte(resp.Nonce), resp.Signature) {
 		log.Printf("invalid auth signature from %s", phone.deviceName)
-		ch <- AuthResult{Success: false, Reason: "invalid signature"}
+		entry.ch <- AuthResult{Success: false, Reason: "invalid signature"}
 		return
 	}
 
-	ch <- AuthResult{Success: true}
+	entry.ch <- AuthResult{Success: true}
 }
 
 // sendAuthRequest broadcasts an auth challenge to all connected phones and
 // waits for the first valid response.
 func (d *Daemon) sendAuthRequest(user, service string) AuthResult {
+	if len(d.devices.GetAll()) == 0 {
+		return AuthResult{Success: false, Reason: "no paired devices"}
+	}
+
+	nonce := crypto.GenerateNonce()
+	req := protocol.AuthRequestMessage{
+		Type:      protocol.TypeAuthRequest,
+		Nonce:     nonce,
+		Timestamp: time.Now().UnixMilli(),
+		User:      user,
+		Service:   service,
+	}
+
+	ch := make(chan AuthResult, 1)
+	entry := &pendingAuthEntry{
+		ch:   ch,
+		req:  req,
+		sent: make(map[*PhoneConnection]struct{}),
+	}
+	d.authMu.Lock()
+	d.pendingAuth[nonce] = entry
+	d.authMu.Unlock()
+
+	defer func() {
+		d.authMu.Lock()
+		delete(d.pendingAuth, nonce)
+		d.authMu.Unlock()
+	}()
+
 	phones := d.getConnectedPhones()
 	if len(phones) == 0 {
-		if len(d.devices.GetAll()) == 0 {
-			return AuthResult{Success: false, Reason: "no paired devices"}
-		}
-		log.Printf("No phones connected, waiting up to 3s for reconnection...")
-		for i := 0; i < 15; i++ {
-			time.Sleep(200 * time.Millisecond)
+		log.Printf("No phones connected, knocking paired devices and waiting up to 3s for reconnection...")
+		go d.knockPairedDevices()
+		for i := 0; i < 30; i++ {
+			if i == 10 {
+				go d.knockPairedDevices()
+			}
+			select {
+			case result := <-ch:
+				return result
+			case <-d.ctx.Done():
+				return AuthResult{Success: false, Reason: "daemon stopping"}
+			case <-time.After(100 * time.Millisecond):
+			}
 			phones = d.getConnectedPhones()
 			if len(phones) > 0 {
 				break
@@ -361,41 +462,43 @@ func (d *Daemon) sendAuthRequest(user, service string) AuthResult {
 		}
 	}
 
-	nonce := crypto.GenerateNonce()
-
-	ch := make(chan AuthResult, 1)
-	d.authMu.Lock()
-	d.pendingAuth[nonce] = ch
-	d.authMu.Unlock()
-
-	defer func() {
-		d.authMu.Lock()
-		delete(d.pendingAuth, nonce)
-		d.authMu.Unlock()
-	}()
-
-	req := protocol.AuthRequestMessage{
-		Type:      protocol.TypeAuthRequest,
-		Nonce:     nonce,
-		Timestamp: time.Now().UnixMilli(),
-		User:      user,
-		Service:   service,
-	}
-
-	sent := 0
+	sentCount := 0
 	for _, p := range phones {
+		d.authMu.Lock()
+		_, alreadySent := entry.sent[p]
+		if !alreadySent {
+			entry.sent[p] = struct{}{}
+		}
+		d.authMu.Unlock()
+		if alreadySent {
+			sentCount++
+			continue
+		}
+
 		p.mu.Lock()
 		err := d.writeEncrypted(p.conn, p.sessionKey, req)
 		p.mu.Unlock()
 		if err != nil {
 			log.Printf("send auth to %s: %v", p.deviceName, err)
+			_ = p.conn.Close()
 			continue
 		}
-		sent++
+		sentCount++
 	}
 
-	if sent == 0 {
-		return AuthResult{Success: false, Reason: "failed to reach any phone"}
+	if sentCount == 0 {
+		// All existing connections were stale; knock and give phones 3s to reconnect.
+		go d.knockPairedDevices()
+		grace := time.NewTimer(3 * time.Second)
+		defer grace.Stop()
+		select {
+		case result := <-ch:
+			return result
+		case <-grace.C:
+			return AuthResult{Success: false, Reason: "failed to reach any phone"}
+		case <-d.ctx.Done():
+			return AuthResult{Success: false, Reason: "daemon stopping"}
+		}
 	}
 
 	select {

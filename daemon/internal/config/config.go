@@ -39,7 +39,97 @@ const (
 	DefaultConfigDir     = "/etc/pambio"
 	configFile           = "config.json"
 	pairedDevicesFile    = "paired_devices.json"
+
+	// DefaultPort is the well-known TCP port used when the config does not
+	// pin a specific one. Keeping the port stable across restarts is
+	// essential: phones cache the last known endpoint (and Android's mDNS
+	// cache keeps SRV records for a long time), so a random port on every
+	// restart caused multi-minute reconnection delays.
+	DefaultPort = 34907
+
+	// DefaultDiscoveryPort is the UDP port used for the lightweight
+	// broadcast/unicast discovery protocol (KDE Connect style). It works
+	// even on networks where multicast DNS is filtered.
+	DefaultDiscoveryPort = 34907
+
+	// maxLastAddrs bounds how many recent phone addresses are remembered.
+	maxLastAddrs = 4
 )
+
+// PortFromEnv returns the PAMBIO_PORT override, if set and valid.
+func PortFromEnv() (int, bool) {
+	envPort := os.Getenv("PAMBIO_PORT")
+	if envPort == "" {
+		return 0, false
+	}
+	p, err := strconv.Atoi(envPort)
+	if err != nil || p < 0 || p > 65535 {
+		return 0, false
+	}
+	return p, true
+}
+
+// DiscoveryPortFromEnv returns the UDP discovery port, honouring the
+// PAMBIO_DISCOVERY_PORT override (0 disables UDP discovery).
+func DiscoveryPortFromEnv() int {
+	if v := os.Getenv("PAMBIO_DISCOVERY_PORT"); v != "" {
+		if p, err := strconv.Atoi(v); err == nil && p >= 0 && p <= 65535 {
+			return p
+		}
+	}
+	return DefaultDiscoveryPort
+}
+
+// PersistPort stores the TCP port in config.json without touching any other
+// field (unknown fields and formatting of values are preserved).
+func PersistPort(configDir string, port int) error {
+	path := filepath.Join(configDir, configFile)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return fmt.Errorf("parse %s: %w", configFile, err)
+	}
+	raw["port"] = json.RawMessage(strconv.Itoa(port))
+	out, err := json.MarshalIndent(raw, "", "  ")
+	if err != nil {
+		return err
+	}
+	return writeFileAtomic(path, out, 0600)
+}
+
+// writeFileAtomic writes data to a temp file and renames it over path so a
+// crash or power loss never leaves a truncated config behind.
+func writeFileAtomic(path string, data []byte, perm os.FileMode) error {
+	dir := filepath.Dir(path)
+	tmp, err := os.CreateTemp(dir, ".tmp-"+filepath.Base(path)+"-*")
+	if err != nil {
+		return err
+	}
+	tmpName := tmp.Name()
+	cleanup := func() { _ = os.Remove(tmpName) }
+	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		cleanup()
+		return err
+	}
+	if err := tmp.Chmod(perm); err != nil {
+		_ = tmp.Close()
+		cleanup()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		cleanup()
+		return err
+	}
+	if err := os.Rename(tmpName, path); err != nil {
+		cleanup()
+		return err
+	}
+	return nil
+}
 
 // ──────────────────────────────────────────────
 // Server config
@@ -67,10 +157,8 @@ func LoadServerConfig(configDir string) (*ServerConfig, error) {
 	}
 	cfg.ServiceName = strings.TrimPrefix(cfg.ServiceName, "pambio_")
 
-	if envPort := os.Getenv("PAMBIO_PORT"); envPort != "" {
-		if p, err := strconv.Atoi(envPort); err == nil {
-			cfg.Port = p
-		}
+	if p, ok := PortFromEnv(); ok {
+		cfg.Port = p
 	}
 
 	// Default watermark to true unless explicitly disabled
@@ -99,7 +187,7 @@ func SaveServerConfig(configDir string, cfg *ServerConfig) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(configDir, configFile), data, 0600)
+	return writeFileAtomic(filepath.Join(configDir, configFile), data, 0600)
 }
 
 // ──────────────────────────────────────────────
@@ -111,6 +199,10 @@ type PairedDevice struct {
 	DeviceName string `json:"device_name"`
 	PublicKey  string `json:"public_key"` // base64 Ed25519 public key
 	PairedAt   int64  `json:"paired_at"`  // unix timestamp
+	// LastAddrs holds the most recent IP addresses (most recent first) the
+	// phone connected from. The daemon uses them to "knock" the phone over
+	// UDP so it reconnects immediately after a PC/daemon restart.
+	LastAddrs []string `json:"last_addrs,omitempty"`
 }
 
 // PairedDevicesStore is a thread-safe store for paired devices backed by a
@@ -155,7 +247,36 @@ func (s *PairedDevicesStore) save() error {
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		return err
 	}
-	return os.WriteFile(s.path, data, 0600)
+	return writeFileAtomic(s.path, data, 0600)
+}
+
+// RecordAddr remembers ip as the most recent address of the device with the
+// given public key. It is a no-op (and does not touch the disk) when the
+// address is already the most recent one.
+func (s *PairedDevicesStore) RecordAddr(pubKey, ip string) error {
+	if ip == "" {
+		return nil
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for i := range s.Devices {
+		d := &s.Devices[i]
+		if d.PublicKey != pubKey {
+			continue
+		}
+		if len(d.LastAddrs) > 0 && d.LastAddrs[0] == ip {
+			return nil
+		}
+		addrs := []string{ip}
+		for _, a := range d.LastAddrs {
+			if a != ip && len(addrs) < maxLastAddrs {
+				addrs = append(addrs, a)
+			}
+		}
+		d.LastAddrs = addrs
+		return s.save()
+	}
+	return fmt.Errorf("device not found")
 }
 
 // AddDevice registers a new paired device. It removes any existing device
@@ -195,6 +316,14 @@ func (s *PairedDevicesStore) RemoveDevice(name string) error {
 	return fmt.Errorf("device not found: %s", name)
 }
 
+// clonePairedDevice returns a deep copy of d so callers cannot alias LastAddrs.
+func clonePairedDevice(d PairedDevice) PairedDevice {
+	if len(d.LastAddrs) > 0 {
+		d.LastAddrs = append([]string(nil), d.LastAddrs...)
+	}
+	return d
+}
+
 // FindByPublicKey looks up a device by its base64-encoded public key.
 // Returns nil if not found.
 func (s *PairedDevicesStore) FindByPublicKey(pubKey string) *PairedDevice {
@@ -203,7 +332,8 @@ func (s *PairedDevicesStore) FindByPublicKey(pubKey string) *PairedDevice {
 
 	for i := range s.Devices {
 		if s.Devices[i].PublicKey == pubKey {
-			return &s.Devices[i]
+			dev := clonePairedDevice(s.Devices[i])
+			return &dev
 		}
 	}
 	return nil
@@ -215,6 +345,8 @@ func (s *PairedDevicesStore) GetAll() []PairedDevice {
 	defer s.mu.RUnlock()
 
 	out := make([]PairedDevice, len(s.Devices))
-	copy(out, s.Devices)
+	for i, d := range s.Devices {
+		out[i] = clonePairedDevice(d)
+	}
 	return out
 }

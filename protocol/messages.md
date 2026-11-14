@@ -109,3 +109,28 @@ These messages are used for communication between the PAM module/CLI and the `pa
   "status": "success" // or "denied", "error"
 }
 ```
+
+## 6. LAN UDP Discovery & Wakeup Knock (UDP Port 34907)
+
+To achieve sub-second connection and reconnection without relying solely on Android mDNS cache TTLs or Link-Local IPv6, both `pambiod` (Linux/Windows) and the Android app speak lightweight unauthenticated discovery JSON datagrams over UDP port `34907` (strictly capped at 2048 bytes per datagram; all authentication and trust still happen exclusively over the ECDH + Ed25519 TLS-free TCP session).
+
+### `discover` (Phone -> PC LAN broadcast / cached unicast)
+```json
+{
+  "type": "discover",
+  "v": 1
+}
+```
+
+### `announce` (PC -> Phone reply OR unsolicited wakeup knock on startup / network change / pending auth)
+```json
+{
+  "type": "announce",
+  "v": 1,
+  "service_name": "pambio_hostname",
+  "port": 34907,
+  "pk": "<Base64-encoded PC Ed25519 Public Key>"
+}
+```
+
+- When receiving `announce`, the phone connects directly to the UDP packet's source IPv4/IPv6 address and `port`, then authenticates the server during the encrypted TCP handshake (`identify_ack.server_sig` signs `"pambio-server-identify-v1" || session_id` with the PC's Ed25519 identity key).
