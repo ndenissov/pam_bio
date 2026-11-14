@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.0]
+
+### Added
+- **Fast KDE-Connect-style UDP Discovery & Wakeup Knock (UDP 34907):** Added a dedicated UDP discovery listener and proactive wakeup "knock" mechanism in `pambiod` (Linux & Windows) and Android `UdpDiscoveryManager`. Phones now broadcast `discover` probes and cache verified PC LAN endpoints, while PCs send unsolicited `announce` packets on daemon startup, network changes, mDNS refresh, and pending auth requests — enabling sub-second connection and reconnection for Linux PAM and Windows Hello alternative LogonUI unlock.
+- **Autostart on Boot (Enabled by Default):** Added `BootReceiver` (`BOOT_COMPLETED`, `MY_PACKAGE_REPLACED`, `QUICKBOOT_POWERON`) backed by `BootStartPolicy` so Android automatically starts the background listener after device reboot or app update whenever paired PCs exist, configurable via a new **Start on Boot** toggle in Settings (`Service` defaults to enabled).
+- **Play-Compliant Battery Optimization Shortcut:** Added a **Background & Battery** item in Settings linking users to Android's battery optimization settings without requesting restricted permissions.
+- **Automated Test Suite & CI:** Added Go unit + end-to-end race-checked tests (`internal/crypto`, `internal/config`, `internal/protocol`, `internal/daemon`), Android JVM unit tests (`SessionCryptoTest`, `ProtocolAndDiscoveryTest`, `ConnectionPolicyTest`), `./scripts/test-all.sh`, and `.github/workflows/ci.yml`.
+
+### Changed & Fixed
+- **Stable Static Daemon Port (TCP 34907):** Migrated legacy `port: 0` server configs to persistent `34907` (`PersistPort`) so daemon or PC restarts keep the same endpoint across mDNS, UDP, and cached connections.
+- **Continuous mDNS Interface Watcher:** Refactored `pambiod` mDNS publishing to monitor active network interfaces and IP addresses every 10s, send goodbye packets on address changes, re-register cleanly, and trigger UDP wakeup knocks across Linux and Windows.
+- **Reliable Android Multi-PC Reconnect & Endpoint Ranking:** Replaced single-client discovery state with per-device coroutine supervisors, active `WifiManager.MulticastLock` while disconnected devices exist, `ConnectivityManager.NetworkCallback` immediate reconnect nudges, async-safe `NsdDiscoveryManager` resolve queueing, IPv4-first endpoint ranking (`EndpointSelector`, avoiding slow `fe80::` link-local IPv6 timeouts), and cryptographic `server_sig` verification before trusting rejection responses.
+- **Systemd & NixOS Startup Ordering & Firewall:** Ordered `pambiod.service` after `network-online.target`, added `services.pambio.discoveryPort` (default `34907`, `0` disables) in `flake.nix`, and automatically opened UDP discovery alongside TCP in `networking.firewall` when `openFirewall = true` (default).
+
 ## [0.33.4]
 * feat(android): add first-launch Privacy Policy prompt dialog compliant with AppGallery and Google Play regulations
 * feat(android): add Chinese privacy policy translation and locale-aware policy viewing

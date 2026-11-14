@@ -1,5 +1,5 @@
 Package: pam-bio
-Version: 0.33.4
+Version: 0.34.0
 Section: admin
 Priority: optional
 Architecture: amd64
