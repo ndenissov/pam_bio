@@ -1,6 +1,9 @@
 package ovh.dep.pam.ui.settings
 
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
@@ -9,10 +12,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
@@ -51,11 +56,14 @@ fun SettingsScreen(
         val prefs = remember { ovh.dep.pam.data.AppPrefs(context) }
         var requireBiometric by remember { mutableStateOf(prefs.requireBiometricOnStart) }
         var disableScreenshots by remember { mutableStateOf(prefs.disableScreenshots) }
+        var autoStartOnBoot by remember { mutableStateOf(prefs.autoStartOnBoot) }
         var enableTimer by remember { mutableStateOf(prefs.enableServiceTimer) }
         var startHour by remember { mutableStateOf(prefs.timerStartHour) }
         var startMinute by remember { mutableStateOf(prefs.timerStartMinute) }
         var stopHour by remember { mutableStateOf(prefs.timerStopHour) }
         var stopMinute by remember { mutableStateOf(prefs.timerStopMinute) }
+        val powerManager = remember { context.getSystemService(Context.POWER_SERVICE) as PowerManager }
+        val isIgnoringBatteryOpt = remember { powerManager.isIgnoringBatteryOptimizations(context.packageName) }
 
         Column(
             modifier = Modifier
@@ -83,6 +91,40 @@ fun SettingsScreen(
                 onCheckedChange = { 
                     disableScreenshots = it
                     prefs.disableScreenshots = it 
+                }
+            )
+
+            HorizontalDivider()
+
+            SwitchSettingsItem(
+                icon = Icons.Filled.PowerSettingsNew,
+                title = stringResource(R.string.settings_autostart_title),
+                subtitle = stringResource(R.string.settings_autostart_desc),
+                checked = autoStartOnBoot,
+                onCheckedChange = {
+                    autoStartOnBoot = it
+                    prefs.autoStartOnBoot = it
+                }
+            )
+
+            SettingsItem(
+                icon = Icons.Filled.BatteryChargingFull,
+                title = stringResource(R.string.settings_battery_title),
+                subtitle = if (isIgnoringBatteryOpt) {
+                    stringResource(R.string.settings_battery_unrestricted)
+                } else {
+                    stringResource(R.string.settings_battery_restricted)
+                },
+                onClick = {
+                    val batteryIntent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                    try {
+                        context.startActivity(batteryIntent)
+                    } catch (_: Exception) {
+                        val detailsIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.parse("package:${context.packageName}")
+                        }
+                        context.startActivity(detailsIntent)
+                    }
                 }
             )
 

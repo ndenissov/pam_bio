@@ -124,4 +124,9 @@
     <string name="privacy_policy_read_btn">阅读隐私政策</string>
     <string name="privacy_policy_agree_btn">同意并继续</string>
     <string name="privacy_policy_btn">隐私政策</string>
+    <string name="settings_autostart_title">开机自启动</string>
+    <string name="settings_autostart_desc">当存在已配对的电脑时，手机重启后自动启动后台服务</string>
+    <string name="settings_battery_title">后台运行与电池优化</string>
+    <string name="settings_battery_unrestricted">已关闭电池优化——后台连接稳定</string>
+    <string name="settings_battery_restricted">建议将电池使用设为“无限制”，以防止系统阻止开机自启或后台重连</string>
 </resources>

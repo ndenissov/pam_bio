@@ -123,4 +123,9 @@
     <string name="privacy_policy_read_btn">Прочитать политику</string>
     <string name="privacy_policy_agree_btn">Принять и продолжить</string>
     <string name="privacy_policy_btn">Политика конфиденциальности</string>
+    <string name="settings_autostart_title">Автозапуск после перезагрузки</string>
+    <string name="settings_autostart_desc">Автоматически запускать службу при включении телефона, если есть спаренные ПК</string>
+    <string name="settings_battery_title">Работа в фоне и батарея</string>
+    <string name="settings_battery_unrestricted">Ограничения энергосбережения отключены — стабильный фон</string>
+    <string name="settings_battery_restricted">Рекомендуется выбрать «Без ограничений» в настройках батареи для стабильного автозапуска и переподключения</string>
 </resources>

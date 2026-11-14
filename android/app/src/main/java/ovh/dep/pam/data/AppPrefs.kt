@@ -16,8 +16,12 @@ class AppPrefs(context: Context) {
         set(value) = prefs.edit().putBoolean("github_starred", value).apply()
 
     var serviceEnabled: Boolean
-        get() = prefs.getBoolean("service_enabled", false)
+        get() = prefs.getBoolean("service_enabled", true)
         set(value) = prefs.edit().putBoolean("service_enabled", value).apply()
+
+    var autoStartOnBoot: Boolean
+        get() = prefs.getBoolean("auto_start_on_boot", true)
+        set(value) = prefs.edit().putBoolean("auto_start_on_boot", value).apply()
 
     var githubClicked: Boolean
         get() = prefs.getBoolean("github_clicked", false)

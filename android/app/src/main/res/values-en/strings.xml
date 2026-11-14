@@ -123,4 +123,9 @@
     <string name="privacy_policy_read_btn">Read Policy</string>
     <string name="privacy_policy_agree_btn">Agree &amp; Continue</string>
     <string name="privacy_policy_btn">Privacy Policy</string>
+    <string name="settings_autostart_title">Start on Boot</string>
+    <string name="settings_autostart_desc">Automatically start the background service after phone reboot when paired PCs exist</string>
+    <string name="settings_battery_title">Background &amp; Battery</string>
+    <string name="settings_battery_unrestricted">Battery optimization is disabled — reliable background sync</string>
+    <string name="settings_battery_restricted">Set battery usage to Unrestricted to prevent the OS from blocking boot autostart or background reconnection</string>
 </resources>
