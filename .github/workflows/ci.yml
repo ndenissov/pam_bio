@@ -1,0 +1,65 @@
+name: CI Verification
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  go-and-pam:
+    name: Go Daemon Tests & PAM Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: daemon/go.mod
+
+      - name: Install PAM headers and MinGW
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpam0g-dev build-essential mingw-w64 cmake
+
+      - name: Go vet, race tests, and cross-platform builds
+        working-directory: daemon
+        run: |
+          go vet ./...
+          GOOS=windows go vet ./...
+          go test -race -v -count=1 ./...
+          go build -o /tmp/pambiod ./cmd/pambiod
+          GOOS=windows go build -o /tmp/pambiod.exe ./cmd/pambiod
+
+      - name: Build PAM C module
+        run: make -C pam clean all
+
+      - name: Build Windows Credential Provider
+        run: |
+          cmake -B windows_cp/build -S windows_cp -DCMAKE_TOOLCHAIN_FILE=windows_cp/toolchain-mingw.cmake
+          cmake --build windows_cp/build
+
+  android:
+    name: Android Unit Tests, Lint & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x android/gradlew
+
+      - name: Run unit tests, compile androidTest, lint, and build debug APK
+        working-directory: android
+        run: ./gradlew testDebugUnitTest compileDebugAndroidTestKotlin lintDebug assembleDebug --no-daemon --stacktrace
+
