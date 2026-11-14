@@ -39,7 +39,7 @@ jobs:
 
       - name: Build Windows Credential Provider
         run: |
-          cmake -B windows_cp/build -S windows_cp -DCMAKE_TOOLCHAIN_FILE=windows_cp/toolchain-mingw.cmake
+          cmake -B windows_cp/build -S windows_cp -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++
           cmake --build windows_cp/build
 
   android:
